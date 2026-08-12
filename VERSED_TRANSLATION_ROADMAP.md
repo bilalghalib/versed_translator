@@ -53,7 +53,7 @@ through existing producer/consumer paths. The factory never depends on lab inter
 Checkpoints:
 1. [AGENT] git init, docs committed, private repo created and pushed. *(done 2026-08-12)*
 2. [AGENT] Scaffold package layout + CI. *(done 2026-08-12 — src/versed_translator with 6 subpackages, stub CLIs, 10 smoke tests, ruff, GH Actions)*
-3. [AGENT] Status dashboard: `tools/build_dashboard.py` (stdlib-only) parses this doc + experiments ledger + git log → self-contained `dashboard/index.html`. Live at **https://versed.wayway.ai/translator/** (served from the versed docroot — no config change needed) with a tailnet copy at `/Volumes/hikma/versed-translator/dashboard/index.html`. Rebuild+redeploy after any status change: `make -f tools/dashboard.mk dashboard` then `tools/deploy_dashboard.sh`. *(done 2026-08-12)*
+3. [AGENT] Status dashboard: `tools/build_dashboard.py` (stdlib-only) parses this doc + experiments ledger + git log → self-contained `docs/index.html`. Live at **https://bilalghalib.github.io/versed_translator/** (GitHub Pages from `main:/docs` — refreshes on every push) with a tailnet copy at `/Volumes/hikma/versed-translator/dashboard/index.html` (refresh via `tools/deploy_dashboard.sh`). Rebuild after any status change: `make -f tools/dashboard.mk dashboard`, commit, push. *(done 2026-08-12; note: versed.wayway.ai routes straight to the uvicorn worker app, so no static path exists there without touching factory code — hence Pages)*
 4. ~~GitHub Actions billing-blocked~~ → resolved by D0: public repos get free Actions. *(2026-08-12)*
 5. **D0 — DECIDED 2026-08-12: public.** Sensitive material scrubbed before the flip (private strategy conversation removed from the tree; server/network identifiers redacted; git history squashed). Benchmark contamination policy (D1c) still applies: the held-out split never enters this repo.
 
@@ -61,8 +61,8 @@ Workspace (see `src/versed_translator/paths.py`, env-overridable):
 - `/Volumes/Nodes/versed-translator/{scratch,models,corpus-cache}` — local fast disk (2.0TB free).
 - `/Volumes/hikma/versed-translator/` — 11TB network share (nautilus via Tailscale), also mounted on the wayway server at `/mnt/hikma`. **OpenITI corpus already present at `/Volumes/hikma/OpenITI`.** Quirk: the local SMB mount cannot create dirs at share root — create dirs via `ssh wayway`.
 
-**STATUS:** COMPLETE 2026-08-12 — repo public, CI free, scaffold green, dashboard live at versed.wayway.ai/translator/.
-**NEXT DEPENDENCY:** none. C1 and C6 are unblocked.
+**STATUS:** COMPLETE 2026-08-12 — repo public, CI free, scaffold green, dashboard live at bilalghalib.github.io/versed_translator.
+**NEXT DEPENDENCY:** none. C1 and C6 are unblocked. Model acquisition prep: quantized TranslateGemma 12B/4B already in local Ollama (dev use); full-precision `google/translategemma-{27b,12b,4b}-it` are **gated on HF — [HUMAN] accept the license once** on each model page (account: bilalghalib), then `tools/fetch_models.sh` archives them to local scratch + hikma.
 
 ---
 

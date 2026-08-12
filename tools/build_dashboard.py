@@ -26,7 +26,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROADMAP_PATH = REPO_ROOT / "VERSED_TRANSLATION_ROADMAP.md"
 EXPERIMENTS_PATH = REPO_ROOT / "TRANSLATION_EXPERIMENTS.md"
-DASHBOARD_DIR = REPO_ROOT / "dashboard"
+DASHBOARD_DIR = REPO_ROOT / "docs"  # served by GitHub Pages (main:/docs)
 
 ROOT_DOCS = [
     "VERSED_TRANSLATION_ROADMAP.md",

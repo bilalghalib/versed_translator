@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-12T14:38:36.429143+00:00",
+  "generated_at": "2026-08-12T14:46:21.226427+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
       "id": "C0",
       "name": "Lab repo stood up",
       "end_state": "`bilalghalib/versed_translator` on GitHub;",
-      "next_dependency": "none. C1 and C6 are unblocked.",
+      "next_dependency": "none. C1 and C6 are unblocked. Model acquisition prep: quantized TranslateGemma 12B/4B already in local Ollama (dev use); full-precision `google/translategemma-{27b,12b,4b}-it` are **gated on HF \u2014 [HUMAN] accept the license once** on each model page (account: bilalghalib), then `tools/fetch_models.sh` archives them to local scratch + hikma.",
       "status": "COMPLETE"
     },
     {
@@ -176,22 +176,14 @@
   ],
   "recent_commits": [
     {
-      "subject": "Correct dashboard hosting reality; dashboard live on hikma; note Actions billing block",
-      "relative_date": "10 minutes ago"
-    },
-    {
-      "subject": "C0: package scaffold, CI, smoke tests, status dashboard + deploy script",
-      "relative_date": "15 minutes ago"
-    },
-    {
-      "subject": "Founding docs: master plan, architecture snapshot, end-state roadmap, experiment ledger",
-      "relative_date": "39 minutes ago"
+      "subject": "Versed Translate lab: founding docs, C0 scaffold, status dashboard",
+      "relative_date": "6 minutes ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-12T14:37:55.360924+00:00"
+      "mtime": "2026-08-12T14:45:57.419596+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
@@ -203,7 +195,7 @@
     },
     {
       "name": "VERSED_TRANSLATION_ARCHITECTURE.md",
-      "mtime": "2026-08-12T14:37:35.716318+00:00"
+      "mtime": "2026-08-12T14:46:02.373423+00:00"
     }
   ],
   "gaps": []

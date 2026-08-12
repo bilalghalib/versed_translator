@@ -31,3 +31,6 @@ node_modules/
 
 # Private strategy notes stay local
 Translating OpenITI Efficiently.md
+
+# Outbound drafts stay local until sent
+OPENITI_LETTER_DRAFT.md

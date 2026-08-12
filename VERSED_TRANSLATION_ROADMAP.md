@@ -74,8 +74,8 @@ Workspace (see `src/versed_translator/paths.py`, env-overridable):
 Sequencing insight: **v0.1 uses only pre-aligned sources** (ATHAR, LK Hadith, curated Ormsby excerpts, hand-checked Wikisource passages). Alignment-engine-derived items wait for C7 → they become v0.2 expansion. This unblocks the bakeoff months earlier.
 
 Checkpoints:
-1. [AGENT] Source acquisition + per-source rights ledger (ATHAR: internal-eval OK / NC redistribution; LK Hadith: verify license text; hadith-json: index-only; Wikisource PD list; Ormsby: internal-only).
-2. [AGENT] Normalization + stratified sampling to coverage targets; passage-size banding (30–80 / 100–250 / 250–600 / near-context-limit).
+1. [AGENT] ~~Source acquisition + per-source rights ledger~~ **done 2026-08-12** — loaders + `corpus/rights_ledger.json` with verbatim license quotes; measured: **ATHAR 66,043** pairs (65,043 train + 1,000 native test — preserve their split), **LK Hadith 33,845** (README claims 39,038 — real CSVs are ~13% short), **hadith-json 47,317** usable pairs (al-Darimi has zero English; english is INDEX_ONLY per D6c). ⚠️ **ATHAR license conflict**: card YAML says CC-BY-SA-4.0, card prose says CC-BY-NC-4.0 → held at `eval_internal` until the author answers (→ D1d). ⚠️ **Length-band gap**: ATHAR median is 18 Arabic words — sentence-level; the 100–250/250–600 bands must come from PD-translation alignment or curation, not ATHAR.
+2. [AGENT] Normalization + stratified sampling to coverage targets; passage-size banding (30–80 / 100–250 / 250–600 / near-context-limit). Longer bands depend on PD sources (see `corpus/PD_TRANSLATIONS.md`: 16 seed works; strongest for early alignment: Baladhuri/Hitti, Ibn Khallikan/de Slane, Hariri/Chenery+Steingass).
 3. [HUMAN] ~100-item spot audit for alignment/reference quality (Bilal or recruited bilingual reviewer).
 4. [AGENT] Freeze: tag, manifest, stats report, held-out split sealed.
 
@@ -84,8 +84,8 @@ Decisions:
 - **D1b** [AGENT proposes] Small experimental poetry subset in v0.1 (recommended) vs. defer.
 - **D1c** [HUMAN] Publication policy: publish the rights-safe split with canary strings; keep held-out split private permanently (recommended). Decides with D0.
 
-**STATUS:** NOT STARTED.
-**NEXT DEPENDENCY:** C0 scaffold.
+**STATUS:** ACTIVE — checkpoint 1 complete with measured counts; next: checkpoint 2 (stratified assembly) + first PD alignment for the longer bands.
+**NEXT DEPENDENCY:** none for short bands; C7 (or manual alignment of 1–2 PD works) for 100+-word bands.
 
 ---
 
@@ -161,15 +161,15 @@ Decision:
 **Verify:** `uv run versed-corpus stats` prints rights-bucket counts over ≥200 works; resolver coverage ≥90%; letter status recorded here.
 
 Checkpoints:
-1. [AGENT] Inventory schema + ingest of priority list + known parallel resources.
-2. [AGENT] Provenance resolver v0 (URI parsing + metadata joins; no re-OCR).
+1. [AGENT] ~~Inventory schema + ingest~~ **done 2026-08-12** — `corpus/inventory.sqlite` from the versed priority list (8,791 URIs); top-250 pass: **meta hit-rate 99.6%** (one URI genuinely lacks meta on the share). Source-library distribution (top 250): JK 126, Shamela 60, ShamAY 18, Shia 7, Zaydiyya 5, others ≤3, unresolved 12. PD-translation seed list: **16 works, 9 genres** (`corpus/pd_translations_seed.json`, verified URLs).
+2. [AGENT] ~~Provenance resolver v0~~ **done 2026-08-12** — **96.5% top-200 coverage (≥90% target MET)**; the 7 unresolved are irregular tail formats (`Sham19Y…`, `…BK2-ara2`), documented for a v1 loosening if they matter.
 3. [AGENT] Draft OpenITI letter → **[HUMAN] D6a approve + send.** Draft essence (from the planning conversation): *we strip OpenITI markup/metadata and use only underlying public-domain Arabic strings, most originating in pre-existing digital libraries; we create our own segmentation, translations, audio; is BY-NC-SA intended to cover those underlying strings or OpenITI's annotations/corpus-database; and would you grant Versed commercial permission for this public-access project?*
 4. [HUMAN] **D6b** — French/EU IP counsel (1–3h) on the database-rights + AI-translation + phonogram questions. Required before **commercial** exploitation; not required for research/benchmarking. Schedule when C9 pilot approaches.
 
 Standing constraint (**D6c**, enforced by [AGENT]): hadith-json/Sunnah.com material is used for matching/indexing only — its English never ships and never trains.
 
-**STATUS:** NOT STARTED.
-**NEXT DEPENDENCY:** C0. Runs in parallel with C1–C5.
+**STATUS:** ACTIVE — checkpoints 1–2 complete, both ≥90% targets met; next: checkpoint 3 (OpenITI letter — draft ready for D6a) and inventory fill beyond top-250.
+**NEXT DEPENDENCY:** D6a approval to send the letter.
 
 ---
 
@@ -290,6 +290,7 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | --- | --- | --- |
 | D0 | ~~Repo visibility~~ **DECIDED: public** | done 2026-08-12 |
 | D1c | Benchmark publication policy (public split + private held-out) | with C1 freeze |
+| D1d | ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — contact author, or hold at eval-internal | before C8 corpus |
 | — | Provider API keys (Gemini/Qwen/DeepSeek/OpenAI) | C2 start |
 | D2b, D3b | Spend caps: bakeoff, throughput grid | C2/C3 start |
 | D2a | Ratify baseline translator | C2 report |
@@ -306,12 +307,12 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | Component | Status |
 | --- | --- |
 | C0 lab repo | COMPLETE |
-| C1 benchmark | NOT STARTED |
+| C1 benchmark | ACTIVE |
 | C2 harness/bakeoff | NOT STARTED |
 | C3 economics | NOT STARTED |
 | C4 QE truth study | NOT STARTED |
 | C5 Versed-QE v0 | NOT STARTED |
-| C6 rights inventory | NOT STARTED |
+| C6 rights inventory | ACTIVE |
 | C7 Versed Align | NOT STARTED |
 | C8 corpus + 27B | NOT STARTED |
 | C9 cascade/pilot | NOT STARTED |

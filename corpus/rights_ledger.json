@@ -1,0 +1,29 @@
+{
+  "_readme": "One entry per C1-checkpoint-1 source. license_found is a verbatim quote pulled from the actual file at evidence_path, read on 2026-08-12. usage_policy in {eval_internal, index_only, train_candidate, redistribute_ok}. This ledger records only what was actually read in the local checkouts -- it is not a legal opinion (see roadmap D6b for when EU IP counsel is required).",
+  "sources": [
+    {
+      "name": "ATHAR",
+      "url": "https://huggingface.co/datasets/mohamed-khalil/ATHAR",
+      "license_found": "CONFLICTING STATEMENTS IN THE SAME FILE. (1) YAML front matter, line 32: \"license: cc-by-sa-4.0\". (2) Prose \"## License\" section, lines 132-135: \"The ATHAR dataset and weight diffs are licensed under **CC BY NC 4.0** [Creative Commons NonCommercial (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/deed.en).\"",
+      "usage_policy": "eval_internal",
+      "evidence_path": "/Volumes/Nodes/versed-translator/corpus-cache/athar/README.md (lines 32 and 132-135)",
+      "notes": "The HuggingFace dataset-card YAML metadata (machine-readable, drives the HF license badge) says CC BY-SA 4.0 (share-alike, commercial use allowed with attribution+share-alike); the human-written License section says CC BY-NC 4.0 (noncommercial). These are not reconcilable without contacting the author -- CC BY-SA and CC BY-NC differ specifically on commercial use, which is the question that matters most for train_candidate/redistribute_ok. Per roadmap C1 checkpoint-1 guidance ('ATHAR: internal-eval OK / NC redistribution'), this ledger treats ATHAR conservatively as noncommercial/eval_internal until resolved. Data itself is scraped from rasaif.com; README states 'At the time of data collection and publication of this work, there were no restrictions on scraping and using resources from this website' (their claim, not independently verified here). Measured: 66,043 pairs (65,043 train + 1,000 test), matching the README's stated counts exactly."
+    },
+    {
+      "name": "LK Hadith Corpus (Leeds/King Saud University)",
+      "url": "https://github.com/ShathaTm/LK-Hadith-Corpus",
+      "license_found": "NO LICENSE FILE PRESENT. Repo root contains only README.md and starter.py -- no LICENSE, LICENSE.md, LICENSE.txt, or COPYING file anywhere in the checkout (verified via `find . -iname '*licen*'`, zero matches). The README's only usage-related text is a citation request: 'If you use this Hadith corpus, kindly site the paper: Altammami, S, Atwell, E and Alsalka. \"The Arabic-English Parallel Corpus of Authentic Hadith\"...' and a correction-submission email address. No grant of reuse/redistribution/commercial rights is stated anywhere.",
+      "usage_policy": "eval_internal",
+      "evidence_path": "/Volumes/Nodes/versed-translator/corpus-cache/lk-hadith/README.md (full file); directory listing confirming absence of any LICENSE file",
+      "notes": "Treated conservatively as eval_internal (research/benchmarking) given the explicit citation ask and academic-paper provenance, but with no formal license grant this must not be assumed redistribute_ok or train_candidate without contacting the corpus author (shatha.tammami@gmail.com, per README). MEASURED DISCREPANCY: README claims '39,038 annotated Hadiths'; the actual checked-out CSVs across all six collections (AbuDaud, Bukhari, IbnMaja, Muslim, Nesai, Tirmizi; 335 chapter CSVs total) contain 34,088 rows, of which 33,845 have both Arabic_Hadith and English_Hadith populated -- about 13% fewer than the README's stated total. README also states only the Bukhari folder was manually checked (gold standard); the other five collections were auto-segmented into isnad/matn with '92% accuracy' per the corpus's own paper."
+    },
+    {
+      "name": "hadith-json",
+      "url": "https://github.com/AhmedBaset/hadith-json",
+      "license_found": "package.json declares `\"license\": \"ISC\"` -- this covers the repository's TypeScript scraper/build code only. No LICENSE file exists anywhere in the checkout governing the JSON hadith data itself (verified via `find . -iname '*licen*'`, only the code-license reference in package.json). The README states the English text was 'scraped from Sunnah.com', and Sunnah.com's own terms are all-rights-reserved (not independently re-verified here beyond the task brief's characterization, but no contrary license grant exists in this checkout).",
+      "usage_policy": "index_only",
+      "evidence_path": "/Volumes/Nodes/versed-translator/corpus-cache/hadith-json/package.json (license field); /Volumes/Nodes/versed-translator/corpus-cache/hadith-json/README.md (data provenance, 'scraped from Sunnah.com')",
+      "notes": "Per roadmap D6c (standing constraint): hadith-json/Sunnah.com material is used for matching/indexing only -- its English never ships and never trains. Loader enforces this by tagging every pair rights_status=INDEX_ONLY_NO_REDISTRIBUTION. MEASURED: README claims 50,884 hadiths across 17 books; raw JSON hadith objects across all 17 db/by_book/*.json files total exactly 50,884 (matches). Of those, 3,567 (7%) have a missing arabic or english.text field and are dropped by the loader, leaving 47,317 usable pairs. Nearly all of that gap (3,406 of 3,567) is Sunan al-Darimi, which has Arabic text but zero English translations for any of its hadiths in this checkout, so it contributes 0 pairs and only 16 of the 17 listed books actually appear in loader output. Musnad Ahmad chapters 8-30 are noted by the README as missing from the original Sunnah.com source (not this repo's fault)."
+    }
+  ]
+}

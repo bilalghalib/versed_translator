@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-12T14:46:21.226427+00:00",
+  "generated_at": "2026-08-12T15:17:53.800609+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -13,8 +13,8 @@
       "id": "C1",
       "name": "Versed Benchmark v0.1 (frozen)",
       "end_state": "Immutable tagged release `benchmark-v0.1`:",
-      "next_dependency": "C0 scaffold.",
-      "status": "NOT STARTED"
+      "next_dependency": "none for short bands; C7 (or manual alignment of 1\u20132 PD works) for 100+-word bands.",
+      "status": "ACTIVE"
     },
     {
       "id": "C2",
@@ -48,8 +48,8 @@
       "id": "C6",
       "name": "Versed Parallel: rights inventory + provenance resolver",
       "end_state": "A queryable works\u00d7translations inventory (parquet/SQLite in-repo, Supabase-syncable later) covering **the top ~200 priority OpenITI works** (seeded from versed's `openiti-rollout-priority` config):",
-      "next_dependency": "C0. Runs in parallel with C1\u2013C5.",
-      "status": "NOT STARTED"
+      "next_dependency": "D6a approval to send the letter.",
+      "status": "ACTIVE"
     },
     {
       "id": "C7",
@@ -104,6 +104,11 @@
       "id": "D1c",
       "decision": "Benchmark publication policy (public split + private held-out)",
       "when": "with C1 freeze"
+    },
+    {
+      "id": "D1d",
+      "decision": "ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) \u2014 contact author, or hold at eval-internal",
+      "when": "before C8 corpus"
     },
     {
       "id": "\u2014",
@@ -176,14 +181,18 @@
   ],
   "recent_commits": [
     {
+      "subject": "Dashboard to GitHub Pages (docs/); model-archive fetch script; correct server-serving notes",
+      "relative_date": "32 minutes ago"
+    },
+    {
       "subject": "Versed Translate lab: founding docs, C0 scaffold, status dashboard",
-      "relative_date": "6 minutes ago"
+      "relative_date": "37 minutes ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-12T14:45:57.419596+00:00"
+      "mtime": "2026-08-12T15:17:35.029570+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

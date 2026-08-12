@@ -3,7 +3,10 @@ name = "versed-translator"
 version = "0.0.1"
 description = "Translation lab for Versed/Wuquf: benchmark, bakeoff harness, QE router, alignment engine, training corpus, throughput."
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "pandas>=2.3.3",
+    "pyarrow>=25.0.1",
+]
 
 [project.scripts]
 versed-benchmark = "versed_translator.cli:benchmark_main"

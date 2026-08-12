@@ -264,7 +264,7 @@ footer.site-footer ul {
 <header class="site-header">
   <h1>Versed Translate Lab</h1>
   <div class="meta">
-    Generated 2026-08-12T14:46:21.226427+00:00 &middot;
+    Generated 2026-08-12T15:17:53.800609+00:00 &middot;
     <a href="https://github.com/bilalghalib/versed_translator">https://github.com/bilalghalib/versed_translator</a>
   </div>
 </header>
@@ -285,11 +285,11 @@ footer.site-footer ul {
         <div class="card">
           <div class="card-head">
             <span class="card-id">C1</span>
-            <span class="chip chip-gray">NOT STARTED</span>
+            <span class="chip chip-blue">ACTIVE</span>
           </div>
           <div class="card-name">Versed Benchmark v0.1 (frozen)</div>
           <div class="card-end-state">Immutable tagged release `benchmark-v0.1`:</div>
-          <div class="card-dep">Next dependency: C0 scaffold.</div>
+          <div class="card-dep">Next dependency: none for short bands; C7 (or manual alignment of 1–2 PD works) for 100+-word bands.</div>
         </div>
         <div class="card">
           <div class="card-head">
@@ -330,11 +330,11 @@ footer.site-footer ul {
         <div class="card">
           <div class="card-head">
             <span class="card-id">C6</span>
-            <span class="chip chip-gray">NOT STARTED</span>
+            <span class="chip chip-blue">ACTIVE</span>
           </div>
           <div class="card-name">Versed Parallel: rights inventory + provenance resolver</div>
           <div class="card-end-state">A queryable works×translations inventory (parquet/SQLite in-repo, Supabase-syncable later) covering **the top ~200 priority OpenITI works** (seeded from versed&#x27;s `openiti-rollout-priority` config):</div>
-          <div class="card-dep">Next dependency: C0. Runs in parallel with C1–C5.</div>
+          <div class="card-dep">Next dependency: D6a approval to send the letter.</div>
         </div>
         <div class="card">
           <div class="card-head">
@@ -399,7 +399,7 @@ footer.site-footer ul {
     <div class="table-wrap">
       <table>
         <thead><tr><th>ID</th><th>Decision</th><th>When</th></tr></thead>
-        <tbody><tr><td>D0</td><td>~~Repo visibility~~ **DECIDED: public**</td><td>done 2026-08-12</td></tr><tr><td>D1c</td><td>Benchmark publication policy (public split + private held-out)</td><td>with C1 freeze</td></tr><tr><td>—</td><td>Provider API keys (Gemini/Qwen/DeepSeek/OpenAI)</td><td>C2 start</td></tr><tr><td>D2b, D3b</td><td>Spend caps: bakeoff, throughput grid</td><td>C2/C3 start</td></tr><tr><td>D2a</td><td>Ratify baseline translator</td><td>C2 report</td></tr><tr><td>D6a</td><td>Approve + send OpenITI letter</td><td>early, async</td></tr><tr><td>D5</td><td>Threshold profile (recommend conservative)</td><td>C5 done</td></tr><tr><td>D8a/c</td><td>Fine-tune GO/NO-GO + compute cap</td><td>C8</td></tr><tr><td>D9a/b</td><td>Pilot book + acceptance bar</td><td>C9 start</td></tr><tr><td>D11</td><td>English voice + rights record</td><td>C11</td></tr><tr><td>D6b</td><td>Counsel engagement</td><td>before commercial</td></tr><tr><td>D12a/b/c</td><td>Releases, licenses, sustainability</td><td>C12</td></tr></tbody>
+        <tbody><tr><td>D0</td><td>~~Repo visibility~~ **DECIDED: public**</td><td>done 2026-08-12</td></tr><tr><td>D1c</td><td>Benchmark publication policy (public split + private held-out)</td><td>with C1 freeze</td></tr><tr><td>D1d</td><td>ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — contact author, or hold at eval-internal</td><td>before C8 corpus</td></tr><tr><td>—</td><td>Provider API keys (Gemini/Qwen/DeepSeek/OpenAI)</td><td>C2 start</td></tr><tr><td>D2b, D3b</td><td>Spend caps: bakeoff, throughput grid</td><td>C2/C3 start</td></tr><tr><td>D2a</td><td>Ratify baseline translator</td><td>C2 report</td></tr><tr><td>D6a</td><td>Approve + send OpenITI letter</td><td>early, async</td></tr><tr><td>D5</td><td>Threshold profile (recommend conservative)</td><td>C5 done</td></tr><tr><td>D8a/c</td><td>Fine-tune GO/NO-GO + compute cap</td><td>C8</td></tr><tr><td>D9a/b</td><td>Pilot book + acceptance bar</td><td>C9 start</td></tr><tr><td>D11</td><td>English voice + rights record</td><td>C11</td></tr><tr><td>D6b</td><td>Counsel engagement</td><td>before commercial</td></tr><tr><td>D12a/b/c</td><td>Releases, licenses, sustainability</td><td>C12</td></tr></tbody>
       </table>
     </div>
 </section>
@@ -412,8 +412,8 @@ footer.site-footer ul {
 
 <section id="commits">
   <h2>Recent commits</h2>
-  <p class="section-note">Last 1 entries from git log.</p>
-  <ul class="commit-list"><li><span class="commit-subject">Versed Translate lab: founding docs, C0 scaffold, status dashboard</span> <span class="commit-date">6 minutes ago</span></li></ul>
+  <p class="section-note">Last 2 entries from git log.</p>
+  <ul class="commit-list"><li><span class="commit-subject">Dashboard to GitHub Pages (docs/); model-archive fetch script; correct server-serving notes</span> <span class="commit-date">32 minutes ago</span></li><li><span class="commit-subject">Versed Translate lab: founding docs, C0 scaffold, status dashboard</span> <span class="commit-date">37 minutes ago</span></li></ul>
 </section>
 
 
@@ -424,7 +424,7 @@ footer.site-footer ul {
   <code>make -f tools/dashboard.mk dashboard</code>) whenever the docs change.
   <ul>
     Doc modification times:
-    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-12T14:45:57.419596+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-12T13:59:47.265834+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:46:02.373423+00:00</li>
+    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-12T15:17:35.029570+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-12T13:59:47.265834+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:46:02.373423+00:00</li>
   </ul>
 </footer>
 

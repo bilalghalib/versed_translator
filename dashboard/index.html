@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Versed Translate Lab</title>
+<style>
+:root {
+  --bg: #faf9f7;
+  --bg-elevated: #ffffff;
+  --text: #1f1d1a;
+  --text-muted: #6b665f;
+  --border: #e4e0da;
+  --accent: #3d5a80;
+  --chip-blue-bg: #e3edf7;
+  --chip-blue-text: #29527a;
+  --chip-gray-bg: #eceae6;
+  --chip-gray-text: #66625c;
+  --chip-green-bg: #e4f0e6;
+  --chip-green-text: #2c6b3f;
+  --chip-red-bg: #f6e6e5;
+  --chip-red-text: #a13d36;
+  --link: #3d5a80;
+  --code-bg: #f1efeb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17181a;
+    --bg-elevated: #1f2023;
+    --text: #e8e6e1;
+    --text-muted: #a3a099;
+    --border: #34363a;
+    --accent: #8fb4d9;
+    --chip-blue-bg: #223244;
+    --chip-blue-text: #9cc4ea;
+    --chip-gray-bg: #2b2c2f;
+    --chip-gray-text: #b3afa7;
+    --chip-green-bg: #1f3625;
+    --chip-green-text: #8fd39f;
+    --chip-red-bg: #3a2422;
+    --chip-red-text: #e2938c;
+    --link: #8fb4d9;
+    --code-bg: #232427;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17181a;
+  --bg-elevated: #1f2023;
+  --text: #e8e6e1;
+  --text-muted: #a3a099;
+  --border: #34363a;
+  --accent: #8fb4d9;
+  --chip-blue-bg: #223244;
+  --chip-blue-text: #9cc4ea;
+  --chip-gray-bg: #2b2c2f;
+  --chip-gray-text: #b3afa7;
+  --chip-green-bg: #1f3625;
+  --chip-green-text: #8fd39f;
+  --chip-red-bg: #3a2422;
+  --chip-red-text: #e2938c;
+  --link: #8fb4d9;
+  --code-bg: #232427;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+header.site-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.25rem;
+  margin-bottom: 2rem;
+}
+header.site-header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+header.site-header .meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+header.site-header .meta a {
+  color: var(--link);
+  text-decoration: none;
+}
+header.site-header .meta a:hover {
+  text-decoration: underline;
+}
+
+section {
+  margin-bottom: 2.5rem;
+}
+section h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+.section-note {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 0 0 1rem;
+}
+
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.9rem;
+}
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+.card-id {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+.card-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 0.4rem;
+}
+.card-end-state {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.card-dep {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.4rem;
+}
+
+.chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.chip-blue { background: var(--chip-blue-bg); color: var(--chip-blue-text); }
+.chip-gray { background: var(--chip-gray-bg); color: var(--chip-gray-text); }
+.chip-green { background: var(--chip-green-bg); color: var(--chip-green-text); }
+.chip-red { background: var(--chip-red-bg); color: var(--chip-red-text); }
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: var(--bg-elevated);
+}
+th, td {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+ul.experiment-list, ul.commit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+ul.experiment-list li, ul.commit-list li {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+ul.experiment-list li:last-child, ul.commit-list li:last-child {
+  border-bottom: none;
+}
+.exp-id {
+  font-weight: 600;
+  color: var(--accent);
+}
+.commit-subject {
+  display: inline-block;
+}
+.commit-date {
+  float: right;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.gaps ul {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding-left: 1.2rem;
+}
+.gaps li {
+  margin-bottom: 0.3rem;
+}
+
+.empty-note {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+footer.site-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+footer.site-footer ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 700px) {
+  .wrap { padding: 1.25rem 1rem 3rem; }
+  .component-grid { grid-template-columns: 1fr; }
+  .commit-date { float: none; display: block; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="site-header">
+  <h1>Versed Translate Lab</h1>
+  <div class="meta">
+    Generated 2026-08-12T14:38:36.429143+00:00 &middot;
+    <a href="https://github.com/bilalghalib/versed_translator">https://github.com/bilalghalib/versed_translator</a>
+  </div>
+</header>
+
+<section id="components">
+  <h2>Components</h2>
+  <p class="section-note">C0 through C12, status and end state per the roadmap's STATUS ledger and component sections.</p>
+  <div class="component-grid">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C0</span>
+            <span class="chip chip-green">COMPLETE</span>
+          </div>
+          <div class="card-name">Lab repo stood up</div>
+          <div class="card-end-state">`bilalghalib/versed_translator` on GitHub;</div>
+          <div class="card-dep">Next dependency: none. C1 and C6 are unblocked.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C1</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Versed Benchmark v0.1 (frozen)</div>
+          <div class="card-end-state">Immutable tagged release `benchmark-v0.1`:</div>
+          <div class="card-dep">Next dependency: C0 scaffold.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C2</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Translation harness + bakeoff</div>
+          <div class="card-end-state">`versed-harness run --model &lt;id&gt; --benchmark v0.1` emits standardized JSONL (master-plan run schema:</div>
+          <div class="card-dep">Next dependency: C1 frozen.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C3</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Measured serving economics</div>
+          <div class="card-end-state">Reproducible `throughput/` Modal scripts;</div>
+          <div class="card-dep">Next dependency: C2 checkpoint 3 (serving adapter).</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C4</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">QE truth study (existing systems + adversarial suite)</div>
+          <div class="card-end-state">MetricX-QE + COMETKiwi (+ any clearly superior current QE found at execution time — pin exact versions) scored over **all** C2 outputs;</div>
+          <div class="card-dep">Next dependency: C2 outputs.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C5</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Versed-QE v0 (router)</div>
+          <div class="card-end-state">Installable `versed_qe` package:</div>
+          <div class="card-dep">Next dependency: C4 matrix.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C6</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Versed Parallel: rights inventory + provenance resolver</div>
+          <div class="card-end-state">A queryable works×translations inventory (parquet/SQLite in-repo, Supabase-syncable later) covering **the top ~200 priority OpenITI works** (seeded from versed&#x27;s `openiti-rollout-priority` config):</div>
+          <div class="card-dep">Next dependency: C0. Runs in parallel with C1–C5.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C7</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Versed Align (engine)</div>
+          <div class="card-end-state">Installable `versed_align`:</div>
+          <div class="card-dep">Next dependency: C0; benefits from C6 inventory. Unblocks benchmark v0.2 + C8 corpus scale.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C8</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Training corpus + Versed Translate 27B v0.1</div>
+          <div class="card-end-state">100k–250k pairs;</div>
+          <div class="card-dep">Next dependency: C1 (frozen), C7 (pairs at scale), C2 (base choice).</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C9</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Cascade simulation, repair loop, pilot book</div>
+          <div class="card-end-state">simulation over benchmark outputs reporting, per threshold profile:</div>
+          <div class="card-dep">Next dependency: C5, C8 (or C2 baseline model if C8 is delayed — the pilot can run on the best base model to de-risk the factory earlier).</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C10</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Factory integration (lives in the `versed` repo)</div>
+          <div class="card-end-state">Translation derivatives flow through versed per its contract:</div>
+          <div class="card-dep">Next dependency: C9 pilot design (they land together; pilot runs *through* this integration).</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C11</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Audio + reader deltas</div>
+          <div class="card-end-state">pilot book has synchronized Arabic + **English** audio with provenance labels;</div>
+          <div class="card-dep">Next dependency: C9 pilot translations accepted.</div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-id">C12</span>
+            <span class="chip chip-gray">NOT STARTED</span>
+          </div>
+          <div class="card-name">Releases, flywheel, sustainability</div>
+          <div class="card-end-state">where rights permit — model adapter + card, benchmark public split (with canaries), `versed_qe`, `versed_align`, rights-safe parallel data, each with its **own** license file (no blanket license);</div>
+          <div class="card-dep">Next dependency: C8/C9 outcomes.</div>
+        </div></div>
+</section>
+
+<section id="decisions">
+  <h2>Decisions waiting on Bilal</h2>
+  <p class="section-note">From the roadmap's Decision queue.</p>
+  
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Decision</th><th>When</th></tr></thead>
+        <tbody><tr><td>D0</td><td>~~Repo visibility~~ **DECIDED: public**</td><td>done 2026-08-12</td></tr><tr><td>D1c</td><td>Benchmark publication policy (public split + private held-out)</td><td>with C1 freeze</td></tr><tr><td>—</td><td>Provider API keys (Gemini/Qwen/DeepSeek/OpenAI)</td><td>C2 start</td></tr><tr><td>D2b, D3b</td><td>Spend caps: bakeoff, throughput grid</td><td>C2/C3 start</td></tr><tr><td>D2a</td><td>Ratify baseline translator</td><td>C2 report</td></tr><tr><td>D6a</td><td>Approve + send OpenITI letter</td><td>early, async</td></tr><tr><td>D5</td><td>Threshold profile (recommend conservative)</td><td>C5 done</td></tr><tr><td>D8a/c</td><td>Fine-tune GO/NO-GO + compute cap</td><td>C8</td></tr><tr><td>D9a/b</td><td>Pilot book + acceptance bar</td><td>C9 start</td></tr><tr><td>D11</td><td>English voice + rights record</td><td>C11</td></tr><tr><td>D6b</td><td>Counsel engagement</td><td>before commercial</td></tr><tr><td>D12a/b/c</td><td>Releases, licenses, sustainability</td><td>C12</td></tr></tbody>
+      </table>
+    </div>
+</section>
+
+<section id="experiments">
+  <h2>Experiments</h2>
+  <p class="section-note">From TRANSLATION_EXPERIMENTS.md.</p>
+  <ul class="experiment-list"><li><span class="exp-id">EXP-YYYYMMDD-NN</span> — &lt;one-line name&gt;</li><li><span class="exp-id">EXP-20260326-01</span> — Ihya register bakeoff</li><li><span class="exp-id">EXP-20260326-02</span> — GLM-5 feasibility</li><li><span class="exp-id">EXP-2026Q2-03</span> — DeepSeek/Gemma failure modes</li></ul>
+</section>
+
+<section id="commits">
+  <h2>Recent commits</h2>
+  <p class="section-note">Last 3 entries from git log.</p>
+  <ul class="commit-list"><li><span class="commit-subject">Correct dashboard hosting reality; dashboard live on hikma; note Actions billing block</span> <span class="commit-date">10 minutes ago</span></li><li><span class="commit-subject">C0: package scaffold, CI, smoke tests, status dashboard + deploy script</span> <span class="commit-date">15 minutes ago</span></li><li><span class="commit-subject">Founding docs: master plan, architecture snapshot, end-state roadmap, experiment ledger</span> <span class="commit-date">39 minutes ago</span></li></ul>
+</section>
+
+
+
+<footer class="site-footer">
+  The roadmap and experiment docs are the source of truth, not this page. This dashboard is a
+  generated snapshot — rebuild with <code>python3 tools/build_dashboard.py</code> (or
+  <code>make -f tools/dashboard.mk dashboard</code>) whenever the docs change.
+  <ul>
+    Doc modification times:
+    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-12T14:37:55.360924+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-12T13:59:47.265834+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:37:35.716318+00:00</li>
+  </ul>
+</footer>
+
+</div>
+</body>
+</html>

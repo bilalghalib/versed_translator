@@ -1,0 +1,210 @@
+{
+  "generated_at": "2026-08-12T14:38:36.429143+00:00",
+  "repo_url": "https://github.com/bilalghalib/versed_translator",
+  "components": [
+    {
+      "id": "C0",
+      "name": "Lab repo stood up",
+      "end_state": "`bilalghalib/versed_translator` on GitHub;",
+      "next_dependency": "none. C1 and C6 are unblocked.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "C1",
+      "name": "Versed Benchmark v0.1 (frozen)",
+      "end_state": "Immutable tagged release `benchmark-v0.1`:",
+      "next_dependency": "C0 scaffold.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C2",
+      "name": "Translation harness + bakeoff",
+      "end_state": "`versed-harness run --model <id> --benchmark v0.1` emits standardized JSONL (master-plan run schema:",
+      "next_dependency": "C1 frozen.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C3",
+      "name": "Measured serving economics",
+      "end_state": "Reproducible `throughput/` Modal scripts;",
+      "next_dependency": "C2 checkpoint 3 (serving adapter).",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C4",
+      "name": "QE truth study (existing systems + adversarial suite)",
+      "end_state": "MetricX-QE + COMETKiwi (+ any clearly superior current QE found at execution time \u2014 pin exact versions) scored over **all** C2 outputs;",
+      "next_dependency": "C2 outputs.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C5",
+      "name": "Versed-QE v0 (router)",
+      "end_state": "Installable `versed_qe` package:",
+      "next_dependency": "C4 matrix.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C6",
+      "name": "Versed Parallel: rights inventory + provenance resolver",
+      "end_state": "A queryable works\u00d7translations inventory (parquet/SQLite in-repo, Supabase-syncable later) covering **the top ~200 priority OpenITI works** (seeded from versed's `openiti-rollout-priority` config):",
+      "next_dependency": "C0. Runs in parallel with C1\u2013C5.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C7",
+      "name": "Versed Align (engine)",
+      "end_state": "Installable `versed_align`:",
+      "next_dependency": "C0; benefits from C6 inventory. Unblocks benchmark v0.2 + C8 corpus scale.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C8",
+      "name": "Training corpus + Versed Translate 27B v0.1",
+      "end_state": "100k\u2013250k pairs;",
+      "next_dependency": "C1 (frozen), C7 (pairs at scale), C2 (base choice).",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C9",
+      "name": "Cascade simulation, repair loop, pilot book",
+      "end_state": "simulation over benchmark outputs reporting, per threshold profile:",
+      "next_dependency": "C5, C8 (or C2 baseline model if C8 is delayed \u2014 the pilot can run on the best base model to de-risk the factory earlier).",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C10",
+      "name": "Factory integration (lives in the `versed` repo)",
+      "end_state": "Translation derivatives flow through versed per its contract:",
+      "next_dependency": "C9 pilot design (they land together; pilot runs *through* this integration).",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C11",
+      "name": "Audio + reader deltas",
+      "end_state": "pilot book has synchronized Arabic + **English** audio with provenance labels;",
+      "next_dependency": "C9 pilot translations accepted.",
+      "status": "NOT STARTED"
+    },
+    {
+      "id": "C12",
+      "name": "Releases, flywheel, sustainability",
+      "end_state": "where rights permit \u2014 model adapter + card, benchmark public split (with canaries), `versed_qe`, `versed_align`, rights-safe parallel data, each with its **own** license file (no blanket license);",
+      "next_dependency": "C8/C9 outcomes.",
+      "status": "NOT STARTED"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D0",
+      "decision": "~~Repo visibility~~ **DECIDED: public**",
+      "when": "done 2026-08-12"
+    },
+    {
+      "id": "D1c",
+      "decision": "Benchmark publication policy (public split + private held-out)",
+      "when": "with C1 freeze"
+    },
+    {
+      "id": "\u2014",
+      "decision": "Provider API keys (Gemini/Qwen/DeepSeek/OpenAI)",
+      "when": "C2 start"
+    },
+    {
+      "id": "D2b, D3b",
+      "decision": "Spend caps: bakeoff, throughput grid",
+      "when": "C2/C3 start"
+    },
+    {
+      "id": "D2a",
+      "decision": "Ratify baseline translator",
+      "when": "C2 report"
+    },
+    {
+      "id": "D6a",
+      "decision": "Approve + send OpenITI letter",
+      "when": "early, async"
+    },
+    {
+      "id": "D5",
+      "decision": "Threshold profile (recommend conservative)",
+      "when": "C5 done"
+    },
+    {
+      "id": "D8a/c",
+      "decision": "Fine-tune GO/NO-GO + compute cap",
+      "when": "C8"
+    },
+    {
+      "id": "D9a/b",
+      "decision": "Pilot book + acceptance bar",
+      "when": "C9 start"
+    },
+    {
+      "id": "D11",
+      "decision": "English voice + rights record",
+      "when": "C11"
+    },
+    {
+      "id": "D6b",
+      "decision": "Counsel engagement",
+      "when": "before commercial"
+    },
+    {
+      "id": "D12a/b/c",
+      "decision": "Releases, licenses, sustainability",
+      "when": "C12"
+    }
+  ],
+  "experiments": [
+    {
+      "id": "EXP-YYYYMMDD-NN",
+      "name": "<one-line name>"
+    },
+    {
+      "id": "EXP-20260326-01",
+      "name": "Ihya register bakeoff"
+    },
+    {
+      "id": "EXP-20260326-02",
+      "name": "GLM-5 feasibility"
+    },
+    {
+      "id": "EXP-2026Q2-03",
+      "name": "DeepSeek/Gemma failure modes"
+    }
+  ],
+  "recent_commits": [
+    {
+      "subject": "Correct dashboard hosting reality; dashboard live on hikma; note Actions billing block",
+      "relative_date": "10 minutes ago"
+    },
+    {
+      "subject": "C0: package scaffold, CI, smoke tests, status dashboard + deploy script",
+      "relative_date": "15 minutes ago"
+    },
+    {
+      "subject": "Founding docs: master plan, architecture snapshot, end-state roadmap, experiment ledger",
+      "relative_date": "39 minutes ago"
+    }
+  ],
+  "doc_mtimes": [
+    {
+      "name": "VERSED_TRANSLATION_ROADMAP.md",
+      "mtime": "2026-08-12T14:37:55.360924+00:00"
+    },
+    {
+      "name": "TRANSLATION_EXPERIMENTS.md",
+      "mtime": "2026-08-12T13:59:47.265834+00:00"
+    },
+    {
+      "name": "VERSED_TRANSLATE_MASTER_PLAN.md",
+      "mtime": "2026-08-12T13:42:51.398615+00:00"
+    },
+    {
+      "name": "VERSED_TRANSLATION_ARCHITECTURE.md",
+      "mtime": "2026-08-12T14:37:35.716318+00:00"
+    }
+  ],
+  "gaps": []
+}

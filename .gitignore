@@ -1,0 +1,33 @@
+# Secrets
+.env
+.env.*
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+
+# Data that must not live in git (released via versioned artifacts instead)
+benchmark/private_split/
+corpus/raw/
+corpus/cache/
+throughput/results/raw/
+*.parquet
+*.sqlite
+
+# OS / editor
+.DS_Store
+.claude/settings.local.json
+
+# Node (if tooling appears later)
+node_modules/
+
+# Private strategy notes stay local
+Translating OpenITI Efficiently.md

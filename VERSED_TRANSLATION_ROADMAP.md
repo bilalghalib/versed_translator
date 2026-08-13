@@ -94,6 +94,24 @@ Decisions:
 **END STATE:** `versed-harness run --model <id> --benchmark v0.1` emits standardized JSONL (master-plan run schema: model, version, quantization, prompt template id, tokens, latency, cost, translation) for **every** candidate: TranslateGemma 27B, TranslateGemma 12B, Qwen-MT, Gemini Flash tier, DeepSeek V4, one frontier ceiling, plus the current-versed Claude few-shot-Ormsby configuration as continuity baseline. ID-preserving structured block output (`[{"id":"AR_001","english":...}]`) is tested, and ID-loss counts as an error metric. A comparison report by genre × length × error category exists, and the baseline-translator DECISION is recorded.
 **Verify:** all candidate rows present in `harness/reports/bakeoff-v1.md`; every run JSONL validates; D2a filled in.
 
+**MEASURED SO FAR (2026-08-13/14, dev_bakeoff 139 items):**
+
+| Leg | Result |
+| --- | --- |
+| **Claude Sonnet 5** (ceiling) | ✅ **139/139 clean.** Mean latency 24.5s, p95 73.4s. ID preservation 100%. 3 items (2.2%) flagged for untranslated Arabic — the model appending scholarly commentary that quotes the Arabic back, not a fidelity failure. |
+| **TranslateGemma 12B** (local Ollama) | ❌ Abandoned as a local leg. Measured **~2 output tok/s** on this Mac (100s wall for a 149-token short-band item; 74s pure generation) → full run is multi-hour and the machine thrashes. Moved to Modal GPU. |
+| **TranslateGemma 27B / 12B** (Modal H100) | ⏳ Blocked 4 attempts on a vLLM/transformers packaging bug; root-caused and fix in flight (see below). Weights for both sizes staged on volume `versed-model-weights`. |
+
+**Bugs found and fixed while getting here** (all committed; each was a false-success or silent-failure class the factory phase must not inherit):
+1. **Sonnet 5 token-budget trap** — adaptive thinking is ON by default and shares `max_tokens` with response text; at 4096 the longest passages spent the whole budget thinking and returned empty text (23/139). Default raised to 16k; `stop_reason == "max_tokens"` now reported as a named error, never an empty string.
+2. **Runner lost whole runs** — one invalid row raised and discarded all 139 buffered results. Now demotes to an error row and writes incrementally.
+3. **Cost never recorded** — adapters computed `cost_estimate` but the runner hardcoded `None`. Threaded end-to-end.
+4. **chrF always null** — the score CLI never loaded `reference_english`, so reference-based scoring silently reported "no references". Now loaded from `run_meta.items_path`.
+5. **Ollama adapter timeout** — 180s default vs. real ~2 tok/s produced an apparent 20-minute hang instead of a clean per-item timeout. Raised to 900s.
+6. **vLLM `rope_scaling` crash (root cause)** — vllm 0.11.0 declares `transformers>=4.55.2` with **no upper bound**; pip installed transformers 5.x, which renamed `rope_scaling` → `rope_parameters`, so vLLM's `patch_rope_scaling()` saw a rope dict with no `rope_type` and raised. **Patching the model's `config.json` does not help** (the mismatch is in transformers' parsing, not the file) — three attempts proved that. Fix: pin `transformers<5` in the Modal image.
+
+**Verification lesson (applies to every later phase):** a full row count, a clean exit code, and a populated output file are all compatible with total failure. A 139-row TG12B run was 139 connection errors; the tell was `wall_s: 0.06`. Always check the error field plus a plausibility signal (wall time, token counts), never row count alone.
+
 Checkpoints:
 1. [AGENT] Harness core + versioned prompt registry (seed prompts from `local_translation/prompts.py` fidelity rules + few-shot-Ormsby finding).
 2. [AGENT] API adapters (Anthropic key exists; **[HUMAN] provision Gemini/Qwen/DeepSeek/OpenAI keys**).
@@ -311,8 +329,8 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | --- | --- |
 | C0 lab repo | COMPLETE |
 | C1 benchmark | ACTIVE |
-| C2 harness/bakeoff | NOT STARTED |
-| C3 economics | NOT STARTED |
+| C2 harness/bakeoff | ACTIVE |
+| C3 economics | ACTIVE (first real measurement: TG12B ~2 tok/s local) |
 | C4 QE truth study | NOT STARTED |
 | C5 Versed-QE v0 | NOT STARTED |
 | C6 rights inventory | ACTIVE |

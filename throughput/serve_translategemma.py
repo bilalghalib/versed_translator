@@ -264,6 +264,15 @@ class TranslateGemmaServer:
             max_model_len=MAX_MODEL_LEN,
             gpu_memory_utilization=GPU_MEMORY_UTILIZATION,
             trust_remote_code=True,
+            # Known vLLM/Gemma3 regression (reported starting 2026-02):
+            # TranslateGemma's config.json has rope_scaling=null, and this
+            # vLLM version's pydantic ModelConfig validator chokes on that
+            # ("rope_scaling should have a 'rope_type' key") when it tries
+            # to build gemma3's local/global attention rope config from a
+            # null value. Overriding it to an explicit no-op dict (linear,
+            # factor=1.0 -- i.e. do not scale) skips the buggy inference
+            # path without touching the shared weights/config on the volume.
+            hf_overrides={"rope_scaling": {"rope_type": "linear", "factor": 1.0}},
         )
         self._tokenizer = self.llm.get_tokenizer()
         print(f"[TranslateGemmaServer] engine ready in {time.monotonic() - t0:.1f}s")

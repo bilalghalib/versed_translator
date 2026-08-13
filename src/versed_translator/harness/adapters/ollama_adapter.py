@@ -3,6 +3,17 @@
 Ollama has no official Python SDK requirement here (it's a local inference
 server, not one of the hosted LLM providers) -- talks to its REST API
 directly via urllib, no new third-party dependency. Cost is always 0.
+
+**Measured speed (2026-08-13, translategemma:12b on this CPU/Metal setup):**
+~2 output tokens/sec. A 149-token short-band item took ~100s wall clock
+(74s of that pure generation). The old 180s default timeout was too tight
+for longer bands (250-600 Arabic words can produce many hundreds of output
+tokens) -- a request nearing the cutoff either errored confusingly or, in
+one observed run, appeared to hang for 20+ minutes with zero output rather
+than failing cleanly. Raised the default well above worst-case so a slow
+item is timed out and reported as an error, never silently stuck. At this
+measured pace the full local run is genuinely multi-hour; that is a real
+hardware-speed finding for C3, not a bug to keep chasing.
 """
 
 from __future__ import annotations
@@ -38,7 +49,7 @@ def translate_batch(
     model: str = DEFAULT_MODEL,
     base_url: str = DEFAULT_BASE_URL,
     exemplar: str | None = None,
-    timeout: float = 180.0,
+    timeout: float = 900.0,
     **_cfg,
 ) -> list[TranslationResult]:
     if template.structured:

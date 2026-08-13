@@ -129,10 +129,13 @@ Decisions:
 **END STATE:** MetricX-QE + COMETKiwi (+ any clearly superior current QE found at execution time — pin exact versions) scored over **all** C2 outputs; an error-injection suite implementing all 15 master-plan corruption types, each injector unit-tested to provably produce its intended corruption; a detection matrix (error type × QE system → sensitivity curves); a written verdict on Classical-Arabic blind spots.
 **Verify:** `qe/reports/detection_matrix.{json,md}` covers 15/15 error types; every C2 run row carries QE scores; verdict section non-empty.
 
-Decision:
-- **D4** [HUMAN ratifies] Do existing QE systems suffice as the core signal? Gates C5 design (ensemble-over-existing vs. train-custom later).
+Model access (verified 2026-08-13): **COMETKiwi** (`Unbabel/wmt22-cometkiwi-da`) gated access granted, downloads fine — but it is **CC-BY-NC-SA-4.0**. Internal evaluation and threshold calibration are fine; it must **not** be embedded in, or required by, anything Versed ships commercially. MetricX-QE licensing to be checked at implementation.
 
-**STATUS:** NOT STARTED.
+Decisions:
+- **D4** [HUMAN ratifies] Do existing QE systems suffice as the core signal? Gates C5 design (ensemble-over-existing vs. train-custom later).
+- **D4b** [AGENT designs, HUMAN ratifies] Versed-QE must run in two modes: a **research** mode (may use NC models like COMETKiwi) and a **shippable** mode (deterministic checks + permissively-licensed signals only). If the NC-free mode loses too much accuracy, that becomes the concrete case for training our own QE model (master-plan Phase 6's "only if evidence shows").
+
+**STATUS:** NOT STARTED — model access cleared, unblocked once C2 outputs exist.
 **NEXT DEPENDENCY:** C2 outputs.
 
 ---

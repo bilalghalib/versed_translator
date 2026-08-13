@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-12T15:47:23.825364+00:00",
+  "generated_at": "2026-08-13T16:46:45.850723+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -181,22 +181,34 @@
   ],
   "recent_commits": [
     {
+      "subject": "Harness runner: demote invalid rows to error rows, write results incrementally",
+      "relative_date": "55 minutes ago"
+    },
+    {
+      "subject": "Fix Modal serve: real annotations for modal.parameter, unpin hub in vllm image",
+      "relative_date": "12 hours ago"
+    },
+    {
+      "subject": "C1 cp2 + C2 harness + Modal serve: v0.1-draft assembly (1,111+139), adapters (anthropic/ollama/openai-compat), scoring, TG27B vLLM batch app",
+      "relative_date": "25 hours ago"
+    },
+    {
       "subject": "C1 checkpoint 1 + C6 checkpoints 1-2: source loaders, rights ledger, works inventory, provenance resolver, PD-translation seed",
-      "relative_date": "30 minutes ago"
+      "relative_date": "25 hours ago"
     },
     {
       "subject": "Dashboard to GitHub Pages (docs/); model-archive fetch script; correct server-serving notes",
-      "relative_date": "61 minutes ago"
+      "relative_date": "26 hours ago"
     },
     {
       "subject": "Versed Translate lab: founding docs, C0 scaffold, status dashboard",
-      "relative_date": "67 minutes ago"
+      "relative_date": "26 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-12T15:17:35.029570+00:00"
+      "mtime": "2026-08-13T16:46:34.153448+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

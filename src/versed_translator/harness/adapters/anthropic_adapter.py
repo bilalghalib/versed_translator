@@ -1,17 +1,21 @@
 """Anthropic Messages API adapter.
 
 Uses the official `anthropic` Python SDK (not raw HTTP) per the repo's LLM
-tooling convention. NOTE: this SDK is not yet declared in pyproject.toml --
-this harness package cannot touch that file (owned elsewhere; see repo hard
-rules), so `anthropic` was installed ad hoc into the shared venv
-(`uv pip install anthropic`) rather than via `uv add`. Whoever owns
-pyproject.toml should add `anthropic>=0.121` as a proper dependency; until
-then, a bare `uv sync` may remove this package from the venv.
+tooling convention.
 
-Auth: reads ANTHROPIC_API_KEY from the environment (already exported in the
-parent shell per the task brief). Fails loudly if absent -- no silent
-fallback to a different credential source, since this is a lab script,
-not an interactive CLI session.
+Auth: reads ANTHROPIC_API_KEY from the environment. Fails loudly if absent --
+no silent fallback to a different credential source, since this is a lab
+script, not an interactive CLI session.
+
+**Token budget (learned the hard way, 2026-08-13).** Sonnet 5 runs adaptive
+thinking by default -- omitting the `thinking` parameter does NOT mean "no
+thinking" -- and `max_tokens` is a hard cap on thinking *plus* response text.
+At max_tokens=4096, 23/139 long hadith passages spent the whole budget
+thinking and returned zero text blocks: `output_tokens` pegged at exactly the
+cap, `stop_reason == "max_tokens"`, empty translation. Thinking `display`
+defaults to "omitted", so those tokens are invisible in the response.
+Hence the generous default below, and the explicit max_tokens branch: a
+truncated translation is reported as an error, never as an empty string.
 """
 
 from __future__ import annotations
@@ -23,6 +27,11 @@ from versed_translator.harness.adapters.base import AdapterError, TranslationRes
 from versed_translator.harness.prompts import PromptTemplate, parse_structured_response
 
 DEFAULT_MODEL = "claude-sonnet-5"
+
+# Must cover adaptive thinking + the translation itself (see module docstring).
+# Longest v0.1-draft band is 250-600 Arabic words; English output plus thinking
+# fits comfortably here, and unused budget costs nothing.
+DEFAULT_MAX_TOKENS = 16000
 
 # $/million tokens, list API pricing. NEEDS VERIFICATION -- re-check against
 # shared/live-sources.md's Pricing URL before trusting cost_estimate for any
@@ -66,7 +75,7 @@ def translate_batch(
     *,
     model: str = DEFAULT_MODEL,
     exemplar: str | None = None,
-    max_tokens: int = 4096,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
     client=None,
     **_cfg,
 ) -> list[TranslationResult]:
@@ -116,6 +125,17 @@ def _translate_one(client, item, template, model, exemplar, max_tokens) -> Trans
         )
 
     text = "".join(block.text for block in response.content if block.type == "text")
+    if response.stop_reason == "max_tokens":
+        # Budget exhausted (often by invisible thinking tokens): whatever text
+        # exists is truncated mid-translation. Report it, never score it.
+        return TranslationResult(
+            item_id=item["id"],
+            translation=text or None,
+            source_tokens=response.usage.input_tokens,
+            output_tokens=response.usage.output_tokens,
+            latency_s=latency_s,
+            error=f"max_tokens_truncated (raise max_tokens above {max_tokens})",
+        )
     return TranslationResult(
         item_id=item["id"],
         translation=text,
@@ -158,6 +178,20 @@ def _translate_structured(client, items, template, model, exemplar, max_tokens) 
 
     text = "".join(block.text for block in response.content if block.type == "text")
     ids = [i["id"] for i in items]
+    if response.stop_reason == "max_tokens":
+        # A truncated batch yields unparseable/partial JSON; fail the whole
+        # batch explicitly rather than letting the parse error mask the cause.
+        return [
+            TranslationResult(
+                item_id=i,
+                translation=None,
+                source_tokens=response.usage.input_tokens,
+                output_tokens=response.usage.output_tokens,
+                latency_s=latency_s,
+                error=f"max_tokens_truncated (raise max_tokens above {max_tokens})",
+            )
+            for i in ids
+        ]
     try:
         parsed = parse_structured_response(text)
     except ValueError as exc:

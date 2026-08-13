@@ -31,7 +31,8 @@ Design notes:
   SCALEDOWN_WINDOW_SECONDS below for the exact tradeoff.
 """
 
-from __future__ import annotations
+# NOTE: no `from __future__ import annotations` here — modal.parameter() needs
+# real (non-stringified) type annotations on @app.cls fields to serialize them.
 
 import json
 import time
@@ -114,8 +115,10 @@ download_image = modal.Image.debian_slim(python_version="3.11").pip_install(
 serve_image = (
     modal.Image.from_registry(CUDA_BASE_IMAGE, add_python="3.11")
     .pip_install(
+        # vllm pins its own (newer) huggingface_hub — do not double-pin it here,
+        # that made pip's resolution impossible. hf_transfer rides along unpinned.
         f"vllm=={VLLM_VERSION}",
-        "huggingface_hub[hf_transfer]==0.26.2",
+        "hf_transfer",
     )
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1", "VLLM_LOGGING_LEVEL": "INFO"})
 )

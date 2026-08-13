@@ -79,33 +79,39 @@ def run(
     wall_s = time.monotonic() - started
 
     rows = []
-    for result in results:
-        row = make_row(
-            run_id=run_id,
-            item_id=result.item_id,
-            model=model,
-            model_version=model_version,
-            adapter=adapter_name,
-            quantization=quantization,
-            prompt_template_id=template_id,
-            source_tokens=result.source_tokens,
-            output_tokens=result.output_tokens,
-            latency_s=result.latency_s,
-            batch_size=batch_size,
-            gpu=gpu,
-            cost_estimate=None,
-            translation=result.translation,
-            error=result.error,
-        )
-        problems = validate_row(row)
-        if problems:
-            raise ValueError(f"invalid result row for item {result.item_id!r}: {problems}")
-        rows.append(row)
-
     results_path = run_dir / "results.jsonl"
     with open(results_path, "w", encoding="utf-8") as f:
-        for row in rows:
+        for result in results:
+            row = make_row(
+                run_id=run_id,
+                item_id=result.item_id,
+                model=model,
+                model_version=model_version,
+                adapter=adapter_name,
+                quantization=quantization,
+                prompt_template_id=template_id,
+                source_tokens=result.source_tokens,
+                output_tokens=result.output_tokens,
+                latency_s=result.latency_s,
+                batch_size=batch_size,
+                gpu=gpu,
+                cost_estimate=None,
+                translation=result.translation,
+                error=result.error,
+            )
+            problems = validate_row(row)
+            if problems:
+                # A model returning an empty/invalid payload for one item is
+                # data about that item, not a reason to lose the whole run:
+                # demote to an error row and keep going.
+                if not row.get("error"):
+                    row["error"] = f"invalid result row: {problems}"
+                if validate_row(row):
+                    row["translation"] = ""
+                    row["error"] = f"unvalidatable result row: {problems}"
+            rows.append(row)
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
+            f.flush()
 
     run_meta = {
         "run_id": run_id,

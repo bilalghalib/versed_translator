@@ -206,7 +206,18 @@ def load_cometkiwi(model_name: str = DEFAULT_QE_MODEL, batch_size: int = 8, gpus
 
     def scorer(sources: list[str], hypotheses: list[str]) -> list[float]:
         data = [{"src": s, "mt": h} for s, h in zip(sources, hypotheses)]
-        out = model.predict(data, batch_size=batch_size, gpus=gpus, progress_bar=False)
+        # num_workers=1: comet 2.2.x passes a multiprocessing_context to its
+        # DataLoader unconditionally, which newer torch rejects when
+        # num_workers=0 ("multiprocessing_context can only be used with
+        # multi-process loading"). One worker satisfies torch without
+        # meaningfully changing throughput at this batch size.
+        out = model.predict(
+            data,
+            batch_size=batch_size,
+            gpus=gpus,
+            progress_bar=False,
+            num_workers=1,
+        )
         return list(out["scores"])
 
     return scorer

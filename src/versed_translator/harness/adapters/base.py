@@ -29,6 +29,10 @@ class TranslationResult:
     output_tokens: int | None
     latency_s: float | None
     error: str | None = None
+    # Adapters that know their provider's prices fill this in (see each
+    # adapter's PRICE_TABLE); local/self-hosted adapters leave it None and
+    # the run's GPU-hour cost is accounted for separately in throughput/.
+    cost_estimate: float | None = None
 
 
 class AdapterError(RuntimeError):

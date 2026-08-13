@@ -95,7 +95,7 @@ def run(
                 latency_s=result.latency_s,
                 batch_size=batch_size,
                 gpu=gpu,
-                cost_estimate=None,
+                cost_estimate=result.cost_estimate,
                 translation=result.translation,
                 error=result.error,
             )

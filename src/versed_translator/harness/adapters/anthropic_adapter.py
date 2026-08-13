@@ -121,6 +121,7 @@ def _translate_one(client, item, template, model, exemplar, max_tokens) -> Trans
             source_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
             latency_s=latency_s,
+            cost_estimate=_cost_estimate(model, response.usage.input_tokens, response.usage.output_tokens),
             error="refusal",
         )
 
@@ -134,6 +135,7 @@ def _translate_one(client, item, template, model, exemplar, max_tokens) -> Trans
             source_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
             latency_s=latency_s,
+            cost_estimate=_cost_estimate(model, response.usage.input_tokens, response.usage.output_tokens),
             error=f"max_tokens_truncated (raise max_tokens above {max_tokens})",
         )
     return TranslationResult(
@@ -142,6 +144,7 @@ def _translate_one(client, item, template, model, exemplar, max_tokens) -> Trans
         source_tokens=response.usage.input_tokens,
         output_tokens=response.usage.output_tokens,
         latency_s=latency_s,
+        cost_estimate=_cost_estimate(model, response.usage.input_tokens, response.usage.output_tokens),
     )
 
 
@@ -223,6 +226,7 @@ def _translate_structured(client, items, template, model, exemplar, max_tokens) 
                     source_tokens=response.usage.input_tokens,
                     output_tokens=response.usage.output_tokens,
                     latency_s=latency_s,
+                    cost_estimate=_cost_estimate(model, response.usage.input_tokens, response.usage.output_tokens),
                 )
             )
         else:

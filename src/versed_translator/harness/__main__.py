@@ -44,7 +44,26 @@ def _cmd_score(args: argparse.Namespace) -> int:
     run_dir = Path(args.run_dir)
     results_path = run_dir / "results.jsonl"
     rows = [json.loads(line) for line in results_path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    report = score.score_run(rows)
+
+    # Reference-based metrics (chrF) need the source items, which live outside
+    # the run dir; run_meta.json records where. Without this the report shows
+    # chrf: null and silently looks like "no references exist".
+    source_texts: dict[str, str] = {}
+    reference_texts: dict[str, str] = {}
+    meta_path = run_dir / "run_meta.json"
+    if meta_path.exists():
+        items_path = Path(json.loads(meta_path.read_text(encoding="utf-8")).get("items_path", ""))
+        if items_path.exists():
+            for line in items_path.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                item = json.loads(line)
+                if item.get("arabic"):
+                    source_texts[item["id"]] = item["arabic"]
+                if item.get("reference_english"):
+                    reference_texts[item["id"]] = item["reference_english"]
+
+    report = score.score_run(rows, source_texts=source_texts, reference_texts=reference_texts)
     report_path = run_dir / "score_report.json"
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     md_path = run_dir / "score_report.md"

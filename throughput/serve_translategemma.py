@@ -70,7 +70,16 @@ GPU_KIND = "H100"
 MAX_MODEL_LEN = 4096
 DEFAULT_MAX_NEW_TOKENS = 1024
 DEFAULT_TEMPERATURE = 0.1
-GPU_MEMORY_UTILIZATION = 0.90
+GPU_MEMORY_UTILIZATION = 0.95
+
+# Bounds vLLM's activation-peak + CUDA-graph reservation, which is what
+# actually starved the KV cache on the 27B: measured 51.23 GiB of weights
+# on an 80GB H100 left "Available KV cache memory: -0.62 GiB" at util=0.90
+# with vLLM's default max_num_seqs (256). 32 concurrent sequences is far
+# more than the bakeoff needs and leaves comfortable KV headroom; raise it
+# deliberately for the C3 throughput grid, where concurrency is the variable
+# under test and the cost of a failed launch is understood.
+MAX_NUM_SEQS = 32
 
 # Idle-container timeout for cost control. A 27B BF16 model load from the
 # volume is itself a multi-minute operation, so this is deliberately not a
@@ -282,6 +291,7 @@ class TranslateGemmaServer:
             dtype="bfloat16",
             max_model_len=MAX_MODEL_LEN,
             gpu_memory_utilization=GPU_MEMORY_UTILIZATION,
+            max_num_seqs=MAX_NUM_SEQS,
             trust_remote_code=True,
         )
         self._tokenizer = self.llm.get_tokenizer()

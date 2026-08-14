@@ -26,8 +26,9 @@ corpus checkouts, re-running produces byte-identical manifest.json /
 stats.md content (item ordering included).
 
 Rights hygiene (repo is public): this module writes full item data
-(including Arabic/English text) ONLY under /Volumes/Nodes/versed-translator
-(benchmark-data/v0.1-draft/{draft_test,dev_bakeoff}.jsonl). The repo-tracked
+(including Arabic/English text) ONLY under SCRATCH_DIR (see paths.py; env
+VERSED_SCRATCH, currently /Volumes/hikma/versed-translator --
+benchmark-data/v0.1-draft/{draft_test,dev_bakeoff}.jsonl). The repo-tracked
 outputs (benchmark/releases/v0.1-draft/manifest.json and stats.md) carry
 only ids, hashes, counts, and rights_status -- never quoted text.
 """

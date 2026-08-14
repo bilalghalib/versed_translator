@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T08:31:03.162916+00:00",
+  "generated_at": "2026-08-14T08:58:12.886251+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -20,7 +20,7 @@
       "id": "C2",
       "name": "Translation harness + bakeoff",
       "end_state": "`versed-harness run --model <id> --benchmark v0.1` emits standardized JSONL (master-plan run schema:",
-      "next_dependency": "C1 frozen.",
+      "next_dependency": "D2c (keys-or-descope); C1 frozen for the real run.",
       "status": "ACTIVE"
     },
     {
@@ -28,20 +28,20 @@
       "name": "Measured serving economics",
       "end_state": "Reproducible `throughput/` Modal scripts;",
       "next_dependency": "C2 checkpoint 3 (serving adapter).",
-      "status": "ACTIVE"
+      "status": "NOT STARTED"
     },
     {
       "id": "C4",
       "name": "QE truth study (existing systems + adversarial suite)",
       "end_state": "MetricX-QE + COMETKiwi (+ any clearly superior current QE found at execution time \u2014 pin exact versions) scored over **all** C2 outputs;",
-      "next_dependency": "C2 outputs.",
+      "next_dependency": "none for MetricX (existing outputs suffice); diverse benchmark (D1e) for a matrix worth re-freezing.",
       "status": "ACTIVE"
     },
     {
       "id": "C5",
       "name": "Versed-QE v0 (router)",
       "end_state": "Installable `versed_qe` package:",
-      "next_dependency": "C4 matrix.",
+      "next_dependency": "C4 MetricX result; checkpoint 2 labeling.",
       "status": "ACTIVE"
     },
     {
@@ -107,13 +107,23 @@
     },
     {
       "id": "D1d",
-      "decision": "ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) \u2014 contact author, or hold at eval-internal",
-      "when": "before C8 corpus"
+      "decision": "ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) \u2014 email author; **combine with D1e metadata question, one email**",
+      "when": "**now**"
     },
     {
-      "id": "\u2014",
-      "decision": "Provider API keys (Gemini/Qwen/DeepSeek/OpenAI)",
-      "when": "C2 start"
+      "id": "D1e",
+      "decision": "Genre-coverage fork (a: ATHAR author metadata / b: sub-30-word band / c: hadith-only v0.1, genre via PD in v0.2)",
+      "when": "**now** \u2014 gates benchmark rebuild"
+    },
+    {
+      "id": "D2c",
+      "decision": "Provider keys **or** formally descope bakeoff field",
+      "when": "**now**"
+    },
+    {
+      "id": "D2e",
+      "decision": "Ratify structured block translation as production contract",
+      "when": "**now** \u2014 dissolves C5 known gap"
     },
     {
       "id": "D2b, D3b",
@@ -122,8 +132,8 @@
     },
     {
       "id": "D2a",
-      "decision": "Ratify baseline translator",
-      "when": "C2 report"
+      "decision": "Ratify baseline translator (largely forced \u2192 TG27B; see C2)",
+      "when": "after TG12B leg"
     },
     {
       "id": "D6a",
@@ -181,8 +191,12 @@
   ],
   "recent_commits": [
     {
+      "subject": "Add START HERE orientation block for fresh sessions",
+      "relative_date": "27 minutes ago"
+    },
+    {
       "subject": "C5: 9 deterministic fidelity checks targeting COMETKiwi's blind spots",
-      "relative_date": "3 hours ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "Lint: mark study runner executable, drop stale noqa",
@@ -206,7 +220,7 @@
     },
     {
       "subject": "Fix KV cache OOM: util 0.90->0.95, bound max_num_seqs to 32",
-      "relative_date": "9 hours ago"
+      "relative_date": "10 hours ago"
     },
     {
       "subject": "Pin transformers<5 (vLLM rope_scaling root cause); record C2 measured results",
@@ -223,16 +237,12 @@
     {
       "subject": "Harness: thread cost through, load references for chrF, fix TG12B run",
       "relative_date": "15 hours ago"
-    },
-    {
-      "subject": "Fix Sonnet 5 token-budget trap; record COMETKiwi NC constraint",
-      "relative_date": "16 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T08:30:50.021827+00:00"
+      "mtime": "2026-08-14T08:57:58.647333+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

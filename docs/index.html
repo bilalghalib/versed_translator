@@ -264,7 +264,7 @@ footer.site-footer ul {
 <header class="site-header">
   <h1>Versed Translate Lab</h1>
   <div class="meta">
-    Generated 2026-08-14T08:31:03.162916+00:00 &middot;
+    Generated 2026-08-14T08:58:12.886251+00:00 &middot;
     <a href="https://github.com/bilalghalib/versed_translator">https://github.com/bilalghalib/versed_translator</a>
   </div>
 </header>
@@ -298,12 +298,12 @@ footer.site-footer ul {
           </div>
           <div class="card-name">Translation harness + bakeoff</div>
           <div class="card-end-state">`versed-harness run --model &lt;id&gt; --benchmark v0.1` emits standardized JSONL (master-plan run schema:</div>
-          <div class="card-dep">Next dependency: C1 frozen.</div>
+          <div class="card-dep">Next dependency: D2c (keys-or-descope); C1 frozen for the real run.</div>
         </div>
         <div class="card">
           <div class="card-head">
             <span class="card-id">C3</span>
-            <span class="chip chip-blue">ACTIVE</span>
+            <span class="chip chip-gray">NOT STARTED</span>
           </div>
           <div class="card-name">Measured serving economics</div>
           <div class="card-end-state">Reproducible `throughput/` Modal scripts;</div>
@@ -316,7 +316,7 @@ footer.site-footer ul {
           </div>
           <div class="card-name">QE truth study (existing systems + adversarial suite)</div>
           <div class="card-end-state">MetricX-QE + COMETKiwi (+ any clearly superior current QE found at execution time — pin exact versions) scored over **all** C2 outputs;</div>
-          <div class="card-dep">Next dependency: C2 outputs.</div>
+          <div class="card-dep">Next dependency: none for MetricX (existing outputs suffice); diverse benchmark (D1e) for a matrix worth re-freezing.</div>
         </div>
         <div class="card">
           <div class="card-head">
@@ -325,7 +325,7 @@ footer.site-footer ul {
           </div>
           <div class="card-name">Versed-QE v0 (router)</div>
           <div class="card-end-state">Installable `versed_qe` package:</div>
-          <div class="card-dep">Next dependency: C4 matrix.</div>
+          <div class="card-dep">Next dependency: C4 MetricX result; checkpoint 2 labeling.</div>
         </div>
         <div class="card">
           <div class="card-head">
@@ -399,7 +399,7 @@ footer.site-footer ul {
     <div class="table-wrap">
       <table>
         <thead><tr><th>ID</th><th>Decision</th><th>When</th></tr></thead>
-        <tbody><tr><td>D0</td><td>~~Repo visibility~~ **DECIDED: public**</td><td>done 2026-08-12</td></tr><tr><td>D1c</td><td>Benchmark publication policy (public split + private held-out)</td><td>with C1 freeze</td></tr><tr><td>D1d</td><td>ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — contact author, or hold at eval-internal</td><td>before C8 corpus</td></tr><tr><td>—</td><td>Provider API keys (Gemini/Qwen/DeepSeek/OpenAI)</td><td>C2 start</td></tr><tr><td>D2b, D3b</td><td>Spend caps: bakeoff, throughput grid</td><td>C2/C3 start</td></tr><tr><td>D2a</td><td>Ratify baseline translator</td><td>C2 report</td></tr><tr><td>D6a</td><td>Approve + send OpenITI letter</td><td>early, async</td></tr><tr><td>D5</td><td>Threshold profile (recommend conservative)</td><td>C5 done</td></tr><tr><td>D8a/c</td><td>Fine-tune GO/NO-GO + compute cap</td><td>C8</td></tr><tr><td>D9a/b</td><td>Pilot book + acceptance bar</td><td>C9 start</td></tr><tr><td>D11</td><td>English voice + rights record</td><td>C11</td></tr><tr><td>D6b</td><td>Counsel engagement</td><td>before commercial</td></tr><tr><td>D12a/b/c</td><td>Releases, licenses, sustainability</td><td>C12</td></tr></tbody>
+        <tbody><tr><td>D0</td><td>~~Repo visibility~~ **DECIDED: public**</td><td>done 2026-08-12</td></tr><tr><td>D1c</td><td>Benchmark publication policy (public split + private held-out)</td><td>with C1 freeze</td></tr><tr><td>D1d</td><td>ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — email author; **combine with D1e metadata question, one email**</td><td>**now**</td></tr><tr><td>D1e</td><td>Genre-coverage fork (a: ATHAR author metadata / b: sub-30-word band / c: hadith-only v0.1, genre via PD in v0.2)</td><td>**now** — gates benchmark rebuild</td></tr><tr><td>D2c</td><td>Provider keys **or** formally descope bakeoff field</td><td>**now**</td></tr><tr><td>D2e</td><td>Ratify structured block translation as production contract</td><td>**now** — dissolves C5 known gap</td></tr><tr><td>D2b, D3b</td><td>Spend caps: bakeoff, throughput grid</td><td>C2/C3 start</td></tr><tr><td>D2a</td><td>Ratify baseline translator (largely forced → TG27B; see C2)</td><td>after TG12B leg</td></tr><tr><td>D6a</td><td>Approve + send OpenITI letter</td><td>early, async</td></tr><tr><td>D5</td><td>Threshold profile (recommend conservative)</td><td>C5 done</td></tr><tr><td>D8a/c</td><td>Fine-tune GO/NO-GO + compute cap</td><td>C8</td></tr><tr><td>D9a/b</td><td>Pilot book + acceptance bar</td><td>C9 start</td></tr><tr><td>D11</td><td>English voice + rights record</td><td>C11</td></tr><tr><td>D6b</td><td>Counsel engagement</td><td>before commercial</td></tr><tr><td>D12a/b/c</td><td>Releases, licenses, sustainability</td><td>C12</td></tr></tbody>
       </table>
     </div>
 </section>
@@ -413,7 +413,7 @@ footer.site-footer ul {
 <section id="commits">
   <h2>Recent commits</h2>
   <p class="section-note">Last 12 entries from git log.</p>
-  <ul class="commit-list"><li><span class="commit-subject">C5: 9 deterministic fidelity checks targeting COMETKiwi&#x27;s blind spots</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">Lint: mark study runner executable, drop stale noqa</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">C4: detection study runner + comet DataLoader compat fix</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">C4: detection-matrix engine + COMETKiwi wrapper</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">C4: adversarial error-injection suite (all 15 master-plan corruption types)</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">Fix KV cache OOM: util 0.90-&gt;0.95, bound max_num_seqs to 32</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">Pin transformers&lt;5 (vLLM rope_scaling root cause); record C2 measured results</span> <span class="commit-date">10 hours ago</span></li><li><span class="commit-subject">Fix vLLM/Gemma3 rope_scaling regression via hf_overrides</span> <span class="commit-date">12 hours ago</span></li><li><span class="commit-subject">Ollama adapter: raise timeout to match measured local inference speed</span> <span class="commit-date">12 hours ago</span></li><li><span class="commit-subject">Harness: thread cost through, load references for chrF, fix TG12B run</span> <span class="commit-date">15 hours ago</span></li><li><span class="commit-subject">Fix Sonnet 5 token-budget trap; record COMETKiwi NC constraint</span> <span class="commit-date">16 hours ago</span></li></ul>
+  <ul class="commit-list"><li><span class="commit-subject">Add START HERE orientation block for fresh sessions</span> <span class="commit-date">27 minutes ago</span></li><li><span class="commit-subject">C5: 9 deterministic fidelity checks targeting COMETKiwi&#x27;s blind spots</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Lint: mark study runner executable, drop stale noqa</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">C4: detection study runner + comet DataLoader compat fix</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">C4: detection-matrix engine + COMETKiwi wrapper</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">C4: adversarial error-injection suite (all 15 master-plan corruption types)</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">Fix KV cache OOM: util 0.90-&gt;0.95, bound max_num_seqs to 32</span> <span class="commit-date">10 hours ago</span></li><li><span class="commit-subject">Pin transformers&lt;5 (vLLM rope_scaling root cause); record C2 measured results</span> <span class="commit-date">10 hours ago</span></li><li><span class="commit-subject">Fix vLLM/Gemma3 rope_scaling regression via hf_overrides</span> <span class="commit-date">12 hours ago</span></li><li><span class="commit-subject">Ollama adapter: raise timeout to match measured local inference speed</span> <span class="commit-date">12 hours ago</span></li><li><span class="commit-subject">Harness: thread cost through, load references for chrF, fix TG12B run</span> <span class="commit-date">15 hours ago</span></li></ul>
 </section>
 
 
@@ -424,7 +424,7 @@ footer.site-footer ul {
   <code>make -f tools/dashboard.mk dashboard</code>) whenever the docs change.
   <ul>
     Doc modification times:
-    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-14T08:30:50.021827+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-12T13:59:47.265834+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:46:02.373423+00:00</li>
+    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-14T08:57:58.647333+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-12T13:59:47.265834+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:46:02.373423+00:00</li>
   </ul>
 </footer>
 

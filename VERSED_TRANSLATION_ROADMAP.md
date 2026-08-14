@@ -11,17 +11,24 @@ Read this block, then §Component end states for whatever you pick up. Everythin
 
 **Where we actually are (2026-08-14).** Master-plan execution steps 0–7 are underway *in the prescribed order*. The machinery works end to end: benchmark assembly → harness → GPU serving → QE study. What is thin is **depth at each step**, not sequence.
 
-**⚠️ The one thing to fix before trusting any result: the benchmark is 99.6% hadith** (1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4; zero tafsir, philosophy, adab, history, poetry). Every headline number below was measured on that single genre. Hadith is unusually formulaic (isnad chains, fixed openings), so **none of these results can be assumed to generalize.** Fixing C1's genre coverage is the highest-value next action — it unblocks honest versions of C2, C3, C4, and C5 simultaneously.
+**⚠️ The one thing to fix before trusting any result: the benchmark is 99.6% hadith** (1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4; zero tafsir, philosophy, adab, history, poetry). Every headline number below was measured on that single genre. Hadith is unusually formulaic (isnad chains, fixed openings), so **none of these results can be assumed to generalize.**
+
+**⚠️ Correction (2026-08-14 drift review): genre diversification is NOT a sampling fix, and ATHAR cannot supply it as-is.** Two measured facts (recorded in `src/versed_translator/benchmark/assemble.py`): (1) ATHAR's parquet files carry only `(arabic, english)` columns — no per-row work/author/genre metadata exists, so genre stratification over ATHAR is impossible today; (2) ATHAR's median is 18 Arabic words, below the benchmark's own 30-word band floor — that, not a sampler bug, is why only 4 ATHAR rows survived. Genre coverage is therefore a **data-source decision** — see **D1e**, a [HUMAN] fork. Do not start an agent session on "fix genre coverage" before D1e is decided; it will stall or silently balloon into C7.
 
 **Measured results so far** (all hadith-only, see caveat above):
 - **C2 bakeoff:** TG27B (Modal H100) and Claude Sonnet 5 both 139/139 clean, chrF **50.24 vs 50.60** — statistically tied. TG27B ran ~36× faster (0.68s vs 24.5s mean) at ~$0.27 for the whole set. Qwen-MT / Gemini / DeepSeek never ran (no API keys), so "which baseline translator" is **not** actually decided.
 - **C4 QE study:** COMETKiwi detects **30.4%** of 1,144 injected errors. Negation deletion 10.9%, terminology 0.8%, agent/patient reversal 9.1%. Clause removal has a **negative** mean delta — it scores truncated text *higher* than complete text. Only fluency artifacts are caught well (duplicate sentence 71.9%). **COMETKiwi is a fluency signal, not a safety gate.** MetricX-QE still untested, so this rests on one model.
 - **C5:** 9 deterministic checks built against those measured blind spots. One documented gap: partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic — likely fixed by structured block translation with ID preservation (the harness already supports it), not by threshold tuning.
 
-**Recommended next actions, in order:**
-1. **C1 checkpoint 2 — genre-diversify the benchmark** from ATHAR's 18 works + the 16 PD translations in `corpus/PD_TRANSLATIONS.md`.
-2. Re-run C2 bakeoff and C4 QE study on the diverse set; only then are the numbers above trustworthy.
-3. C5 router (ACCEPT / REPAIR / HUMAN_REVIEW), thresholds calibrated on real genre spread.
+**Recommended next actions (updated 2026-08-14 after drift review):**
+1. **[HUMAN] one sitting (~45 min), before more agent work — the loops below all trace to pending human decisions being worked around instead of made:**
+   - Send the OpenITI letter (D6a — drafted since 2026-08-12).
+   - Email the ATHAR author — **one email, two questions**: which license is intended (D1d), and does per-row work/genre provenance exist for the pairs (feeds D1e)?
+   - Decide D2c: provision Gemini/Qwen/DeepSeek keys, or formally descope the bakeoff field (see C2 — D2a is largely forced anyway).
+   - Ratify D2e: structured block translation with ID preservation as the production contract (dissolves C5's worst known gap architecturally — cheaper than any detection scheme).
+2. **[AGENT] meanwhile, on existing artifacts (no new benchmark needed):** MetricX-QE over the existing TG27B outputs — check its license first; if permissive it is the **only** shippable neural QE candidate (COMETKiwi is NC), which changes C5's feature set, so this must land **before** router design. Then the TG12B Modal leg — the 12B↔27B gap is unmeasured and drives all serving economics.
+3. **After D1e is decided:** rebuild the benchmark **once**, freeze it, run the full measurement suite **once** (bakeoff legs + QE matrix + deterministic checks). **No re-measurement treadmill:** settle all inputs (benchmark composition, keys yes/no, MetricX in) before spending GPU money on a re-run.
+4. C5 router only after MetricX results + the start of the human judgment set (C5 checkpoint 2 — the longest serial [HUMAN] task on the critical path; start labeling early).
 
 **Traps already paid for — do not re-derive:**
 - A full row count, clean exit code, and populated output file are **all compatible with total failure**. A 139-row run was 139 connection errors; the tell was `wall_s: 0.06`. Always check the error field *and* a plausibility signal.
@@ -112,8 +119,12 @@ Decisions:
 - **D1a** [HUMAN ratifies] Archaic PD translations stay in as references with a `register:archaic` flag (recommended — QE analysis needs them) vs. excluded.
 - **D1b** [AGENT proposes] Small experimental poetry subset in v0.1 (recommended) vs. defer.
 - **D1c** [HUMAN] Publication policy: publish the rights-safe split with canary strings; keep held-out split private permanently (recommended). Decides with D0.
+- **D1e** [HUMAN] **Genre-coverage fork** (2026-08-14 — the draft is 99.6% hadith and ATHAR cannot fix it as-is, see START HERE correction). Options:
+  - **(a)** Email the ATHAR author for per-work/genre provenance (combine with the D1d license question — one email, two unlocks). Recommended first move; costs nothing.
+  - **(b)** Interim: add a sub-30-word band so ATHAR's sentence-level diversity counts, accepting coarse genre labels until (a) answers.
+  - **(c)** Accept v0.1-draft as hadith-only (every result already labeled so) and get genre via PD-translation alignment — this pulls C7 forward and is a genuinely bigger scope; take it deliberately as the v0.2 path, never by drift.
 
-**STATUS:** ACTIVE — checkpoint 1 complete with measured counts; next: checkpoint 2 (stratified assembly) + first PD alignment for the longer bands.
+**STATUS:** ACTIVE — checkpoints 1–2 done at draft level (v0.1-draft: 1,111 draft_test + 139 dev_bakeoff, assembly deterministic); **not frozen**, and genre coverage blocked on D1e. Longer bands still need PD sources.
 **NEXT DEPENDENCY:** none for short bands; C7 (or manual alignment of 1–2 PD works) for 100+-word bands.
 
 ---
@@ -150,10 +161,12 @@ Checkpoints:
 6. [AGENT] Close versed `ACTIVE_RUN` Cut 5 by reference to this report (one bakeoff, not two divergent ones).
 
 Decisions:
-- **D2a** [HUMAN ratifies AGENT recommendation] Baseline production translator + measured 12B↔27B gap.
+- **D2a** [HUMAN ratifies AGENT recommendation] Baseline production translator + measured 12B↔27B gap. **Largely forced (2026-08-14 insight):** C8 requires an open, fine-tunable base — Gemini/DeepSeek-API/Qwen-MT-API cannot be it regardless of score. TG27B is the only serious open MT candidate in the field and just tied the frontier ceiling on hadith at 36× the speed. The missing provider legs answer a *different* question (pure-API corpus-route cost), which only matters if fine-tuning fails at D8a. The one leg still genuinely needed: **TG12B on Modal** (12B↔27B gap drives economics; never measured).
+- **D2c** [HUMAN] Provision Gemini/Qwen/DeepSeek keys **or** formally descope the bakeoff field to TG27B/TG12B + Claude ceiling, recording D2a as decided-by-field. Either is fine; carrying "no keys" as ambient blockage is not.
+- **D2e** [HUMAN ratifies] **Structured block translation with ID preservation as the production contract.** Dissolves the C5 known gap (partial clause removal on unpunctuated classical Arabic — invisible to both COMETKiwi and deterministic checks from (source, output) alone; a dropped block is directly observable). Harness already supports it. One-line architectural decision, cheaper than any detection scheme.
 
-**STATUS:** NOT STARTED.
-**NEXT DEPENDENCY:** C1 frozen.
+**STATUS:** ACTIVE — harness + scoring built; dev_bakeoff (139 items, hadith-only) measured for Sonnet 5 and TG27B; TG12B Modal leg pending; full bakeoff blocked on D2c + C1 freeze.
+**NEXT DEPENDENCY:** D2c (keys-or-descope); C1 frozen for the real run.
 
 ---
 
@@ -206,8 +219,8 @@ Decisions:
 - **D4** [HUMAN ratifies] Do existing QE systems suffice as the core signal? → **Evidence says NO as a primary gate.** Recommendation: ensemble COMETKiwi (fluency) + deterministic fidelity checks; defer any custom neural QE until the ensemble is measured against human judgments.
 - **D4b** [AGENT designs, HUMAN ratifies] Versed-QE must run in two modes: a **research** mode (may use NC models like COMETKiwi) and a **shippable** mode (deterministic checks + permissively-licensed signals only). If the NC-free mode loses too much accuracy, that becomes the concrete case for training our own QE model (master-plan Phase 6's "only if evidence shows").
 
-**STATUS:** NOT STARTED — model access cleared, unblocked once C2 outputs exist.
-**NEXT DEPENDENCY:** C2 outputs.
+**STATUS:** ACTIVE — COMETKiwi detection matrix DONE (30.4%, verdict above; **no further COMETKiwi investment — its role is settled: research-mode fluency signal, NC-licensed, threshold tuning on it is sunk cost**). Next: MetricX-QE over the same TG27B outputs + license check — if permissive it is the only shippable neural QE candidate, so it must land **before** C5 router design.
+**NEXT DEPENDENCY:** none for MetricX (existing outputs suffice); diverse benchmark (D1e) for a matrix worth re-freezing.
 
 ---
 
@@ -230,8 +243,8 @@ Checkpoints:
 Decision:
 - **D5** [HUMAN] Threshold profile for the pilot (recommend **conservative**; compute is cheap, corpus-scale errors are not).
 
-**STATUS:** NOT STARTED.
-**NEXT DEPENDENCY:** C4 matrix.
+**STATUS:** ACTIVE — checkpoint 1 (deterministic checks) done 2026-08-14. Router design waits on the MetricX-QE result (C4) — its license determines the shippable-mode feature set — and calibration waits on checkpoint 2's human judgment set, **the longest serial [HUMAN] task on the critical path; start it early.**
+**NEXT DEPENDENCY:** C4 MetricX result; checkpoint 2 labeling.
 
 ---
 
@@ -370,10 +383,12 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | --- | --- | --- |
 | D0 | ~~Repo visibility~~ **DECIDED: public** | done 2026-08-12 |
 | D1c | Benchmark publication policy (public split + private held-out) | with C1 freeze |
-| D1d | ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — contact author, or hold at eval-internal | before C8 corpus |
-| — | Provider API keys (Gemini/Qwen/DeepSeek/OpenAI) | C2 start |
+| D1d | ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — email author; **combine with D1e metadata question, one email** | **now** |
+| D1e | Genre-coverage fork (a: ATHAR author metadata / b: sub-30-word band / c: hadith-only v0.1, genre via PD in v0.2) | **now** — gates benchmark rebuild |
+| D2c | Provider keys **or** formally descope bakeoff field | **now** |
+| D2e | Ratify structured block translation as production contract | **now** — dissolves C5 known gap |
 | D2b, D3b | Spend caps: bakeoff, throughput grid | C2/C3 start |
-| D2a | Ratify baseline translator | C2 report |
+| D2a | Ratify baseline translator (largely forced → TG27B; see C2) | after TG12B leg |
 | D6a | Approve + send OpenITI letter | early, async |
 | D5 | Threshold profile (recommend conservative) | C5 done |
 | D8a/c | Fine-tune GO/NO-GO + compute cap | C8 |
@@ -389,7 +404,7 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | C0 lab repo | COMPLETE |
 | C1 benchmark | ACTIVE |
 | C2 harness/bakeoff | ACTIVE |
-| C3 economics | ACTIVE (first real measurement: TG12B ~2 tok/s local) |
+| C3 economics | NOT STARTED (the local ~2 tok/s TG12B number is a dead-end datum from an abandoned path, not a C3 measurement; defer until model choice is real) |
 | C4 QE truth study | ACTIVE (COMETKiwi matrix done: 30.4% detection, critical blind spots) |
 | C5 Versed-QE v0 | ACTIVE (9 deterministic checks done; router next) |
 | C6 rights inventory | ACTIVE |

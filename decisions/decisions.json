@@ -9,19 +9,26 @@
       "status": "open",
       "blocks": "Every measured number in the project. Nothing generalizes past hadith until this is answered, and the benchmark cannot be frozen.",
       "question": "The draft benchmark is 1,107 hadith items out of 1,111. Where does genre diversity actually come from?",
-      "why_now": "This gates the benchmark rebuild, and the rebuild gates re-running the bakeoff and QE study. Deciding it late means paying for those runs twice.",
+      "why_now": "This gates the benchmark rebuild, and the rebuild gates re-running the bakeoff and QE study. Deciding it late means paying for those runs twice. D1d is now resolved, so ATHAR is usable — but it still has no per-row genre metadata, so it cannot supply the genre axis by itself.",
       "evidence": [
         "1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4. Zero tafsir, philosophy, adab, history, poetry.",
         "ATHAR's parquet files carry ONLY (arabic, english) columns — no per-row work, author, or genre metadata exists. Verified against both train and test schemas (src/versed_translator/benchmark/assemble.py:20).",
         "ATHAR's median item is 18 Arabic words, below the benchmark's own 30-word band floor — that, not a sampling bug, is why only 4 rows survived.",
-        "Hadith is unusually formulaic (isnad chains, fixed openings). A model that handles it well may fail on Sufi metaphor or legal reasoning and we would not see it."
+        "Hadith is unusually formulaic (isnad chains, fixed openings). A model that handles it well may fail on Sufi metaphor or legal reasoning and we would not see it.",
+        "corpus/PD_TRANSLATIONS.md (compiled 2026-08-12) lists 16 PD translations across 9 genres with verified archive.org URLs — the genres the benchmark is missing are all covered. PD rationales are translator-death-year/pre-1930 heuristics, not cleared legal opinions (D6b still gates commercial use), and their archaic register is D1a's question."
       ],
       "options": [
+        {
+          "key": "d",
+          "label": "Targeted passage alignment from the 16 PD translations (benchmark-scale only)",
+          "detail": "Bilal's question surfaced this and it beats a/b/c. corpus/PD_TRANSLATIONS.md already inventories 16 public-domain English translations across 9 genres, every one with a verified archive.org URL — history, biography, philosophy, adab/maqama, fables, poetry, travel, sira, scripture. The blocker was never FINDING translations; it is aligning them. But a benchmark needs a few hundred passages, not whole books: hand-aligning (or LLM-proposes/human-checks) ~40 passages each from 5-8 works is a fraction of building the general C7 engine, and yields exactly the genre spread the benchmark lacks. Best starting works: Baladhuri/Hitti, Ibn Khallikan/de Slane (each biography is a natural alignment unit), Hariri/Chenery.",
+          "recommended": true
+        },
         {
           "key": "a",
           "label": "Email the ATHAR author for per-work/genre provenance",
           "detail": "Combine with the D1d license question — one email, two possible unlocks. Costs nothing and may hand us the genre axis outright. Does not block starting (b) in parallel.",
-          "recommended": true
+          "recommended": false
         },
         {
           "key": "b",
@@ -36,7 +43,7 @@
           "recommended": false
         }
       ],
-      "recommendation": "Do (a) immediately and (b) as the interim. Treat (c) as the deliberate v0.2 path, not something an agent session backs into.",
+      "recommendation": "Take (d): targeted passage alignment from the PD list, benchmark-scale only. It gets real genre coverage without waiting for C7, and without the ATHAR metadata that does not exist. (b) remains a cheap parallel add. (a) is now moot for licensing — D1d resolved without it — though the author could still confirm whether per-work provenance exists.",
       "issue": 1,
       "decided": null
     },
@@ -126,7 +133,7 @@
       "title": "Provision the remaining provider API keys, or formally descope the bakeoff field?",
       "component": "C2",
       "urgency": "now",
-      "status": "open",
+      "status": "decided",
       "blocks": "Closing out C2 and ratifying D2a. Currently carried as ambient blockage, which is the worst of both.",
       "question": "Do we get Gemini / Qwen-MT / DeepSeek keys, or do we record the bakeoff field as deliberately narrowed?",
       "why_now": "Every session so far has listed 'no API keys' as a gap without either fixing it or dropping it. Either answer unblocks; carrying it does not.",
@@ -152,14 +159,18 @@
       ],
       "recommendation": "Descope, with the TG12B Modal leg still run — the 12B-vs-27B gap is the number that actually drives serving economics and has never been measured.",
       "issue": 3,
-      "decided": null
+      "decided": {
+        "choice": "keys",
+        "date": "2026-08-14",
+        "note": "Bilal provided DeepSeek and Qwen/DashScope keys (stored in gitignored .env, mode 600; repo is public so they must never be committed). Gemini key NOT provided — the Gemini leg stays descoped unless a key arrives. D2a is therefore NOT decided-by-field: DeepSeek and Qwen-MT can now run. Sequencing unchanged: do NOT run these legs on the hadith-only benchmark with the mismatched Modal prompt — fold them into the single post-D1e measurement suite with matched prompts, per the no-re-measurement-treadmill rule."
+      }
     },
     {
       "id": "D1d",
       "title": "ATHAR license conflict — which license is actually intended?",
       "component": "C1",
       "urgency": "now",
-      "status": "open",
+      "status": "decided",
       "blocks": "Using ATHAR in the C8 training corpus. Currently held at eval-internal.",
       "question": "ATHAR's dataset card says CC-BY-SA-4.0 in its YAML and CC-BY-NC-4.0 in its prose. Which governs?",
       "why_now": "The same email should carry the D1e metadata question. One message, two unlocks — and the answer takes days to come back, so it should be out now.",
@@ -184,7 +195,11 @@
       ],
       "recommendation": "Send the combined email. Assume NC in the meantime so nothing blocks on the reply.",
       "issue": 4,
-      "decided": null
+      "decided": {
+        "choice": "athar-is-mit-commercial-ok",
+        "date": "2026-08-14",
+        "note": "Bilal researched the provenance and resolved it without needing the author email. Kandil7/Athar-Datasets (created April 2026) carries HF structured license `mit` AND README prose explicitly permitting commercial use — no conflict there. The 'research and personal use' prose survives only in the later Shamela4 repos (AuthenticIlm/Shamela4_Full_DB, extracted 2026-04-26; Kandil7/Athar-Shamela4, duplicated 2026-06-02), which ALSO carry `license: mit` in structured metadata. Reading: stale prose retained while repo-level license was set to MIT, not a deliberate non-commercial designation. No commit explicitly documenting a license change was found, so this is a well-supported inference, not documentary proof. CONCLUSION: treat the ATHAR dataset/extraction as MIT / commercially usable. IMPORTANT CARVE-OUT: MIT cannot grant copyright the dataset creator does not own. Modern third-party matter inside source works — editor introductions (مقدمة المحقق), modern commentary — must be filtered. Ancient source text is the part we rely on. The Shamela4 `is_hidden: true` flag marks books with copyright/access restrictions and is consistent with this reading."
+      }
     },
     {
       "id": "D6a",

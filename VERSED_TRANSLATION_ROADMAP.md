@@ -42,7 +42,7 @@ Read this block, then §Component end states for whatever you pick up. Everythin
 - **A metadata label is not evidence.** Both Modal legs recorded `prompt_template_id: "v1"` while sending a different prompt entirely; nothing failed, and the bakeoff's headline comparison was quietly confounded for a day. When a run records *what it did*, verify the field against the code path that actually ran.
 - `/Volumes/hikma` (SMB) can degrade mid-session to permission-denied at the share root, breaking symlinks, filelock, curl, cp, rsync and dd in that order. Stage large downloads to the session scratchpad; prefer `ssh nautilus`, where the disk is local at `/mnt/hikma`.
 
-**Open [HUMAN] items:** OpenITI letter (drafted, gitignored at `OPENITI_LETTER_DRAFT.md`); ATHAR license conflict (D1d); provider API keys for a complete bakeoff field; C5 threshold profile (D5).
+**Open [HUMAN] items:** OpenITI letter (D6a, drafted at `OPENITI_LETTER_DRAFT.md`); genre coverage (D1e); structured blocks (D2e) + token window (D4c), which decide together; C5 threshold profile (D5). ~~ATHAR license (D1d)~~ and ~~provider keys (D2c)~~ resolved 2026-08-14.
 
 ---
 
@@ -115,7 +115,7 @@ Workspace (see `src/versed_translator/paths.py`, env-overridable):
 Sequencing insight: **v0.1 uses only pre-aligned sources** (ATHAR, LK Hadith, curated Ormsby excerpts, hand-checked Wikisource passages). Alignment-engine-derived items wait for C7 → they become v0.2 expansion. This unblocks the bakeoff months earlier.
 
 Checkpoints:
-1. [AGENT] ~~Source acquisition + per-source rights ledger~~ **done 2026-08-12** — loaders + `corpus/rights_ledger.json` with verbatim license quotes; measured: **ATHAR 66,043** pairs (65,043 train + 1,000 native test — preserve their split), **LK Hadith 33,845** (README claims 39,038 — real CSVs are ~13% short), **hadith-json 47,317** usable pairs (al-Darimi has zero English; english is INDEX_ONLY per D6c). ⚠️ **ATHAR license conflict**: card YAML says CC-BY-SA-4.0, card prose says CC-BY-NC-4.0 → held at `eval_internal` until the author answers (→ D1d). ⚠️ **Length-band gap**: ATHAR median is 18 Arabic words — sentence-level; the 100–250/250–600 bands must come from PD-translation alignment or curation, not ATHAR.
+1. [AGENT] ~~Source acquisition + per-source rights ledger~~ **done 2026-08-12** — loaders + `corpus/rights_ledger.json` with verbatim license quotes; measured: **ATHAR 66,043** pairs (65,043 train + 1,000 native test — preserve their split), **LK Hadith 33,845** (README claims 39,038 — real CSVs are ~13% short), **hadith-json 47,317** usable pairs (al-Darimi has zero English; english is INDEX_ONLY per D6c). ✅ **ATHAR license — RESOLVED 2026-08-14 (D1d): MIT / commercially usable**, by provenance research rather than an author email. `Kandil7/Athar-Datasets` (created April 2026) carries HF structured `license: mit` **and** prose explicitly permitting commercial use. The "research and personal use" prose survives only in the later Shamela4 repos (`AuthenticIlm/Shamela4_Full_DB` extracted 2026-04-26; `Kandil7/Athar-Shamela4` duplicated 2026-06-02) — which *also* carry `license: mit` in structured metadata, so the best reading is stale prose left in place while the repo-level license was set independently. **Honest limit:** no commit documenting a license change was found; this is a well-supported inference, not documentary proof. **Carve-out in force:** MIT cannot grant copyright the dataset creator doesn't own — modern editor introductions (مقدمة المحقق) and modern commentary must be filtered; the ancient source text is what we rely on (Shamela4's `is_hidden: true` copyright/access flag is consistent with this). ATHAR moves off `eval_internal` for C8 subject to that filter. ⚠️ **Length-band gap**: ATHAR median is 18 Arabic words — sentence-level; the 100–250/250–600 bands must come from PD-translation alignment or curation, not ATHAR.
 2. [AGENT] Normalization + stratified sampling to coverage targets; passage-size banding (30–80 / 100–250 / 250–600 / near-context-limit). Longer bands depend on PD sources (see `corpus/PD_TRANSLATIONS.md`: 16 seed works; strongest for early alignment: Baladhuri/Hitti, Ibn Khallikan/de Slane, Hariri/Chenery+Steingass).
 3. [HUMAN] ~100-item spot audit for alignment/reference quality (Bilal or recruited bilingual reviewer).
 4. [AGENT] Freeze: tag, manifest, stats report, held-out split sealed.
@@ -164,7 +164,9 @@ Decisions:
 
 Checkpoints:
 1. [AGENT] Harness core + versioned prompt registry (seed prompts from `local_translation/prompts.py` fidelity rules + few-shot-Ormsby finding).
-2. [AGENT] API adapters (Anthropic key exists; **[HUMAN] provision Gemini/Qwen/DeepSeek/OpenAI keys**).
+2. [AGENT] API adapters. **Keys provisioned 2026-08-14 (D2c): DeepSeek + Qwen/DashScope, both smoke-verified live.** Gemini/OpenAI still absent → those legs stay descoped. Keys live in gitignored `.env` (mode 600) — **never commit them; this repo is public.** Verified working config, so the bakeoff need not rediscover it:
+   - DeepSeek — `https://api.deepseek.com/chat/completions`, model `deepseek-chat`, `Authorization: Bearer $DEEPSEEK_API_KEY`.
+   - Qwen-MT — `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions` (the **intl** host), model `qwen-mt-turbo`, `$QWEN_API_KEY`. Qwen-MT is a dedicated translation model: it takes `translation_options: {source_lang, target_lang}` and no system prompt, so the harness's prompt-template axis does not apply to it the way it does to the others — record its template id as its own value rather than pretending it ran `v1`.
 3. [AGENT] Modal vLLM/SGLang adapter serving TranslateGemma 27B/12B (verify current model availability/versions at execution time; also becomes C3's serving path).
 4. [HUMAN] **D2b — spend cap** for the full bakeoff (rough placeholder: $100–250 API + $50–150 GPU; replace with measured).
 5. [AGENT] Full run + scoring (reference-based metrics where references exist; C4 QE scores attached later) + report.
@@ -404,9 +406,9 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | --- | --- | --- |
 | D0 | ~~Repo visibility~~ **DECIDED: public** | done 2026-08-12 |
 | D1c | Benchmark publication policy (public split + private held-out) | with C1 freeze |
-| D1d | ATHAR license conflict (card YAML CC-BY-SA vs prose CC-BY-NC) — email author; **combine with D1e metadata question, one email** | **now** |
-| D1e | Genre-coverage fork (a: ATHAR author metadata / b: sub-30-word band / c: hadith-only v0.1, genre via PD in v0.2) | **now** — gates benchmark rebuild |
-| D2c | Provider keys **or** formally descope bakeoff field | **now** |
+| D1d | ~~ATHAR license conflict~~ **DECIDED 2026-08-14: MIT / commercially usable** (issue #4). Carve-out: filter modern editorial matter (مقدمة المحقق) — MIT can't grant copyright the creator doesn't own. | done |
+| D1e | Genre-coverage fork — **new option (d): targeted passage alignment from the 16 PD translations, benchmark-scale only** (now recommended over a/b/c) | **now** — gates benchmark rebuild |
+| D2c | ~~Provider keys or descope~~ **DECIDED 2026-08-14: keys** (issue #3). DeepSeek + Qwen live and verified; Gemini/OpenAI still descoped. | done |
 | D2e | Ratify structured block translation as production contract | **now** — dissolves C5 known gap |
 | D2b, D3b | Spend caps: bakeoff, throughput grid | C2/C3 start |
 | D2a | Ratify baseline translator (largely forced → TG27B; see C2) | after TG12B leg |

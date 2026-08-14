@@ -3019,7 +3019,9 @@ dependencies = [
     { name = "pandas", version = "3.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
     { name = "pyarrow" },
     { name = "sacrebleu" },
+    { name = "sentencepiece" },
     { name = "setuptools" },
+    { name = "transformers" },
     { name = "unbabel-comet" },
 ]
 
@@ -3036,7 +3038,9 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pyarrow", specifier = ">=25.0.1" },
     { name = "sacrebleu", specifier = ">=2.6.0" },
+    { name = "sentencepiece", specifier = ">=0.1.99" },
     { name = "setuptools", specifier = "<81" },
+    { name = "transformers", specifier = ">=4.40.0,<5" },
     { name = "unbabel-comet", specifier = ">=2.2.0" },
 ]
 

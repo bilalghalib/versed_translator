@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
-"""Run the C4 detection study: corrupt C2 translations, score with COMETKiwi.
+"""Run the C4 detection study: corrupt C2 translations, score with a QE model.
 
 Usage:
     uv run python qe/run_detection_study.py \
         --run-dir ~/versed-translator-data/runs/<run> \
         --items ~/versed-translator-data/benchmark-data/v0.1-draft/dev_bakeoff.jsonl \
         --out-dir ~/versed-translator-data/qe/<name> \
-        [--limit 40]
+        [--qe-model cometkiwi|metricx] [--limit 40]
 
 Writes detection_matrix.{json,md} plus scored_pairs.jsonl (raw per-pair
 deltas, so the threshold can be re-analysed without re-scoring).
+
+Two backends, and their numbers are NOT interchangeable. COMETKiwi scores on
+[0, 1]; MetricX is negated into [-25, 0] so higher-is-better holds for both,
+but a delta of 0.5 means very different things on the two scales. The default
+`--threshold` therefore follows `--qe-model` (see
+`detection_matrix.DEFAULT_THRESHOLDS`); pass `--threshold` only if you mean to
+override that, and never reuse one model's number for the other.
 
 Data stays outside the repo: source Arabic and translations are corpus text
 under NC/eval-only terms, so only aggregate reports may ever be committed.
@@ -38,13 +45,48 @@ def main() -> int:
     ap.add_argument("--items", required=True, help="benchmark items jsonl (source Arabic)")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--limit", type=int, default=None, help="cap distinct items (smoke runs)")
-    ap.add_argument("--threshold", type=float, default=0.02)
+    ap.add_argument(
+        "--qe-model",
+        choices=sorted(dm.QE_MODEL_IDS),
+        default="cometkiwi",
+        help="which reference-free QE backend to score with",
+    )
+    ap.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="delta counted as 'detected'; defaults per --qe-model "
+        f"({dm.DEFAULT_THRESHOLDS})",
+    )
+    ap.add_argument(
+        "--metricx-model",
+        default=dm.DEFAULT_METRICX_MODEL,
+        help="HF id or local path (a local path avoids the HF symlink cache, "
+        "which SMB volumes reject)",
+    )
+    ap.add_argument(
+        "--metricx-tokenizer",
+        default=dm.DEFAULT_METRICX_TOKENIZER,
+        help="mT5 tokenizer matching the MetricX size; HF id or local path",
+    )
+    ap.add_argument(
+        "--device",
+        default=None,
+        help="metricx only: torch device (e.g. cpu, mps, cuda). Default picks "
+        "cuda if present, else cpu — MPS stays opt-in because its numerics on "
+        "mT5 have not been validated here",
+    )
     ap.add_argument("--batch-size", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
     run_dir = Path(args.run_dir).expanduser()
     out_dir = Path(args.out_dir).expanduser()
+    threshold = (
+        args.threshold
+        if args.threshold is not None
+        else dm.DEFAULT_THRESHOLDS[args.qe_model]
+    )
 
     items = {r["id"]: r.get("arabic", "") for r in load_jsonl(Path(args.items).expanduser())}
     rows = load_jsonl(run_dir / "results.jsonl")
@@ -69,19 +111,76 @@ def main() -> int:
         # rather than letting the matrix imply those types were tested.
         print(f"[study] NOT EXERCISED on this slice ({len(missing)}): {', '.join(missing)}")
 
-    print(f"[study] loading {dm.DEFAULT_QE_MODEL} (first run downloads ~2.3GB) ...")
-    t0 = time.monotonic()
-    scorer = dm.load_cometkiwi(batch_size=args.batch_size)
+    if args.qe_model == "metricx":
+        model_id = args.metricx_model
+        print(f"[study] loading MetricX {model_id} (first run downloads ~4.9GB) ...")
+        t0 = time.monotonic()
+        scorer = dm.load_metricx(
+            model_name=model_id,
+            tokenizer_name=args.metricx_tokenizer,
+            batch_size=args.batch_size,
+            device=args.device,
+            progress_every=64,
+        )
+        # Reported scores are NEGATED MetricX error scores (higher = better).
+        # Stamped into the summary so nobody reading the JSON later mistakes
+        # the sign for a bug and "fixes" it.
+        score_note = (
+            "MetricX-24 error score on [0,25] (lower=better), NEGATED to "
+            "[-25,0] so higher=better like COMETKiwi. Deltas are in MetricX "
+            "points; do not compare to COMETKiwi deltas."
+        )
+    else:
+        model_id = dm.DEFAULT_QE_MODEL
+        print(f"[study] loading {model_id} (first run downloads ~2.3GB) ...")
+        t0 = time.monotonic()
+        scorer = dm.load_cometkiwi(batch_size=args.batch_size)
+        score_note = "COMETKiwi score on [0,1], higher=better."
     print(f"[study] model ready in {time.monotonic() - t0:.1f}s; scoring {2 * len(pairs)} segments")
 
     t1 = time.monotonic()
     scored = dm.score_pairs(pairs, scorer)
-    print(f"[study] scored in {time.monotonic() - t1:.1f}s")
+    elapsed = time.monotonic() - t1
+    print(f"[study] scored in {elapsed:.1f}s ({elapsed / max(2 * len(pairs), 1):.2f}s/segment)")
 
-    summary = dm.summarize(scored, threshold=args.threshold)
+    # Plausibility guard. A model that fails to load its head, or a batching
+    # bug, can still return the right *number* of scores — all identical.
+    # A clean exit code and a full row count are compatible with total
+    # failure, so say so loudly rather than writing a confident 0% matrix.
+    all_scores = [s.clean_score for s in scored] + [s.corrupted_score for s in scored]
+    distinct = len({round(v, 6) for v in all_scores})
+    print(
+        f"[study] score range [{min(all_scores):.4f}, {max(all_scores):.4f}], "
+        f"{distinct} distinct values over {len(all_scores)} segments"
+    )
+    if distinct <= 2:
+        print("[study] WARNING: scores are near-constant — this is a bug, not a finding.")
+
+    summary = dm.summarize(scored, threshold=threshold)
     summary["source_run"] = run_dir.name
-    summary["qe_model"] = dm.DEFAULT_QE_MODEL
+    summary["qe_backend"] = args.qe_model
+    summary["qe_model"] = model_id
+    summary["score_note"] = score_note
+    summary["score_min"] = round(min(all_scores), 5)
+    summary["score_max"] = round(max(all_scores), 5)
+    summary["distinct_scores"] = distinct
+    summary["scoring_seconds"] = round(elapsed, 1)
     summary["not_exercised"] = missing
+    n_trunc = getattr(scorer, "truncated", None)
+    if n_trunc is not None:
+        n_seen = getattr(scorer, "scored", 0) or 1
+        summary["truncated_inputs"] = n_trunc
+        summary["truncated_fraction"] = round(n_trunc / n_seen, 4)
+        if n_trunc:
+            # Length-increasing injectors get truncated more often than their
+            # clean counterparts, which pulls their deltas toward (or below)
+            # zero. Any row read from this matrix has to be read against this
+            # number.
+            print(
+                f"[study] CAVEAT: {n_trunc}/{n_seen} inputs truncated at the "
+                "model's token cap; deltas for length-increasing injectors "
+                "(duplicate_sentence, hallucinate_prose) are biased low."
+            )
 
     dm.write_reports(summary, out_dir, title=f"QE Detection Matrix — {run_dir.name}")
     dm.write_scored_pairs(scored, out_dir / "scored_pairs.jsonl")

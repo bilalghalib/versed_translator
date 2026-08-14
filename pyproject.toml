@@ -11,6 +11,16 @@ dependencies = [
     "sacrebleu>=2.6.0",
     "setuptools<81",
     "unbabel-comet>=2.2.0",
+    # MetricX-24 QE (qe/detection_matrix.py:load_metricx). The upstream
+    # `metricx24` package is a GitHub source tree with no packaging metadata
+    # and no PyPI release, so its one needed class is vendored at
+    # src/versed_translator/qe/metricx_model.py (Apache-2.0, attribution in
+    # file). What we do need from PyPI is transformers + the sentencepiece
+    # tokenizer for mT5; torch already arrives via unbabel-comet.
+    # <5 is not optional: transformers v5 renamed rope_scaling->rope_parameters
+    # and breaks the vLLM serving path (roadmap "traps already paid for").
+    "transformers>=4.40.0,<5",
+    "sentencepiece>=0.1.99",
 ]
 
 [project.scripts]

@@ -57,9 +57,12 @@
 >
 > **Adjacent genres (fiqh/kalam) fail our own direct-from-Arabic test**, which matters more here than rights: Hamilton's *Hidāya* (1791) is Arabic → **Persian** → English by its own preface; Howard's *Minhāj al-Ṭālibīn* (1914) is Arabic → **French** (van den Berg, self-described as not literal) → English; Ruxton's *Maliki Law* likewise from French. All are more indirect than Keith-Falconer, which we already deprioritised.
 >
-> **THE LEVER:** written permission from the **Royal Aal al-Bayt Institute for Islamic Thought** (`aalalbayt@aalalbayt.org`, 20 Saeed Bino St, Dabuq, Amman 11195, Jordan) for the **Great Tafsīr Project** — Hamza's *Jalālayn*, Guezzou's *Tanwīr al-Miqbās* and al-Wāḥidī's *Asbāb al-Nuzūl*. This is the only complete classical tafsir in English that exists. One letter is worth more than any further hunting: Margoliouth's Bayḍāwī appears to be the **only** pre-1930 English translation of a classical tafsir of any length.
+> **DECIDED 2026-08-14 — tafsir stays shallow, deliberately. Do not reopen this.**
+> Bilal declined to pursue the one available lever: written permission from the **Royal Aal al-Bayt Institute for Islamic Thought** (`aalalbayt@aalalbayt.org`) for the **Great Tafsīr Project** — Hamza's *Jalālayn*, Guezzou's *Tanwīr al-Miqbās*, al-Wāḥidī's *Asbāb al-Nuzūl*, the only complete classical tafsir in English that exists.
 >
-> **Bottom line:** the tafsir genre box can be ticked (one sura, one author, ~290 KB of clean English). Corpus *depth* in tafsir requires the Aal al-Bayt permission.
+> **Consequence, to be stated plainly wherever tafsir results are reported:** tafsir coverage is **one sura by one author** (Bayḍāwī on Q3, via Margoliouth). The genre box is ticked; there is no corpus depth behind it, and no benchmark conclusion about tafsir generalises beyond a single sura of a single commentator. That is a known, accepted limitation — not something to be quietly smoothed over in a coverage table.
+>
+> **Do not spend further agent time hunting.** Margoliouth's Bayḍāwī appears to be the only pre-1930 English translation of a classical tafsir of any length; the search space is exhausted. Revisit only if the rights position changes.
 
 Companion to `corpus/pd_translations_seed.json`. Compiled 2026-08-12 for **C6 checkpoint 1** (rights inventory seed) and **C7 gold-work candidates** (alignment engine validation set) per `VERSED_TRANSLATION_ROADMAP.md`.
 

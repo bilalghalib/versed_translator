@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T04:59:59.904272+00:00",
+  "generated_at": "2026-08-14T05:05:45.583678+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -42,7 +42,7 @@
       "name": "Versed-QE v0 (router)",
       "end_state": "Installable `versed_qe` package:",
       "next_dependency": "C4 matrix.",
-      "status": "NOT STARTED"
+      "status": "ACTIVE"
     },
     {
       "id": "C6",
@@ -181,6 +181,14 @@
   ],
   "recent_commits": [
     {
+      "subject": "Lint: mark study runner executable, drop stale noqa",
+      "relative_date": "5 minutes ago"
+    },
+    {
+      "subject": "C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots",
+      "relative_date": "6 minutes ago"
+    },
+    {
       "subject": "C4: detection study runner + comet DataLoader compat fix",
       "relative_date": "5 hours ago"
     },
@@ -219,20 +227,12 @@
     {
       "subject": "Harness runner: demote invalid rows to error rows, write results incrementally",
       "relative_date": "13 hours ago"
-    },
-    {
-      "subject": "Fix Modal serve: real annotations for modal.parameter, unpin hub in vllm image",
-      "relative_date": "24 hours ago"
-    },
-    {
-      "subject": "C1 cp2 + C2 harness + Modal serve: v0.1-draft assembly (1,111+139), adapters (anthropic/ollama/openai-compat), scoring, TG27B vLLM batch app",
-      "relative_date": "2 days ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T04:59:59.745413+00:00"
+      "mtime": "2026-08-14T05:05:45.523730+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

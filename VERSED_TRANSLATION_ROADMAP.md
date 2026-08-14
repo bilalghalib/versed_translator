@@ -187,8 +187,14 @@ Decisions:
 **END STATE:** Installable `versed_qe` package: `(arabic, english, metadata) → {ACCEPT | REPAIR | HUMAN_REVIEW}` + calibrated `p_substantive_error` + `reasons[]`. Features: QE ensemble + deterministic checks (length ratio, entity/number/date coverage, Qur'anic-quotation match, isnad preservation, untranslated Arabic, repetition, terminology consistency — seeded from the `local_translation` fidelity rules). Interpretable model (logistic/GBT) calibrated on held-out judgments; reliability diagram published; precision/recall measured at three named threshold profiles (conservative/balanced/aggressive). No neural QE training unless D4 showed material gaps.
 **Verify:** `uv run pytest qe/` green including a calibration bound test; report with reliability diagram; import-contract test proving the versed VPS worker can call it.
 
+**PROGRESS (2026-08-14):** `versed_translator.qe.checks` implements 9 deterministic checks, each targeting a measured COMETKiwi blind spot: `negation_parity` (Arabic particle vs English marker counts — covers the 10.9% blind spot), `number_coverage` (Arabic-Indic digits normalized), `length_ratio_flag`, `sentence_ratio_flag`, `untranslated_arabic`, `repetition_flag`, `quotation_coverage`, `entity_coverage` (diacritic-folded, so `Mughīrah` == `Mughirah`), `terminology_violations` (glossary-conditioned). 25 tests, including an integration test that feeds the C4 injectors' own output through the checks.
+
+⚠️ **KNOWN GAP — partial clause removal is not deterministically detectable** from (source, output) alone when the Arabic source lacks sentence punctuation, which is common in classical texts: `sentence_ratio_flag` can't run (source parses as one sentence) and a truncated output can still land inside the normal Arabic→English expansion band. COMETKiwi also misses it (22.9%, negative mean delta), so **neither signal covers the single highest-severity omission failure.** Closing it needs one of: punctuation-bearing sources, an aligned reference, **structural block-level translation with ID preservation (the harness's structured template already supports this — likely the cheapest fix)**, or a targeted LLM verifier. Asserted in `tests/test_checks.py::test_known_gap_clause_removal_on_unpunctuated_source` so it cannot regress silently.
+
+**Design rule enforced throughout:** a check that cannot run returns `applicable=False`, never a passing verdict — an unrun check reading as "clean" is how a safety gate silently stops being one.
+
 Checkpoints:
-1. [AGENT] Deterministic checkers + unit tests.
+1. [AGENT] ~~Deterministic checkers + unit tests~~ **done 2026-08-14** (9 checks, 25 tests; one known gap documented above).
 2. [HUMAN] Human judgment set for calibration: ~300–500 passages labeled (Bilal + optional recruited reviewer; the label = "would a competent bilingual editor find a substantive error?").
 3. [AGENT] Train/calibrate/evaluate; freeze v0 thresholds.
 
@@ -356,7 +362,7 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | C2 harness/bakeoff | ACTIVE |
 | C3 economics | ACTIVE (first real measurement: TG12B ~2 tok/s local) |
 | C4 QE truth study | ACTIVE (COMETKiwi matrix done: 30.4% detection, critical blind spots) |
-| C5 Versed-QE v0 | NOT STARTED |
+| C5 Versed-QE v0 | ACTIVE (9 deterministic checks done; router next) |
 | C6 rights inventory | ACTIVE |
 | C7 Versed Align | NOT STARTED |
 | C8 corpus + 27B | NOT STARTED |

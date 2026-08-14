@@ -1,7 +1,36 @@
 # VERSED_TRANSLATION_ROADMAP.md
 
 **Living document.** Master destination: `VERSED_TRANSLATE_MASTER_PLAN.md`. Current-state grounding: `VERSED_TRANSLATION_ARCHITECTURE.md`. Experiment ledger: `TRANSLATION_EXPERIMENTS.md`.
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-14
+
+---
+
+# START HERE (fresh session orientation)
+
+Read this block, then §Component end states for whatever you pick up. Everything below is measured, not planned — treat any number without a date as unverified.
+
+**Where we actually are (2026-08-14).** Master-plan execution steps 0–7 are underway *in the prescribed order*. The machinery works end to end: benchmark assembly → harness → GPU serving → QE study. What is thin is **depth at each step**, not sequence.
+
+**⚠️ The one thing to fix before trusting any result: the benchmark is 99.6% hadith** (1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4; zero tafsir, philosophy, adab, history, poetry). Every headline number below was measured on that single genre. Hadith is unusually formulaic (isnad chains, fixed openings), so **none of these results can be assumed to generalize.** Fixing C1's genre coverage is the highest-value next action — it unblocks honest versions of C2, C3, C4, and C5 simultaneously.
+
+**Measured results so far** (all hadith-only, see caveat above):
+- **C2 bakeoff:** TG27B (Modal H100) and Claude Sonnet 5 both 139/139 clean, chrF **50.24 vs 50.60** — statistically tied. TG27B ran ~36× faster (0.68s vs 24.5s mean) at ~$0.27 for the whole set. Qwen-MT / Gemini / DeepSeek never ran (no API keys), so "which baseline translator" is **not** actually decided.
+- **C4 QE study:** COMETKiwi detects **30.4%** of 1,144 injected errors. Negation deletion 10.9%, terminology 0.8%, agent/patient reversal 9.1%. Clause removal has a **negative** mean delta — it scores truncated text *higher* than complete text. Only fluency artifacts are caught well (duplicate sentence 71.9%). **COMETKiwi is a fluency signal, not a safety gate.** MetricX-QE still untested, so this rests on one model.
+- **C5:** 9 deterministic checks built against those measured blind spots. One documented gap: partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic — likely fixed by structured block translation with ID preservation (the harness already supports it), not by threshold tuning.
+
+**Recommended next actions, in order:**
+1. **C1 checkpoint 2 — genre-diversify the benchmark** from ATHAR's 18 works + the 16 PD translations in `corpus/PD_TRANSLATIONS.md`.
+2. Re-run C2 bakeoff and C4 QE study on the diverse set; only then are the numbers above trustworthy.
+3. C5 router (ACCEPT / REPAIR / HUMAN_REVIEW), thresholds calibrated on real genre spread.
+
+**Traps already paid for — do not re-derive:**
+- A full row count, clean exit code, and populated output file are **all compatible with total failure**. A 139-row run was 139 connection errors; the tell was `wall_s: 0.06`. Always check the error field *and* a plausibility signal.
+- `nohup … & disown` does **not** survive session teardown. Use `subprocess.Popen(..., start_new_session=True)` locally and `modal run --detach` for Modal; write a `done-<job>` sentinel with the exit code.
+- vLLM 0.11.0 declares `transformers>=4.55.2` unbounded → pip takes v5, which renamed `rope_scaling`→`rope_parameters`. Pin `transformers<5`. Patching the model's `config.json` does **not** help (three attempts proved it).
+- Sonnet 5 runs adaptive thinking by default and `max_tokens` caps thinking **plus** text; too small a budget returns empty translations with `stop_reason: max_tokens`.
+- Local CPU inference for 12B is ~2 tok/s — unusable. Use Modal.
+
+**Open [HUMAN] items:** OpenITI letter (drafted, gitignored at `OPENITI_LETTER_DRAFT.md`); ATHAR license conflict (D1d); provider API keys for a complete bakeoff field; C5 threshold profile (D5).
 
 ---
 

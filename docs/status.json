@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T05:05:45.583678+00:00",
+  "generated_at": "2026-08-14T08:31:03.162916+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -181,58 +181,58 @@
   ],
   "recent_commits": [
     {
+      "subject": "C5: 9 deterministic fidelity checks targeting COMETKiwi's blind spots",
+      "relative_date": "3 hours ago"
+    },
+    {
       "subject": "Lint: mark study runner executable, drop stale noqa",
-      "relative_date": "5 minutes ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots",
-      "relative_date": "6 minutes ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "C4: detection study runner + comet DataLoader compat fix",
-      "relative_date": "5 hours ago"
+      "relative_date": "9 hours ago"
     },
     {
       "subject": "C4: detection-matrix engine + COMETKiwi wrapper",
-      "relative_date": "5 hours ago"
+      "relative_date": "9 hours ago"
     },
     {
       "subject": "C4: adversarial error-injection suite (all 15 master-plan corruption types)",
-      "relative_date": "5 hours ago"
+      "relative_date": "9 hours ago"
     },
     {
       "subject": "Fix KV cache OOM: util 0.90->0.95, bound max_num_seqs to 32",
-      "relative_date": "6 hours ago"
+      "relative_date": "9 hours ago"
     },
     {
       "subject": "Pin transformers<5 (vLLM rope_scaling root cause); record C2 measured results",
-      "relative_date": "6 hours ago"
+      "relative_date": "10 hours ago"
     },
     {
       "subject": "Fix vLLM/Gemma3 rope_scaling regression via hf_overrides",
-      "relative_date": "8 hours ago"
-    },
-    {
-      "subject": "Ollama adapter: raise timeout to match measured local inference speed",
-      "relative_date": "8 hours ago"
-    },
-    {
-      "subject": "Harness: thread cost through, load references for chrF, fix TG12B run",
-      "relative_date": "11 hours ago"
-    },
-    {
-      "subject": "Fix Sonnet 5 token-budget trap; record COMETKiwi NC constraint",
       "relative_date": "12 hours ago"
     },
     {
-      "subject": "Harness runner: demote invalid rows to error rows, write results incrementally",
-      "relative_date": "13 hours ago"
+      "subject": "Ollama adapter: raise timeout to match measured local inference speed",
+      "relative_date": "12 hours ago"
+    },
+    {
+      "subject": "Harness: thread cost through, load references for chrF, fix TG12B run",
+      "relative_date": "15 hours ago"
+    },
+    {
+      "subject": "Fix Sonnet 5 token-budget trap; record COMETKiwi NC constraint",
+      "relative_date": "16 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T05:05:45.523730+00:00"
+      "mtime": "2026-08-14T08:30:50.021827+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

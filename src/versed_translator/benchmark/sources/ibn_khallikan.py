@@ -307,7 +307,7 @@ def extract(
             following = matches[position + 1]
             if following.heading.volume == match.heading.volume:
                 next_start = following.heading.start
-        english = _clean_english_body(volume_text[match.heading.end:next_start])
+        english = _clean_english_body(volume_text[match.heading.end : next_start])
         english_words = len(english.split())
         if not english_words:
             continue

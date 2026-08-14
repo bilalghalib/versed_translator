@@ -114,7 +114,9 @@ def parse_verdict(text: str, model: str) -> Verdict:
     """
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
-        return Verdict("", 0.0, "", model, error=f"no JSON object in reply: {text[:120]!r}")
+        return Verdict(
+            "", 0.0, "", model, error=f"no JSON object in reply: {text[:120]!r}"
+        )
     try:
         payload = json.loads(match.group())
     except json.JSONDecodeError as exc:
@@ -164,7 +166,11 @@ def adjudicate(
     )
     if not text.strip():
         return Verdict(
-            "", 0.0, "", model, error=f"empty reply (stop_reason={response.stop_reason})"
+            "",
+            0.0,
+            "",
+            model,
+            error=f"empty reply (stop_reason={response.stop_reason})",
         )
     return parse_verdict(text, model)
 

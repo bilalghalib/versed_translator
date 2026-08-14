@@ -21,7 +21,10 @@ from versed_translator.benchmark.sources.schema import length_band, make_pair
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DATA_DIR = (
-    Path.home() / "versed-translator-data" / "benchmark-alignment" / "ibn_khallikan_deslane"
+    Path.home()
+    / "versed-translator-data"
+    / "benchmark-alignment"
+    / "ibn_khallikan_deslane"
 )
 DEFAULT_REPO_OUT = REPO_ROOT / "benchmark" / "alignment" / "ibn_khallikan_deslane"
 DEFAULT_SEED = 20260814
@@ -39,10 +42,7 @@ def select(
         if passage.confidence >= 0.8
         and not passage.flags
         and length_band(passage.arabic_word_count) in TARGET_BANDS
-        and (
-            not passage.llm_verdict
-            or passage.llm_verdict.get("verdict") == "aligned"
-        )
+        and (not passage.llm_verdict or passage.llm_verdict.get("verdict") == "aligned")
     ]
     rng = random.Random(seed)
     chosen: list[ibn_khallikan.Passage] = []
@@ -151,17 +151,23 @@ def build_report(report: ibn_khallikan.ExtractionReport, selected: list[dict]) -
             "",
             "## Evidence and limits",
             "",
-            "Each item is a complete Arabic biography and the English text between its matched "
-            "romanised heading and the next matched heading. A match must preserve sequence and "
-            "at least 75% of the usable name skeleton. Entries are never split internally because "
-            "there is no second structural anchor inside a biography.",
+            (
+                "Each item is a complete Arabic biography and the English text between its matched "
+                "romanised heading and the next matched heading. A match must preserve sequence and "
+                "at least 75% of the usable name skeleton. Entries are never split internally because "
+                "there is no second structural anchor inside a biography."
+            ),
             "",
-            "Selection excludes entries with abnormal word ratios or Arabic leakage into the "
-            "English column. `reference_fidelity` remains `pending_human_audit`; heading evidence "
-            "establishes the entry boundary, not whether de Slane abridged material inside it.",
+            (
+                "Selection excludes entries with abnormal word ratios or Arabic leakage into the "
+                "English column. `reference_fidelity` remains `pending_human_audit`; heading evidence "
+                "establishes the entry boundary, not whether de Slane abridged material inside it."
+            ),
             "",
-            "Review page (contains corpus text): "
-            "`~/versed-translator-data/benchmark-alignment/ibn_khallikan_deslane/review.html`.",
+            (
+                "Review page (contains corpus text): "
+                "`~/versed-translator-data/benchmark-alignment/ibn_khallikan_deslane/review.html`."
+            ),
             "",
         ]
     )

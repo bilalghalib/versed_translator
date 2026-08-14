@@ -222,6 +222,10 @@ def main(argv: list[str] | None = None) -> int:
                 passage.confidence = llm_adjudicator.combined_confidence(
                     passage.structural_confidence, verdict
                 )
+                if verdict.verdict == "aligned":
+                    passage.flags = [
+                        flag for flag in passage.flags if flag != "llm_required"
+                    ]
             print(
                 f"[{index}/{len(candidates)}] {passage.native_id}: "
                 f"{verdict.verdict or verdict.error} ({origin})",
@@ -233,7 +237,9 @@ def main(argv: list[str] | None = None) -> int:
 
     selected = select(report.passages, target=args.target, seed=args.seed)
     selected_ids = {passage.native_id for passage in selected}
-    all_records = [to_record(args.work, passage, metadata, module) for passage in report.passages]
+    all_records = [
+        to_record(args.work, passage, metadata, module) for passage in report.passages
+    ]
     for record in all_records:
         record["selected"] = record["source_native_id"] in selected_ids
     selected_records = [record for record in all_records if record["selected"]]
@@ -297,9 +303,11 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "## Evidence and limits",
         "",
-        "The sequence/length partition is a proposal, not a structural anchor. Every selected "
-        "item has an explicit `aligned` content verdict, and all remain pending human review. "
-        "No model is allowed to propose or rewrite a boundary.",
+        (
+            "The sequence/length partition is a proposal, not a structural anchor. Every selected "
+            "item has an explicit `aligned` content verdict, and all remain pending human review. "
+            "No model is allowed to propose or rewrite a boundary."
+        ),
         "",
         f"Review page: `~/versed-translator-data/benchmark-alignment/{config['slice']}/review.html`.",
         "",

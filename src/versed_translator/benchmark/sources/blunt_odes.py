@@ -106,7 +106,11 @@ def parse_arabic_poems(path: str | Path) -> dict[str, list[str]]:
     text = openiti_markdown.read(path)
     result: dict[str, list[str]] = {}
     for key, title in _ARABIC_TITLES.items():
-        starts = [index for index, section in enumerate(text.sections) if section.title == title]
+        starts = [
+            index
+            for index, section in enumerate(text.sections)
+            if section.title == title
+        ]
         if not starts:
             continue
         verses: list[str] = []
@@ -129,7 +133,9 @@ def _english_regions(text: str) -> dict[str, str]:
     for key, pattern in _ENGLISH_HEADINGS.items():
         match = re.search(rf"(?m)^\s*{pattern}\s*\.?\s*$", searchable, re.IGNORECASE)
         if match:
-            starts.append((search_start + match.start(), search_start + match.end(), key))
+            starts.append(
+                (search_start + match.start(), search_start + match.end(), key)
+            )
     starts.sort()
     regions: dict[str, str] = {}
     for index, (_start, content_start, key) in enumerate(starts):
@@ -174,10 +180,7 @@ def parse_poems(arabic_path: str | Path, english_path: str | Path) -> list[Poem]
             min_fragments=1,
             max_fragments=3,
         )
-        english_verses = [
-            " ".join(fragments[start:end])
-            for start, end in ranges
-        ]
+        english_verses = [" ".join(fragments[start:end]) for start, end in ranges]
         poems.append(
             Poem(
                 key=key,

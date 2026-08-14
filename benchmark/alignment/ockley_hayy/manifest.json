@@ -1,0 +1,239 @@
+{
+  "slice": "ockley_hayy",
+  "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+  "translator": "Simon Ockley",
+  "english_source": "The History of Hayy Ibn Yaqzan, trans. Simon Ockley (London, 1708), Project Gutenberg ebook 16831",
+  "rights_status": "PD_US_PRE_1930_PUBLICATION",
+  "rights_evidence": "English: Ockley's 1708 translation, distributed by Project Gutenberg. Arabic: pre-modern text (author d. 581 AH) digitised by OpenITI. Neither claim is cleared legal advice; D6b still gates commercial use.",
+  "genre_openiti_021_booksubj": "علوم أخرى - مرقم آليا",
+  "author_died_ah": 581,
+  "seed": 20260814,
+  "counts": {
+    "proposed": 53,
+    "eligible_for_adjudication": 50,
+    "selected": 7,
+    "by_band": {
+      "250-600": 4,
+      "100-250": 3
+    }
+  },
+  "items": [
+    {
+      "id": "ockley_hayy:sections-022_023",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-022_023",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "e20d228bb7d7c1ef0efbfa9174563fbf05f306d1ce3c37db6c963e9a62b3e669",
+      "sha256_english": "fbc153c80a02486ce6ff99983ce98cc9c1cf079e7a0cf25f9d70fe998689b5d9",
+      "band": "250-600",
+      "arabic_word_count": 327,
+      "english_word_count": 572,
+      "word_ratio": 1.749,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.55,
+      "section_index": 21,
+      "chapter_label": "English sections 22-23",
+      "arabic_range": [
+        94,
+        103
+      ],
+      "english_range": [
+        21,
+        23
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.9,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "ockley_hayy:sections-024_024",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-024_024",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "b29b6977552113625f4f3263022a77bc7f4f0a804b0e3f07c854156dcee70045",
+      "sha256_english": "0be359ebb58d1380c58f043ed0179a64ad35f5751c26ba56b0765064a60d472b",
+      "band": "100-250",
+      "arabic_word_count": 187,
+      "english_word_count": 301,
+      "word_ratio": 1.61,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.55,
+      "section_index": 23,
+      "chapter_label": "English sections 24-24",
+      "arabic_range": [
+        103,
+        107
+      ],
+      "english_range": [
+        23,
+        24
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.95,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "ockley_hayy:sections-025_027",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-025_027",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "dfd87aed5005972882b1c78414042723e9573b5aa4f50fca077f8c3c2fb6f98d",
+      "sha256_english": "2cc42d1532084a46e0e8c0bccd11eafce41a8d4f6a6c7a1b0642c47c6c915ce9",
+      "band": "250-600",
+      "arabic_word_count": 357,
+      "english_word_count": 552,
+      "word_ratio": 1.546,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.55,
+      "section_index": 24,
+      "chapter_label": "English sections 25-27",
+      "arabic_range": [
+        107,
+        113
+      ],
+      "english_range": [
+        24,
+        27
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.95,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "ockley_hayy:sections-028_029",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-028_029",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "44ea4af8d9b67a223b168b23d1e0ea52f198320598c6e93924e19332cab8eab4",
+      "sha256_english": "7098ae14f7bae115352418a913f17c8d6f6912c1a2992ac765f76c6c0ea5498b",
+      "band": "100-250",
+      "arabic_word_count": 230,
+      "english_word_count": 400,
+      "word_ratio": 1.739,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.55,
+      "section_index": 27,
+      "chapter_label": "English sections 28-29",
+      "arabic_range": [
+        113,
+        120
+      ],
+      "english_range": [
+        27,
+        29
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.9,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "ockley_hayy:sections-030_032",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-030_032",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "b474ed569782d1132cff5e609602ead3759600e8982e27bbcc898e625ccb85c6",
+      "sha256_english": "79d83aabbe1d08ce5d8554ba945be8d23428459681d662ee2bf7241cb15ca091",
+      "band": "250-600",
+      "arabic_word_count": 404,
+      "english_word_count": 744,
+      "word_ratio": 1.842,
+      "method": "sequence_length_proposal",
+      "confidence": 0.7,
+      "structural_confidence": 0.55,
+      "section_index": 29,
+      "chapter_label": "English sections 30-32",
+      "arabic_range": [
+        120,
+        130
+      ],
+      "english_range": [
+        29,
+        32
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "ockley_hayy:sections-033_034",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-033_034",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "530e566bebd0a43c335bb777d4383f8a840120ee33f207e0dc620855c40b253f",
+      "sha256_english": "0b29a019f7fab2c4db59e498226d6c3b514d585a1e6f4001bcce4c70b93ccc85",
+      "band": "100-250",
+      "arabic_word_count": 214,
+      "english_word_count": 379,
+      "word_ratio": 1.771,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.55,
+      "section_index": 32,
+      "chapter_label": "English sections 33-34",
+      "arabic_range": [
+        130,
+        135
+      ],
+      "english_range": [
+        32,
+        34
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.95,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "ockley_hayy:sections-035_038",
+      "source": "ockley_hayy",
+      "source_native_id": "sections-035_038",
+      "work_id": "0581IbnTufayl.HayyIbnYaqzan",
+      "date_or_century": "581 AH",
+      "sha256_arabic": "881899c44ed1989e7e332ce92291f2486c9d16e9138d412496f4999c76b52a15",
+      "sha256_english": "7f8178d9254e9bacbc33df9a71d407fedbff17623d1b77813a49ad2934b5d05a",
+      "band": "250-600",
+      "arabic_word_count": 353,
+      "english_word_count": 629,
+      "word_ratio": 1.782,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.55,
+      "section_index": 34,
+      "chapter_label": "English sections 35-38",
+      "arabic_range": [
+        135,
+        144
+      ],
+      "english_range": [
+        34,
+        38
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.95,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    }
+  ]
+}

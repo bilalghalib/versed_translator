@@ -1,0 +1,456 @@
+{
+  "slice": "blunt_odes",
+  "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+  "translator": "Lady Anne Blunt and Wilfrid Scawen Blunt",
+  "english_source": "The Seven Golden Odes of Pagan Arabia, in The Poetical Works of Wilfrid Scawen Blunt, vol. 2 (London, 1903)",
+  "rights_status": "PD_US_PRE_1930_PUBLICATION",
+  "rights_evidence": "English: first published 1903; Internet Archive scan of Blunt's Poetical Works vol. 2. Arabic: pre-modern poems in an OpenITI digitisation of al-Zawzani's commentary. Neither claim is cleared legal advice; D6b still gates commercial use.",
+  "genre_openiti_021_booksubj": "الأدب والبلاغة",
+  "author_died_ah": 486,
+  "seed": 20260814,
+  "counts": {
+    "proposed": 26,
+    "eligible_for_adjudication": 26,
+    "selected": 14,
+    "by_band": {
+      "100-250": 7,
+      "250-600": 7
+    }
+  },
+  "items": [
+    {
+      "id": "blunt_odes:imr-v001_015",
+      "source": "blunt_odes",
+      "source_native_id": "imr-v001_015",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "0ff5629e7d845d2876ac6e2ac2612f8f6a8954108ed024bc81368b0c5bbe7d60",
+      "sha256_english": "c51bdfbf2b092d909f32d21c6a7e39cae5d86d83d1c7ae87096205ab7111eef0",
+      "band": "100-250",
+      "arabic_word_count": 165,
+      "english_word_count": 308,
+      "word_ratio": 1.867,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.6,
+      "section_index": 0,
+      "chapter_label": "imr",
+      "arabic_range": [
+        0,
+        15
+      ],
+      "english_range": [
+        0,
+        15
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.9,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:tarafa-v047_075",
+      "source": "blunt_odes",
+      "source_native_id": "tarafa-v047_075",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "dc374b60dadcca6a1df93185726926b6d20475384bc8c6443e09cfc47219a5c4",
+      "sha256_english": "598aacc2f1d8c5d922c266dc9a414a7d09b8ca756422f827505833945867b2a0",
+      "band": "250-600",
+      "arabic_word_count": 326,
+      "english_word_count": 697,
+      "word_ratio": 2.138,
+      "method": "sequence_length_proposal",
+      "confidence": 0.675,
+      "structural_confidence": 0.6,
+      "section_index": 46,
+      "chapter_label": "tarafa",
+      "arabic_range": [
+        46,
+        75
+      ],
+      "english_range": [
+        46,
+        75
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.75,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:zuhayr-v016_044",
+      "source": "blunt_odes",
+      "source_native_id": "zuhayr-v016_044",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "13406f8947c437c4695e3cfad48e991adf18fef70c92024a7936c7a40f1fc98e",
+      "sha256_english": "21575090fa6482abde0308e7d454e590f4afe992c7afc8ca746d08fa1a102d0e",
+      "band": "250-600",
+      "arabic_word_count": 321,
+      "english_word_count": 705,
+      "word_ratio": 2.196,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.6,
+      "section_index": 15,
+      "chapter_label": "zuhayr",
+      "arabic_range": [
+        15,
+        44
+      ],
+      "english_range": [
+        15,
+        44
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.9,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:labid-v001_034",
+      "source": "blunt_odes",
+      "source_native_id": "labid-v001_034",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "fb44ab680daa1d3638b03bb3db5c093fea04cfd322c9681647f4be7c56bed7b0",
+      "sha256_english": "06ea53d673cea21fae3fdf74adc07c917aac48acbf0bd45fe9d3d3055ccde279",
+      "band": "250-600",
+      "arabic_word_count": 325,
+      "english_word_count": 663,
+      "word_ratio": 2.04,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 0,
+      "chapter_label": "labid",
+      "arabic_range": [
+        0,
+        34
+      ],
+      "english_range": [
+        0,
+        34
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:labid-v035_051",
+      "source": "blunt_odes",
+      "source_native_id": "labid-v035_051",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "fd5378d7982f26c1b44ef3cfb2f33aa89fe4bbf121f55a6283662abc0a6a2dc0",
+      "sha256_english": "50a09e07d30bda1b3bc20ba0b332de47908d31626a3745c77840a0cb4a7c9bb4",
+      "band": "100-250",
+      "arabic_word_count": 168,
+      "english_word_count": 353,
+      "word_ratio": 2.101,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 34,
+      "chapter_label": "labid",
+      "arabic_range": [
+        34,
+        51
+      ],
+      "english_range": [
+        34,
+        51
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:labid-v052_083",
+      "source": "blunt_odes",
+      "source_native_id": "labid-v052_083",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "7560412b26187515e316ec24f1107f288da87e83e551fcae2ece5f37a2c4dfe4",
+      "sha256_english": "0c2bffff4d55df94af98fc8b50f3187b82904e11ff0de890ef516e3ec31ed472",
+      "band": "250-600",
+      "arabic_word_count": 322,
+      "english_word_count": 676,
+      "word_ratio": 2.099,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 51,
+      "chapter_label": "labid",
+      "arabic_range": [
+        51,
+        83
+      ],
+      "english_range": [
+        51,
+        83
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:amr-v001_017",
+      "source": "blunt_odes",
+      "source_native_id": "amr-v001_017",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "03329917fde3d620d6efc543f2afdaf7b424e9cb4472e6e3b83f83d1605eabd6",
+      "sha256_english": "577e0c9e37ed8e5cda676dd7b904c14f90670515e240c8dc173d1042fe7cc929",
+      "band": "100-250",
+      "arabic_word_count": 166,
+      "english_word_count": 336,
+      "word_ratio": 2.024,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 0,
+      "chapter_label": "amr",
+      "arabic_range": [
+        0,
+        17
+      ],
+      "english_range": [
+        0,
+        17
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:antara-v001_032",
+      "source": "blunt_odes",
+      "source_native_id": "antara-v001_032",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "714a09bb4c2a5d90c95184ad5a55c80a327908b49c3a1ebb905d6a30155c9acc",
+      "sha256_english": "816b5215afc82e11d62e9afa73f6f97a64d48191277a9fb14f22f9533d7f8f2e",
+      "band": "250-600",
+      "arabic_word_count": 325,
+      "english_word_count": 664,
+      "word_ratio": 2.043,
+      "method": "sequence_length_proposal",
+      "confidence": 0.765,
+      "structural_confidence": 0.6,
+      "section_index": 0,
+      "chapter_label": "antara",
+      "arabic_range": [
+        0,
+        32
+      ],
+      "english_range": [
+        0,
+        32
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.93,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:antara-v033_048",
+      "source": "blunt_odes",
+      "source_native_id": "antara-v033_048",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "7b0ec88b93717c0b9d9c6cfe0e1224d4a6cd627bae64e63386dea2f6d5cd6c91",
+      "sha256_english": "912526a2c81f08588a9b6e8f7ccf54117f601102661eb883677b57634af28e5e",
+      "band": "100-250",
+      "arabic_word_count": 165,
+      "english_word_count": 341,
+      "word_ratio": 2.067,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 32,
+      "chapter_label": "antara",
+      "arabic_range": [
+        32,
+        48
+      ],
+      "english_range": [
+        32,
+        48
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:antara-v049_075",
+      "source": "blunt_odes",
+      "source_native_id": "antara-v049_075",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "f128bf4a77c0fa2818e31c9c14bd3beb92d798ea4814cbf44776b79b043f6d0a",
+      "sha256_english": "f1eb987efcc122fc025a1f81bc7c18684316439f67145c06c4b24a8d06ee24f5",
+      "band": "250-600",
+      "arabic_word_count": 283,
+      "english_word_count": 592,
+      "word_ratio": 2.092,
+      "method": "sequence_length_proposal",
+      "confidence": 0.75,
+      "structural_confidence": 0.6,
+      "section_index": 48,
+      "chapter_label": "antara",
+      "arabic_range": [
+        48,
+        75
+      ],
+      "english_range": [
+        48,
+        75
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.9,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:harith-v001_017",
+      "source": "blunt_odes",
+      "source_native_id": "harith-v001_017",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "cab63276f5cfbe7c78db7b518eb10babff2e50c0e39db5f59e6963c343f2f219",
+      "sha256_english": "a17d0866208581fcce823b97a6be193fd2df27dcba99db6953dbab1bd4fdd840",
+      "band": "100-250",
+      "arabic_word_count": 167,
+      "english_word_count": 324,
+      "word_ratio": 1.94,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 0,
+      "chapter_label": "harith",
+      "arabic_range": [
+        0,
+        17
+      ],
+      "english_range": [
+        0,
+        17
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:harith-v018_048",
+      "source": "blunt_odes",
+      "source_native_id": "harith-v018_048",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "195d94c259e3789e38656220af9aff0834faedcac936107348d6ea7d221cdf18",
+      "sha256_english": "a5151379b6eeea4664e9973ddb76c0cdb5cb1a14173a94ceecbed44e9465d40f",
+      "band": "250-600",
+      "arabic_word_count": 328,
+      "english_word_count": 589,
+      "word_ratio": 1.796,
+      "method": "sequence_length_proposal",
+      "confidence": 0.675,
+      "structural_confidence": 0.6,
+      "section_index": 17,
+      "chapter_label": "harith",
+      "arabic_range": [
+        17,
+        48
+      ],
+      "english_range": [
+        17,
+        48
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.75,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:harith-v049_064",
+      "source": "blunt_odes",
+      "source_native_id": "harith-v049_064",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "5b30c57a8d82962ff1abf0067eb182489726495375e01c7198fd72c50e2be376",
+      "sha256_english": "5b04cc2ab4ad3809727a157fe84db69b1d3b8c49e50e88597bdacb8a6dc17f33",
+      "band": "100-250",
+      "arabic_word_count": 161,
+      "english_word_count": 312,
+      "word_ratio": 1.938,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 48,
+      "chapter_label": "harith",
+      "arabic_range": [
+        48,
+        64
+      ],
+      "english_range": [
+        48,
+        64
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    },
+    {
+      "id": "blunt_odes:harith-v065_082",
+      "source": "blunt_odes",
+      "source_native_id": "harith-v065_082",
+      "work_id": "0486IbnAhmadZuzani.SharhMucallaqat",
+      "date_or_century": "486 AH",
+      "sha256_arabic": "02ab24e0d446f11a6b25a8a822bdfa1b88a0436f450269ddd2ed84a2ddb89358",
+      "sha256_english": "dfa2915ec6dec680057cee811a8e43f1a60e9289f12fd8e4d5a5a8c764d525f0",
+      "band": "100-250",
+      "arabic_word_count": 190,
+      "english_word_count": 373,
+      "word_ratio": 1.963,
+      "method": "sequence_length_proposal",
+      "confidence": 0.725,
+      "structural_confidence": 0.6,
+      "section_index": 64,
+      "chapter_label": "harith",
+      "arabic_range": [
+        64,
+        82
+      ],
+      "english_range": [
+        64,
+        82
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.85,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION"
+    }
+  ]
+}

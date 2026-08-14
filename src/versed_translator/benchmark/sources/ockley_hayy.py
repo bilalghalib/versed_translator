@@ -95,7 +95,7 @@ def parse_english_sections(text: str) -> list[EnglishSection]:
         else:
             finis = text.find("_FINIS_", match.end())
             end = finis if finis >= 0 else len(text)
-        body = text[match.end():end]
+        body = text[match.end() : end]
         body = re.sub(r"\[(?:\d+|[A-Za-z]+)\]", " ", body)
         body = body.replace("_", "")
         body = _WS_RE.sub(" ", body).strip()
@@ -111,7 +111,9 @@ def parse_english_sections(text: str) -> list[EnglishSection]:
 
 def _arabic_narrative(path: str | Path) -> list[openiti_markdown.Paragraph]:
     text = openiti_markdown.read(path)
-    section = next(section for section in text.sections if section.title == "حي بن يقظان")
+    section = next(
+        section for section in text.sections if section.title == "حي بن يقظان"
+    )
     return section.paragraphs
 
 
@@ -151,7 +153,8 @@ def extract(
         start_paragraph = ranges[section_cursor][0]
         end_paragraph = ranges[section_end - 1][1]
         arabic = "\n\n".join(
-            paragraph.text for paragraph in arabic_paragraphs[start_paragraph:end_paragraph]
+            paragraph.text
+            for paragraph in arabic_paragraphs[start_paragraph:end_paragraph]
         )
         english_text = "\n\n".join(
             section.text for section in english[section_cursor:section_end]

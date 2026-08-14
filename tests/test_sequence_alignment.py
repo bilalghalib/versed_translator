@@ -1,5 +1,7 @@
 """Tests for length proposals used by the Ockley and Blunt slices."""
 
+from itertools import pairwise
+
 from versed_translator.benchmark import sequence_alignment
 from versed_translator.benchmark.sources import blunt_odes, monotone_length, ockley_hayy
 
@@ -14,7 +16,7 @@ def test_monotone_partition_uses_every_fragment_once_in_order():
 
     assert ranges[0][0] == 0
     assert ranges[-1][1] == 8
-    assert all(left[1] == right[0] for left, right in zip(ranges, ranges[1:]))
+    assert all(left[1] == right[0] for left, right in pairwise(ranges))
 
 
 def test_ockley_parser_stops_before_gutenberg_notes():

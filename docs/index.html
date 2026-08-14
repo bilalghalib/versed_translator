@@ -405,53 +405,16 @@ footer.site-footer ul {
 <header class="site-header">
   <h1>Versed Translate Lab</h1>
   <div class="meta">
-    Generated 2026-08-14T13:05:46.354783+00:00 &middot;
+    Generated 2026-08-14T13:14:41.645136+00:00 &middot;
     <a href="https://github.com/bilalghalib/versed_translator">https://github.com/bilalghalib/versed_translator</a>
   </div>
 </header>
 
 <section id="decisions-open">
-  <h2>Your call &mdash; 4 open</h2>
+  <h2>Your call &mdash; 3 open</h2>
   <p class="section-note">Everything needed to decide is on the card; you shouldn't have to open a doc.
   Work is queued behind these.</p>
   <div class="brief-list">
-      <div class="brief">
-        <div class="brief-head">
-          <span class="brief-id">D1e</span>
-          <span class="chip chip-red">needs you</span>
-          <span class="brief-comp">C1</span>
-        </div>
-        <div class="brief-title">Genre coverage: how do we stop the benchmark being 99.6% hadith?</div>
-        <div class="brief-q">The draft benchmark is 1,107 hadith items out of 1,111. Where does genre diversity actually come from?</div>
-        <div class="brief-blocks"><span class="brief-label-inline">Blocks</span>
-          Every measured number in the project. Nothing generalizes past hadith until this is answered, and the benchmark cannot be frozen.</div>
-        <div class="brief-why"><span class="brief-label-inline">Why now</span>
-          This gates the benchmark rebuild, and the rebuild gates re-running the bakeoff and QE study. Deciding it late means paying for those runs twice. D1d is now resolved, so ATHAR is usable — but it still has no per-row genre metadata, so it cannot supply the genre axis by itself.</div>
-        <div class="brief-label">What we measured</div><ul class="brief-evidence"><li>1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4. Zero tafsir, philosophy, adab, history, poetry.</li><li>ATHAR&#x27;s parquet files carry ONLY (arabic, english) columns — no per-row work, author, or genre metadata exists. Verified against both train and test schemas (src/versed_translator/benchmark/assemble.py:20).</li><li>ATHAR&#x27;s median item is 18 Arabic words, below the benchmark&#x27;s own 30-word band floor — that, not a sampling bug, is why only 4 rows survived.</li><li>Hadith is unusually formulaic (isnad chains, fixed openings). A model that handles it well may fail on Sufi metaphor or legal reasoning and we would not see it.</li><li>corpus/PD_TRANSLATIONS.md (compiled 2026-08-12) lists 16 PD translations across 9 genres with verified archive.org URLs — the genres the benchmark is missing are all covered. PD rationales are translator-death-year/pre-1930 heuristics, not cleared legal opinions (D6b still gates commercial use), and their archaic register is D1a&#x27;s question.</li></ul>
-        <div class="brief-label">Options</div><ul class="brief-opts">
-          <li class="opt opt-rec">
-            <div class="opt-head"><span class="opt-key">d</span>
-              <span class="opt-label">Targeted passage alignment from the 16 PD translations (benchmark-scale only)</span><span class="chip chip-green rec-chip">recommended</span></div>
-            <div class="opt-detail">Bilal&#x27;s question surfaced this and it beats a/b/c. corpus/PD_TRANSLATIONS.md already inventories 16 public-domain English translations across 9 genres, every one with a verified archive.org URL — history, biography, philosophy, adab/maqama, fables, poetry, travel, sira, scripture. The blocker was never FINDING translations; it is aligning them. But a benchmark needs a few hundred passages, not whole books: hand-aligning (or LLM-proposes/human-checks) ~40 passages each from 5-8 works is a fraction of building the general C7 engine, and yields exactly the genre spread the benchmark lacks. Best starting works: Baladhuri/Hitti, Ibn Khallikan/de Slane (each biography is a natural alignment unit), Hariri/Chenery.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">a</span>
-              <span class="opt-label">Email the ATHAR author for per-work/genre provenance</span></div>
-            <div class="opt-detail">Combine with the D1d license question — one email, two possible unlocks. Costs nothing and may hand us the genre axis outright. Does not block starting (b) in parallel.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">b</span>
-              <span class="opt-label">Add a sub-30-word band so ATHAR&#x27;s diversity counts</span></div>
-            <div class="opt-detail">Cheap interim fix. Gets ATHAR&#x27;s sentence-level material into the benchmark immediately, but genre labels stay coarse until (a) answers.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">c</span>
-              <span class="opt-label">Accept hadith-only for v0.1; get genre via PD alignment in v0.2</span></div>
-            <div class="opt-detail">Honest and already labeled that way. But it pulls C7 (Versed Align) forward, which is a genuinely bigger scope — take it deliberately, never by drift.</div>
-          </li></ul>
-        <div class="brief-rec"><span class="brief-label-inline">Recommendation</span> Take (d): targeted passage alignment from the PD list, benchmark-scale only. It gets real genre coverage without waiting for C7, and without the ATHAR metadata that does not exist. (b) remains a cheap parallel add. (a) is now moot for licensing — D1d resolved without it — though the author could still confirm whether per-work provenance exists.</div>
-        <div class="brief-answer"><a class="answer-btn" href="https://github.com/bilalghalib/versed_translator/issues/1">Answer this &rarr;</a><span class="answer-note">Opens issue #1 — reply there and the next session picks it up.</span></div>
-      </div>
       <div class="brief">
         <div class="brief-head">
           <span class="brief-id">D2e</span>
@@ -689,7 +652,7 @@ footer.site-footer ul {
 <section id="commits">
   <h2>Recent commits</h2>
   <p class="section-note">Last 12 entries from git log.</p>
-  <ul class="commit-list"><li><span class="commit-subject">C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">Modal ingest: committed, tested path from run_batch raw -&gt; harness schema</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">C4: MetricX-24 results, experiment ledger entries, D4c token-window decision</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">MetricX-24 as a second QE backend (Apache-2.0, shippable)</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">Dashboard: answerable decision cards + GitHub issues as the decision channel</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Drift review: correct START HERE (ATHAR can&#x27;t supply genre as-is), add D1e/D2c/D2e, fix STATUS drift</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Add START HERE orientation block for fresh sessions</span> <span class="commit-date">5 hours ago</span></li><li><span class="commit-subject">C5: 9 deterministic fidelity checks targeting COMETKiwi&#x27;s blind spots</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">Lint: mark study runner executable, drop stale noqa</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">C4: detection study runner + comet DataLoader compat fix</span> <span class="commit-date">13 hours ago</span></li><li><span class="commit-subject">C4: detection-matrix engine + COMETKiwi wrapper</span> <span class="commit-date">13 hours ago</span></li></ul>
+  <ul class="commit-list"><li><span class="commit-subject">D1d + D2c decided; D1e gains option (d) — PD passage alignment</span> <span class="commit-date">8 minutes ago</span></li><li><span class="commit-subject">C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">Modal ingest: committed, tested path from run_batch raw -&gt; harness schema</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">C4: MetricX-24 results, experiment ledger entries, D4c token-window decision</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">MetricX-24 as a second QE backend (Apache-2.0, shippable)</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">Dashboard: answerable decision cards + GitHub issues as the decision channel</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Drift review: correct START HERE (ATHAR can&#x27;t supply genre as-is), add D1e/D2c/D2e, fix STATUS drift</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Add START HERE orientation block for fresh sessions</span> <span class="commit-date">5 hours ago</span></li><li><span class="commit-subject">C5: 9 deterministic fidelity checks targeting COMETKiwi&#x27;s blind spots</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">Lint: mark study runner executable, drop stale noqa</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">C4: detection study runner + comet DataLoader compat fix</span> <span class="commit-date">13 hours ago</span></li></ul>
 </section>
 
 
@@ -700,7 +663,7 @@ footer.site-footer ul {
   <code>make -f tools/dashboard.mk dashboard</code>) whenever the docs change.
   <ul>
     Doc modification times:
-    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-14T13:05:28.172413+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-14T11:02:06.738254+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:46:02.373423+00:00</li>
+    <li>VERSED_TRANSLATION_ROADMAP.md: 2026-08-14T13:14:28.511081+00:00</li><li>TRANSLATION_EXPERIMENTS.md: 2026-08-14T11:02:06.738254+00:00</li><li>VERSED_TRANSLATE_MASTER_PLAN.md: 2026-08-12T13:42:51.398615+00:00</li><li>VERSED_TRANSLATION_ARCHITECTURE.md: 2026-08-12T14:46:02.373423+00:00</li>
   </ul>
 </footer>
 

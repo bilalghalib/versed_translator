@@ -117,6 +117,30 @@ Sequencing insight: **v0.1 uses only pre-aligned sources** (ATHAR, LK Hadith, cu
 Checkpoints:
 1. [AGENT] ~~Source acquisition + per-source rights ledger~~ **done 2026-08-12** — loaders + `corpus/rights_ledger.json` with verbatim license quotes; measured: **ATHAR 66,043** pairs (65,043 train + 1,000 native test — preserve their split), **LK Hadith 33,845** (README claims 39,038 — real CSVs are ~13% short), **hadith-json 47,317** usable pairs (al-Darimi has zero English; english is INDEX_ONLY per D6c). ✅ **ATHAR license — RESOLVED 2026-08-14 (D1d): MIT / commercially usable**, by provenance research rather than an author email. `Kandil7/Athar-Datasets` (created April 2026) carries HF structured `license: mit` **and** prose explicitly permitting commercial use. The "research and personal use" prose survives only in the later Shamela4 repos (`AuthenticIlm/Shamela4_Full_DB` extracted 2026-04-26; `Kandil7/Athar-Shamela4` duplicated 2026-06-02) — which *also* carry `license: mit` in structured metadata, so the best reading is stale prose left in place while the repo-level license was set independently. **Honest limit:** no commit documenting a license change was found; this is a well-supported inference, not documentary proof. **Carve-out in force:** MIT cannot grant copyright the dataset creator doesn't own — modern editor introductions (مقدمة المحقق) and modern commentary must be filtered; the ancient source text is what we rely on (Shamela4's `is_hidden: true` copyright/access flag is consistent with this). ATHAR moves off `eval_internal` for C8 subject to that filter. ⚠️ **Length-band gap**: ATHAR median is 18 Arabic words — sentence-level; the 100–250/250–600 bands must come from PD-translation alignment or curation, not ATHAR.
 2. [AGENT] Normalization + stratified sampling to coverage targets; passage-size banding (30–80 / 100–250 / 250–600 / near-context-limit). Longer bands depend on PD sources (see `corpus/PD_TRANSLATIONS.md`: 16 seed works; strongest for early alignment: Baladhuri/Hitti, Ibn Khallikan/de Slane, Hariri/Chenery+Steingass).
+
+**D1e DECIDED 2026-08-14 → option (d): targeted passage alignment from the PD list, benchmark-scale only.** Not waiting for C7 — a benchmark needs a few hundred aligned passages, not whole aligned books.
+
+**Arabic side VERIFIED 2026-08-14 (via `ssh nautilus`, where the disk is local at `/mnt/hikma`).** All nine candidate works exist in OpenITI with real text — every OpenITI URI *guessed* in `PD_TRANSLATIONS.md` resolved:
+
+| OpenITI text | d. | genre (`021.BookSUBJ`) | `### |` sections |
+| --- | ---: | --- | ---: |
+| `0279Baladhuri.FutuhBuldan` | 279 | التاريخ (history) | 90 |
+| `0681IbnKhallikan.WafayatAcyan` | 681 | التراجم والطبقات (biography) | 33 |
+| `0516IbnCaliHariri.Maqamat` | 516 | عيون الشعر العربي (poetry/adab) | **0** |
+| `0581IbnTufayl.HayyIbnYaqzan` | 581 | علوم أخرى (philosophy) | 3 |
+| `0139IbnMuqaffac.KalilaWaDimna` | — | *(none)* | 30 |
+| `0779IbnBattuta.Rihla` | 779 | البلدان والجغرافيا والرحلات (travel) | 527 |
+| `0346Mascudi.MurujDhahab` | 346 | كتب متنوعة (misc/history) | 1750 |
+| `0486IbnAhmadZuzani.SharhMucallaqat` | 486 | الأدب والبلاغة (adab/rhetoric) | 653 |
+| `0505Ghazali.KimiyaSacada` | 505 | الرقاق والآداب (devotional/ethics) | 24 |
+
+**Two findings that change C1's shape:**
+1. **OpenITI metadata carries per-work genre (`021.BookSUBJ`) and death date (`011.AuthorDIED`) — the exact metadata ATHAR lacks.** Genre labels and century banding come free from the source, with no inference and no author email. The nine works above span **9 distinct centuries** (139–779 AH), which alone satisfies the "≥5 centuries" coverage minimum.
+2. **Section structure is per-work, not uniform — segmentation is a per-work task, not one parser.** Hariri's *Maqamat* has **zero** `### |` markers despite being the most naturally segmented work in the list (50 discrete maqamat), so its anchors must come from in-text maqama numbering. Ibn Khallikan shows only 33 sections across 6.2MB, so those are volume divisions, not the per-biography entries that make it attractive as an alignment target. Mas'udi's 1,750 sections are finer than passage-sized. Budget per-work anchor logic.
+
+**Format notes** (`######OpenITI#` mARkdown): `#META# key :: value` header block terminated by `#META#Header#End#`; `### |` section headings; `PageV##P###` page markers (444 in Baladhuri). The factory has a fuller parser at `versed_core/ingestion/openiti_ingest.py`, but it is coupled to Supabase and writes the v2 graph — the lab needs read-only passage extraction, so a light local reader is the right call rather than importing the factory's stack.
+
+⚠️ **Access:** read OpenITI via `ssh nautilus` (`/mnt/hikma/OpenITI`), **not** the local SMB mount. `/Volumes/hikma/OpenITI/meta` listed 8,738 files and then returned "No such file or directory" seconds later in the same session — the documented SMB degradation. `books/` is genuinely empty on both; the content is in `texts/` (8,748) and `meta/` (8,738).
 3. [HUMAN] ~100-item spot audit for alignment/reference quality (Bilal or recruited bilingual reviewer).
 4. [AGENT] Freeze: tag, manifest, stats report, held-out split sealed.
 

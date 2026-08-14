@@ -6,7 +6,7 @@
       "title": "Genre coverage: how do we stop the benchmark being 99.6% hadith?",
       "component": "C1",
       "urgency": "now",
-      "status": "open",
+      "status": "decided",
       "blocks": "Every measured number in the project. Nothing generalizes past hadith until this is answered, and the benchmark cannot be frozen.",
       "question": "The draft benchmark is 1,107 hadith items out of 1,111. Where does genre diversity actually come from?",
       "why_now": "This gates the benchmark rebuild, and the rebuild gates re-running the bakeoff and QE study. Deciding it late means paying for those runs twice. D1d is now resolved, so ATHAR is usable — but it still has no per-row genre metadata, so it cannot supply the genre axis by itself.",
@@ -45,7 +45,11 @@
       ],
       "recommendation": "Take (d): targeted passage alignment from the PD list, benchmark-scale only. It gets real genre coverage without waiting for C7, and without the ATHAR metadata that does not exist. (b) remains a cheap parallel add. (a) is now moot for licensing — D1d resolved without it — though the author could still confirm whether per-work provenance exists.",
       "issue": 1,
-      "decided": null
+      "decided": {
+        "choice": "d",
+        "date": "2026-08-14",
+        "note": "DECIDED: targeted passage alignment from the 16 PD translations, benchmark-scale only. Genre coverage comes from public-domain English translations (history, biography, philosophy, adab/maqama, fables, poetry, travel, sira, scripture) rather than from ATHAR, which has no per-row genre metadata and sits below the 30-word band floor. Explicitly NOT waiting for C7: a benchmark needs a few hundred aligned passages, not whole aligned books. ATHAR email is NO LONGER NEEDED for this decision or for D1d (resolved independently). The only residual value in contacting the author is per-work provenance for C8 training-corpus stratification — revisit at C8, not now."
+      }
     },
     {
       "id": "D2e",

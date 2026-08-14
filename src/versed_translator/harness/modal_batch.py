@@ -39,7 +39,23 @@ from versed_translator.harness.structured import (
     ERR_ID_MISSING,
     ERR_ID_UNEXPECTED,
     ERR_PARSE_PREFIX,
+    ID_CONTRACT_ERRORS,
 )
+
+# Re-exported so the Modal entrypoint needs exactly one import from this
+# package (it imports inside the local entrypoint; see serve_translategemma).
+__all__ = [
+    "DEFAULT_STRUCTURED_CHUNK",
+    "ERR_ID_MISSING",
+    "FALLBACK_TEMPLATE_ID",
+    "ID_CONTRACT_ERRORS",
+    "STRUCTURED_TEMPLATE_ID",
+    "PromptChunk",
+    "build_fallback_chunks",
+    "build_structured_chunks",
+    "parse_chunk_output",
+    "probe_ok",
+]
 
 #: The structured contract (D2e) on the Modal path.
 STRUCTURED_TEMPLATE_ID = "structured_blocks_v1"

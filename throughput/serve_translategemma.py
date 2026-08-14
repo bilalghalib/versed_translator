@@ -834,18 +834,27 @@ def run_blocks(
     rows, meta, wall = _call(chunks)
     total_wall_s += wall
 
-    by_id = {}
-    duplicates = 0
+    by_id: dict[str, list] = {}
     for row in rows:
-        if row["id"] in by_id:
-            duplicates += 1
-            continue
-        by_id[row["id"]] = row
+        by_id.setdefault(row["id"], []).append(row)
+    duplicates = sum(len(v) - 1 for v in by_id.values())
     sent_ids = [i["id"] for i in items]
-    missing = [i for i in sent_ids if i not in by_id]
-    unexpected = [i for i in by_id if i not in set(sent_ids)]
-    for item_id in missing:
-        rows.append({"id": item_id, "english": None, "error": "id_missing_from_structured_response"})
+    sent_set = set(sent_ids)
+    unexpected = [i for i in by_id if i not in sent_set]
+
+    # An id counts as LOST when it is absent from the response *or* came back
+    # only as an id-contract error. Counting bare absence would read 0 on every
+    # run, because parse_chunk_output already emits an error row for each
+    # dropped id -- a safety metric that can only ever report success.
+    missing = []
+    for item_id in sent_ids:
+        got = by_id.get(item_id)
+        if not got:
+            missing.append(item_id)
+            rows.append({"id": item_id, "english": None,
+                         "error": modal_batch.ERR_ID_MISSING})
+        elif all(r.get("error") in modal_batch.ID_CONTRACT_ERRORS for r in got):
+            missing.append(item_id)
 
     n_ok = sum(1 for r in rows if r.get("english"))
     n_err = len(rows) - n_ok

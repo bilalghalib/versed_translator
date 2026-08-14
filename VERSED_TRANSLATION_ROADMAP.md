@@ -32,7 +32,7 @@ Read this block, then §Component end states for whatever you pick up. Everythin
    - Send the OpenITI letter (D6a — drafted since 2026-08-12).
    - Email the ATHAR author — **one email, two questions**: which license is intended (D1d), and does per-row work/genre provenance exist for the pairs (feeds D1e)?
    - Decide D2c: provision Gemini/Qwen/DeepSeek keys, or formally descope the bakeoff field (see C2 — D2a is largely forced anyway).
-   - Ratify D2e: structured block translation with ID preservation as the production contract (dissolves C5's worst known gap architecturally — cheaper than any detection scheme).
+   - ~~Ratify D2e: structured block translation with ID preservation as the production contract.~~ **Ratified and implemented 2026-08-14** — nothing left to decide here; see EXP-20260814-06 and C2.
 2. **[AGENT] meanwhile, on existing artifacts (no new benchmark needed):** MetricX-QE over the existing TG27B outputs — check its license first; if permissive it is the **only** shippable neural QE candidate (COMETKiwi is NC), which changes C5's feature set, so this must land **before** router design. Then the TG12B Modal leg — the 12B↔27B gap is unmeasured and drives all serving economics.
 3. **After D1e is decided:** rebuild the benchmark **once**, freeze it, run the full measurement suite **once** (bakeoff legs + QE matrix + deterministic checks). **No re-measurement treadmill:** settle all inputs (benchmark composition, keys yes/no, MetricX in) before spending GPU money on a re-run.
 4. C5 router only after MetricX results + the start of the human judgment set (C5 checkpoint 2 — the longest serial [HUMAN] task on the critical path; start labeling early).

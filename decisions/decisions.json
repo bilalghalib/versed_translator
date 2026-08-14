@@ -53,7 +53,8 @@
         "Partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic: sentence_ratio_flag cannot run and a truncated output stays inside the normal Arabic→English expansion band.",
         "COMETKiwi also misses it — 22.9% detection, and a NEGATIVE mean delta, meaning it scores truncated text HIGHER than the complete translation.",
         "So neither the neural signal nor the deterministic checks cover the single highest-severity omission failure. It is asserted as a known gap in tests/test_checks.py so it cannot regress silently.",
-        "The harness already supports the structured template — this costs implementation discipline, not new code."
+        "The harness already supports the structured template — this costs implementation discipline, not new code.",
+        "NEW 2026-08-14: this would solve a SECOND independent problem. 39% of MetricX-QE inputs blow past its 1536-token window, which roughly doubles the apparent error score and corrupts the QE matrix for long passages. Short ID-tagged blocks stay inside the window. Two separate measured failures, one fix."
       ],
       "options": [
         {
@@ -71,6 +72,53 @@
       ],
       "recommendation": "Yes. It converts a detection problem we have measurably failed to solve into a structural property we get for free.",
       "issue": 2,
+      "decided": null
+    },
+    {
+      "id": "D4c",
+      "title": "How should QE handle passages longer than the model's token window?",
+      "component": "C4/C5",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "Trusting the QE matrix on long passages — which is exactly where silent omission, the failure we care most about, actually happens.",
+      "question": "39% of MetricX-QE inputs exceed its 1536-token window. Do we chunk, translate in blocks, exclude those rows, or change model?",
+      "why_now": "It biases results in the study now running, and it is the second problem that D2e (structured blocks) would solve — so the two decisions should be made together, not separately.",
+      "evidence": [
+        "126 of 324 smoke inputs (39%) hit the 1536-token cap.",
+        "Truncation roughly doubles the apparent error score: median 17.51 for truncated inputs vs 8.88 for inputs that fit.",
+        "Truncation eats the END of 'source: ... candidate: ...' — that is, the candidate being judged, not the source.",
+        "Length-increasing corruptions get truncated more than their clean counterparts, biasing their deltas toward zero. The duplicate_sentence result (5% detection, negative mean delta) is an artifact of this cap, NOT a property of MetricX.",
+        "This hits the 250-600 word band hardest — the long passages where silent omission is most likely and most consequential.",
+        "Instrumented but deliberately not fixed: the scorer counts truncations and the runner stamps truncated_inputs/truncated_fraction into the summary, so no result can silently hide it."
+      ],
+      "options": [
+        {
+          "key": "blocks",
+          "label": "Adopt structured block translation (same as D2e) and let blocks be the QE unit",
+          "detail": "Blocks stay well inside the window, so truncation mostly disappears. Solves this AND the clause-removal gap with one architectural choice. Decide it together with D2e.",
+          "recommended": true
+        },
+        {
+          "key": "chunk",
+          "label": "Chunk long passages and aggregate the scores",
+          "detail": "Works without changing the translation contract, but aggregation across chunks is its own calibration problem and QE scores do not average cleanly.",
+          "recommended": false
+        },
+        {
+          "key": "exclude",
+          "label": "Exclude truncated rows from the matrix and report the coverage loss",
+          "detail": "Honest and cheap, but it blinds QE precisely on the longest passages — the ones where omission matters most.",
+          "recommended": false
+        },
+        {
+          "key": "model",
+          "label": "Use a longer-context QE model",
+          "detail": "MetricX-24 XL/XXL share the same 1536 window, so this likely means leaving the MetricX family — and its Apache-2.0 licence is the reason it is a candidate at all.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Take the blocks option, together with D2e. One architectural decision retires two separately-measured failures; the alternatives each buy back only one and add calibration work.",
+      "issue": 6,
       "decided": null
     },
     {

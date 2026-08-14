@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T09:14:44.601557+00:00",
+  "generated_at": "2026-08-14T10:45:31.166269+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -224,7 +224,8 @@
         "Partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic: sentence_ratio_flag cannot run and a truncated output stays inside the normal Arabic\u2192English expansion band.",
         "COMETKiwi also misses it \u2014 22.9% detection, and a NEGATIVE mean delta, meaning it scores truncated text HIGHER than the complete translation.",
         "So neither the neural signal nor the deterministic checks cover the single highest-severity omission failure. It is asserted as a known gap in tests/test_checks.py so it cannot regress silently.",
-        "The harness already supports the structured template \u2014 this costs implementation discipline, not new code."
+        "The harness already supports the structured template \u2014 this costs implementation discipline, not new code.",
+        "NEW 2026-08-14: this would solve a SECOND independent problem. 39% of MetricX-QE inputs blow past its 1536-token window, which roughly doubles the apparent error score and corrupts the QE matrix for long passages. Short ID-tagged blocks stay inside the window. Two separate measured failures, one fix."
       ],
       "options": [
         {
@@ -242,6 +243,53 @@
       ],
       "recommendation": "Yes. It converts a detection problem we have measurably failed to solve into a structural property we get for free.",
       "issue": 2,
+      "decided": null
+    },
+    {
+      "id": "D4c",
+      "title": "How should QE handle passages longer than the model's token window?",
+      "component": "C4/C5",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "Trusting the QE matrix on long passages \u2014 which is exactly where silent omission, the failure we care most about, actually happens.",
+      "question": "39% of MetricX-QE inputs exceed its 1536-token window. Do we chunk, translate in blocks, exclude those rows, or change model?",
+      "why_now": "It biases results in the study now running, and it is the second problem that D2e (structured blocks) would solve \u2014 so the two decisions should be made together, not separately.",
+      "evidence": [
+        "126 of 324 smoke inputs (39%) hit the 1536-token cap.",
+        "Truncation roughly doubles the apparent error score: median 17.51 for truncated inputs vs 8.88 for inputs that fit.",
+        "Truncation eats the END of 'source: ... candidate: ...' \u2014 that is, the candidate being judged, not the source.",
+        "Length-increasing corruptions get truncated more than their clean counterparts, biasing their deltas toward zero. The duplicate_sentence result (5% detection, negative mean delta) is an artifact of this cap, NOT a property of MetricX.",
+        "This hits the 250-600 word band hardest \u2014 the long passages where silent omission is most likely and most consequential.",
+        "Instrumented but deliberately not fixed: the scorer counts truncations and the runner stamps truncated_inputs/truncated_fraction into the summary, so no result can silently hide it."
+      ],
+      "options": [
+        {
+          "key": "blocks",
+          "label": "Adopt structured block translation (same as D2e) and let blocks be the QE unit",
+          "detail": "Blocks stay well inside the window, so truncation mostly disappears. Solves this AND the clause-removal gap with one architectural choice. Decide it together with D2e.",
+          "recommended": true
+        },
+        {
+          "key": "chunk",
+          "label": "Chunk long passages and aggregate the scores",
+          "detail": "Works without changing the translation contract, but aggregation across chunks is its own calibration problem and QE scores do not average cleanly.",
+          "recommended": false
+        },
+        {
+          "key": "exclude",
+          "label": "Exclude truncated rows from the matrix and report the coverage loss",
+          "detail": "Honest and cheap, but it blinds QE precisely on the longest passages \u2014 the ones where omission matters most.",
+          "recommended": false
+        },
+        {
+          "key": "model",
+          "label": "Use a longer-context QE model",
+          "detail": "MetricX-24 XL/XXL share the same 1536 window, so this likely means leaving the MetricX family \u2014 and its Apache-2.0 licence is the reason it is a candidate at all.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Take the blocks option, together with D2e. One architectural decision retires two separately-measured failures; the alternatives each buy back only one and add calibration work.",
+      "issue": 6,
       "decided": null
     },
     {
@@ -348,6 +396,14 @@
       "name": "<one-line name>"
     },
     {
+      "id": "EXP-20260814-01",
+      "name": "COMETKiwi adversarial detection matrix (C4)"
+    },
+    {
+      "id": "EXP-20260814-02",
+      "name": "MetricX-24 as a shippable second QE opinion (C4)"
+    },
+    {
       "id": "EXP-20260326-01",
       "name": "Ihya register bakeoff"
     },
@@ -362,62 +418,62 @@
   ],
   "recent_commits": [
     {
+      "subject": "MetricX-24 as a second QE backend (Apache-2.0, shippable)",
+      "relative_date": "10 minutes ago"
+    },
+    {
+      "subject": "Dashboard: answerable decision cards + GitHub issues as the decision channel",
+      "relative_date": "2 hours ago"
+    },
+    {
       "subject": "Drift review: correct START HERE (ATHAR can't supply genre as-is), add D1e/D2c/D2e, fix STATUS drift",
-      "relative_date": "16 minutes ago"
+      "relative_date": "2 hours ago"
     },
     {
       "subject": "Add START HERE orientation block for fresh sessions",
-      "relative_date": "44 minutes ago"
+      "relative_date": "2 hours ago"
     },
     {
       "subject": "C5: 9 deterministic fidelity checks targeting COMETKiwi's blind spots",
-      "relative_date": "4 hours ago"
+      "relative_date": "6 hours ago"
     },
     {
       "subject": "Lint: mark study runner executable, drop stale noqa",
-      "relative_date": "4 hours ago"
+      "relative_date": "6 hours ago"
     },
     {
       "subject": "C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots",
-      "relative_date": "4 hours ago"
+      "relative_date": "6 hours ago"
     },
     {
       "subject": "C4: detection study runner + comet DataLoader compat fix",
-      "relative_date": "9 hours ago"
+      "relative_date": "11 hours ago"
     },
     {
       "subject": "C4: detection-matrix engine + COMETKiwi wrapper",
-      "relative_date": "9 hours ago"
+      "relative_date": "11 hours ago"
     },
     {
       "subject": "C4: adversarial error-injection suite (all 15 master-plan corruption types)",
-      "relative_date": "10 hours ago"
+      "relative_date": "11 hours ago"
     },
     {
       "subject": "Fix KV cache OOM: util 0.90->0.95, bound max_num_seqs to 32",
-      "relative_date": "10 hours ago"
+      "relative_date": "11 hours ago"
     },
     {
       "subject": "Pin transformers<5 (vLLM rope_scaling root cause); record C2 measured results",
-      "relative_date": "10 hours ago"
-    },
-    {
-      "subject": "Fix vLLM/Gemma3 rope_scaling regression via hf_overrides",
-      "relative_date": "12 hours ago"
-    },
-    {
-      "subject": "Ollama adapter: raise timeout to match measured local inference speed",
       "relative_date": "12 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T09:14:38.959729+00:00"
+      "mtime": "2026-08-14T10:44:37.626215+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
-      "mtime": "2026-08-12T13:59:47.265834+00:00"
+      "mtime": "2026-08-14T10:44:14.549959+00:00"
     },
     {
       "name": "VERSED_TRANSLATE_MASTER_PLAN.md",

@@ -35,9 +35,31 @@
 >
 > **Deprioritize:** Lyall (poor OCR), Lee's Ibn Battuta (pages dominated by Persian/Arabic footnote garbage), Mas'udi (vol 1 only, inline Arabic mangled to noise), Ghazali (short condensation, indirect chain), Keith-Falconer (Syriac recension, not direct Arabic).
 >
-> ### ⚠️ GAP THIS LIST CANNOT CLOSE
+> ### TAFSIR — investigated 2026-08-14. One usable source exists; exactly one.
 >
-> **Zero tafsir sources.** None of the 16 addresses tafsir, so D1e option (d) **cannot** close the tafsir hole from this list alone. Tafsir needs a separate sourcing decision.
+> **✅ USABLE — al-Bayḍāwī, *Anwār al-Tanzīl* on Sūra III, tr. D. S. Margoliouth (1894).**
+> *Chrestomathia Baidawiana*, Luzac & Co., London, 1894. Margoliouth d. 1940, so PD on both our tests (pre-1930 publication; life+70 expired 2010).
+> - Text: `https://archive.org/download/chrestomathiabai00abda/chrestomathiabai00abda_djvu.txt` (450 KB). IA metadata: `possible-copyright-status = NOT_IN_COPYRIGHT`, not access-restricted.
+> - **Edition verified from the title page inside the scan**, not the catalog — first edition, no reprint foreword, no modern editorial matter.
+> - **It is a real translation of a real tafsir**, rendered lemma-by-lemma: Qur'anic phrase, then Bayḍāwī's gloss — carrying exactly the features worth testing (grammatical analysis, variant readings, *asbāb al-nuzūl*, chains of transmitted opinion, refutations of the *Kashshāf*).
+> - **Margoliouth's own apparatus is fully separable** — the decisive point, and what distinguishes this from the Rehatsek and Lane failures. His philology sits in a discrete `NOTES.` endnote section, not interwoven: translation = lines ~555–6324 (~290 KB contiguous, apparatus-free), then `NOTES.` (125 KB, strip wholesale), then `COLLATION` (10.5 KB). Section headers are greppable; no per-page footnote blocks.
+> - Arabic in OpenITI: `0685NasirDinBaydawi.AnwarTanzil`, 5 witnesses.
+> - ⚠️ Margoliouth's verse numbering is **Flügel-style, offset from Cairo numbering** — align on Bayḍāwī's Arabic lemmata, not verse numbers. OCR is decent but transliterated Arabic is mangled.
+> - ⚠️ Bayḍāwī is **not** in the top-250 priority inventory (`corpus/inventory.sqlite`) — adding it is a scope decision.
+>
+> **Everything else ruled out, with reasons:**
+> - **Tafsīr al-Jalālayn / Feras Hamza** — *Copyright Royal Aal al-Bayt Institute 2008*, Fons Vitae, "All rights reserved." Free reading on altafsir.com is not a licence. **Needs written permission** (see the lever below).
+> - **Ibn Kathīr (Darussalam)** — modern (2000), living publisher and translators. The archive.org copy is an unauthorised image scan with **no text layer at all** — dead on both rights and format.
+> - **al-Ṭabarī** — no pre-1930 English translation can exist; the Arabic was not printed until Būlāq 1903. First English is Cooper (OUP, 1987), vol. 1 only, abridged, never continued. *(Correcting an error in our own brief: SUNY's 40-volume series is Ṭabarī's **History**, a different work, also in copyright.)*
+> - **Wherry, *Comprehensive Commentary* (1882–86)** — PD, but **original English commentary about tafsir**, arriving third-hand (Arabic → Maracci's Latin → Sale's paraphrase → Wherry). Bayḍāwī and the Jalālayn appear only as footnote citations. Same disqualification as Lane's *Arabian Society*.
+> - **Lane, *Selections from the Kur-án*** — looks like a hit, is not: the Jalālayn material is distinguished from Qur'an text **only by italics, which do not survive OCR**. Precisely the Rehatsek failure mode.
+> - **No CC-BY/permissive English tafsir exists.** OpenITI and KITAB publish Arabic source texts only.
+>
+> **Adjacent genres (fiqh/kalam) fail our own direct-from-Arabic test**, which matters more here than rights: Hamilton's *Hidāya* (1791) is Arabic → **Persian** → English by its own preface; Howard's *Minhāj al-Ṭālibīn* (1914) is Arabic → **French** (van den Berg, self-described as not literal) → English; Ruxton's *Maliki Law* likewise from French. All are more indirect than Keith-Falconer, which we already deprioritised.
+>
+> **THE LEVER:** written permission from the **Royal Aal al-Bayt Institute for Islamic Thought** (`aalalbayt@aalalbayt.org`, 20 Saeed Bino St, Dabuq, Amman 11195, Jordan) for the **Great Tafsīr Project** — Hamza's *Jalālayn*, Guezzou's *Tanwīr al-Miqbās* and al-Wāḥidī's *Asbāb al-Nuzūl*. This is the only complete classical tafsir in English that exists. One letter is worth more than any further hunting: Margoliouth's Bayḍāwī appears to be the **only** pre-1930 English translation of a classical tafsir of any length.
+>
+> **Bottom line:** the tafsir genre box can be ticked (one sura, one author, ~290 KB of clean English). Corpus *depth* in tafsir requires the Aal al-Bayt permission.
 
 Companion to `corpus/pd_translations_seed.json`. Compiled 2026-08-12 for **C6 checkpoint 1** (rights inventory seed) and **C7 gold-work candidates** (alignment engine validation set) per `VERSED_TRANSLATION_ROADMAP.md`.
 

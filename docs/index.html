@@ -405,107 +405,16 @@ footer.site-footer ul {
 <header class="site-header">
   <h1>Versed Translate Lab</h1>
   <div class="meta">
-    Generated 2026-08-14T13:20:43.803270+00:00 &middot;
+    Generated 2026-08-14T13:48:34.203402+00:00 &middot;
     <a href="https://github.com/bilalghalib/versed_translator">https://github.com/bilalghalib/versed_translator</a>
   </div>
 </header>
 
 <section id="decisions-open">
-  <h2>Your call &mdash; 3 open</h2>
+  <h2>Your call &mdash; 0 open</h2>
   <p class="section-note">Everything needed to decide is on the card; you shouldn't have to open a doc.
   Work is queued behind these.</p>
-  <div class="brief-list">
-      <div class="brief">
-        <div class="brief-head">
-          <span class="brief-id">D2e</span>
-          <span class="chip chip-red">needs you</span>
-          <span class="brief-comp">C2/C5</span>
-        </div>
-        <div class="brief-title">Make structured block translation with ID preservation the production contract?</div>
-        <div class="brief-q">Should production always translate in ID-preserving structured blocks, so a dropped block is directly observable?</div>
-        <div class="brief-blocks"><span class="brief-label-inline">Blocks</span>
-          The C5 router design, and the worst known safety gap in the whole system.</div>
-        <div class="brief-why"><span class="brief-label-inline">Why now</span>
-          It is a one-line architectural decision that dissolves a failure mode no detector we have can catch. Deciding it before the router is built avoids designing detection for a problem we can define away.</div>
-        <div class="brief-label">What we measured</div><ul class="brief-evidence"><li>Partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic: sentence_ratio_flag cannot run and a truncated output stays inside the normal Arabic→English expansion band.</li><li>COMETKiwi also misses it — 22.9% detection, and a NEGATIVE mean delta, meaning it scores truncated text HIGHER than the complete translation.</li><li>So neither the neural signal nor the deterministic checks cover the single highest-severity omission failure. It is asserted as a known gap in tests/test_checks.py so it cannot regress silently.</li><li>The harness already supports the structured template — this costs implementation discipline, not new code.</li><li>NEW 2026-08-14: this would solve a SECOND independent problem. 39% of MetricX-QE inputs blow past its 1536-token window, which roughly doubles the apparent error score and corrupts the QE matrix for long passages. Short ID-tagged blocks stay inside the window. Two separate measured failures, one fix.</li></ul>
-        <div class="brief-label">Options</div><ul class="brief-opts">
-          <li class="opt opt-rec">
-            <div class="opt-head"><span class="opt-key">yes</span>
-              <span class="opt-label">Yes — structured blocks with IDs are the production contract</span><span class="chip chip-green rec-chip">recommended</span></div>
-            <div class="opt-detail">A dropped or truncated block becomes structurally visible instead of semantically invisible. Cheaper than any detection scheme we could build.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">no</span>
-              <span class="opt-label">No — keep free-form translation, invest in detection</span></div>
-            <div class="opt-detail">Means accepting that the highest-severity omission failure stays undetectable, or funding an LLM verifier pass to catch it.</div>
-          </li></ul>
-        <div class="brief-rec"><span class="brief-label-inline">Recommendation</span> Yes. It converts a detection problem we have measurably failed to solve into a structural property we get for free.</div>
-        <div class="brief-answer"><a class="answer-btn" href="https://github.com/bilalghalib/versed_translator/issues/2">Answer this &rarr;</a><span class="answer-note">Opens issue #2 — reply there and the next session picks it up.</span></div>
-      </div>
-      <div class="brief">
-        <div class="brief-head">
-          <span class="brief-id">D4c</span>
-          <span class="chip chip-red">needs you</span>
-          <span class="brief-comp">C4/C5</span>
-        </div>
-        <div class="brief-title">How should QE handle passages longer than the model&#x27;s token window?</div>
-        <div class="brief-q">39% of MetricX-QE inputs exceed its 1536-token window. Do we chunk, translate in blocks, exclude those rows, or change model?</div>
-        <div class="brief-blocks"><span class="brief-label-inline">Blocks</span>
-          Trusting the QE matrix on long passages — which is exactly where silent omission, the failure we care most about, actually happens.</div>
-        <div class="brief-why"><span class="brief-label-inline">Why now</span>
-          It biases results in the study now running, and it is the second problem that D2e (structured blocks) would solve — so the two decisions should be made together, not separately.</div>
-        <div class="brief-label">What we measured</div><ul class="brief-evidence"><li>126 of 324 smoke inputs (39%) hit the 1536-token cap.</li><li>Truncation roughly doubles the apparent error score: median 17.51 for truncated inputs vs 8.88 for inputs that fit.</li><li>Truncation eats the END of &#x27;source: ... candidate: ...&#x27; — that is, the candidate being judged, not the source.</li><li>Length-increasing corruptions get truncated more than their clean counterparts, biasing their deltas toward zero. The duplicate_sentence result (5% detection, negative mean delta) is an artifact of this cap, NOT a property of MetricX.</li><li>This hits the 250-600 word band hardest — the long passages where silent omission is most likely and most consequential.</li><li>Instrumented but deliberately not fixed: the scorer counts truncations and the runner stamps truncated_inputs/truncated_fraction into the summary, so no result can silently hide it.</li></ul>
-        <div class="brief-label">Options</div><ul class="brief-opts">
-          <li class="opt opt-rec">
-            <div class="opt-head"><span class="opt-key">blocks</span>
-              <span class="opt-label">Adopt structured block translation (same as D2e) and let blocks be the QE unit</span><span class="chip chip-green rec-chip">recommended</span></div>
-            <div class="opt-detail">Blocks stay well inside the window, so truncation mostly disappears. Solves this AND the clause-removal gap with one architectural choice. Decide it together with D2e.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">chunk</span>
-              <span class="opt-label">Chunk long passages and aggregate the scores</span></div>
-            <div class="opt-detail">Works without changing the translation contract, but aggregation across chunks is its own calibration problem and QE scores do not average cleanly.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">exclude</span>
-              <span class="opt-label">Exclude truncated rows from the matrix and report the coverage loss</span></div>
-            <div class="opt-detail">Honest and cheap, but it blinds QE precisely on the longest passages — the ones where omission matters most.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">model</span>
-              <span class="opt-label">Use a longer-context QE model</span></div>
-            <div class="opt-detail">MetricX-24 XL/XXL share the same 1536 window, so this likely means leaving the MetricX family — and its Apache-2.0 licence is the reason it is a candidate at all.</div>
-          </li></ul>
-        <div class="brief-rec"><span class="brief-label-inline">Recommendation</span> Take the blocks option, together with D2e. One architectural decision retires two separately-measured failures; the alternatives each buy back only one and add calibration work.</div>
-        <div class="brief-answer"><a class="answer-btn" href="https://github.com/bilalghalib/versed_translator/issues/6">Answer this &rarr;</a><span class="answer-note">Opens issue #6 — reply there and the next session picks it up.</span></div>
-      </div>
-      <div class="brief">
-        <div class="brief-head">
-          <span class="brief-id">D6a</span>
-          <span class="chip chip-red">needs you</span>
-          <span class="brief-comp">C6</span>
-        </div>
-        <div class="brief-title">Approve and send the OpenITI letter</div>
-        <div class="brief-q">Is the drafted OpenITI letter approved to send?</div>
-        <div class="brief-blocks"><span class="brief-label-inline">Blocks</span>
-          Nothing immediately — but the answer takes weeks and gates commercial use, so lead time is the whole point.</div>
-        <div class="brief-why"><span class="brief-label-inline">Why now</span>
-          Drafted 2026-08-12 and still unsent. It is pure lead time: the reply arrives while we build, or it does not arrive and we learn that too.</div>
-        <div class="brief-label">What we measured</div><ul class="brief-evidence"><li>Draft ready at OPENITI_LETTER_DRAFT.md (gitignored, local-only).</li><li>Asks: we strip OpenITI markup/metadata and use only the underlying public-domain Arabic strings, most originating in pre-existing digital libraries; we create our own segmentation, translations, and audio. Is BY-NC-SA intended to cover those underlying strings or OpenITI&#x27;s annotations and corpus-database? Would you grant Versed commercial permission for this public-access project?</li><li>Nothing in the roadmap blocks on the answer except commercial exploitation (D6b counsel is the other half).</li></ul>
-        <div class="brief-label">Options</div><ul class="brief-opts">
-          <li class="opt opt-rec">
-            <div class="opt-head"><span class="opt-key">send</span>
-              <span class="opt-label">Approve and send as drafted</span><span class="chip chip-green rec-chip">recommended</span></div>
-            <div class="opt-detail">Starts the clock. The reply informs D6b (counsel) and the C12 release licensing.</div>
-          </li>
-          <li class="opt">
-            <div class="opt-head"><span class="opt-key">revise</span>
-              <span class="opt-label">Revise first — I want to change the framing</span></div>
-            <div class="opt-detail">Say what to change and it gets redrafted before sending.</div>
-          </li></ul>
-        <div class="brief-rec"><span class="brief-label-inline">Recommendation</span> Send as drafted. It is lead time we cannot buy back later.</div>
-        <div class="brief-answer"><a class="answer-btn" href="https://github.com/bilalghalib/versed_translator/issues/5">Answer this &rarr;</a><span class="answer-note">Opens issue #5 — reply there and the next session picks it up.</span></div>
-      </div></div>
+  <p class="empty-note">No open decisions — nothing is waiting on you. Answered decisions are recorded in <code>decisions/decisions.json</code>.</p>
 </section>
 
 <section id="components">
@@ -652,7 +561,7 @@ footer.site-footer ul {
 <section id="commits">
   <h2>Recent commits</h2>
   <p class="section-note">Last 12 entries from git log.</p>
-  <ul class="commit-list"><li><span class="commit-subject">D1e DECIDED: option (d), PD passage alignment; Arabic side verified</span> <span class="commit-date">6 minutes ago</span></li><li><span class="commit-subject">D1d + D2c decided; D1e gains option (d) — PD passage alignment</span> <span class="commit-date">14 minutes ago</span></li><li><span class="commit-subject">C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">Modal ingest: committed, tested path from run_batch raw -&gt; harness schema</span> <span class="commit-date">2 hours ago</span></li><li><span class="commit-subject">C4: MetricX-24 results, experiment ledger entries, D4c token-window decision</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">MetricX-24 as a second QE backend (Apache-2.0, shippable)</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">Dashboard: answerable decision cards + GitHub issues as the decision channel</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Drift review: correct START HERE (ATHAR can&#x27;t supply genre as-is), add D1e/D2c/D2e, fix STATUS drift</span> <span class="commit-date">4 hours ago</span></li><li><span class="commit-subject">Add START HERE orientation block for fresh sessions</span> <span class="commit-date">5 hours ago</span></li><li><span class="commit-subject">C5: 9 deterministic fidelity checks targeting COMETKiwi&#x27;s blind spots</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">Lint: mark study runner executable, drop stale noqa</span> <span class="commit-date">8 hours ago</span></li><li><span class="commit-subject">C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots</span> <span class="commit-date">8 hours ago</span></li></ul>
+  <ul class="commit-list"><li><span class="commit-subject">PD sources verified: 2 rights failures dropped, 6 wrong editions corrected</span> <span class="commit-date">28 minutes ago</span></li><li><span class="commit-subject">D1e DECIDED: option (d), PD passage alignment; Arabic side verified</span> <span class="commit-date">34 minutes ago</span></li><li><span class="commit-subject">D1d + D2c decided; D1e gains option (d) — PD passage alignment</span> <span class="commit-date">42 minutes ago</span></li><li><span class="commit-subject">C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">Modal ingest: committed, tested path from run_batch raw -&gt; harness schema</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">C4: MetricX-24 results, experiment ledger entries, D4c token-window decision</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">MetricX-24 as a second QE backend (Apache-2.0, shippable)</span> <span class="commit-date">3 hours ago</span></li><li><span class="commit-subject">Dashboard: answerable decision cards + GitHub issues as the decision channel</span> <span class="commit-date">5 hours ago</span></li><li><span class="commit-subject">Drift review: correct START HERE (ATHAR can&#x27;t supply genre as-is), add D1e/D2c/D2e, fix STATUS drift</span> <span class="commit-date">5 hours ago</span></li><li><span class="commit-subject">Add START HERE orientation block for fresh sessions</span> <span class="commit-date">5 hours ago</span></li><li><span class="commit-subject">C5: 9 deterministic fidelity checks targeting COMETKiwi&#x27;s blind spots</span> <span class="commit-date">9 hours ago</span></li><li><span class="commit-subject">Lint: mark study runner executable, drop stale noqa</span> <span class="commit-date">9 hours ago</span></li></ul>
 </section>
 
 

@@ -56,7 +56,7 @@
       "title": "Make structured block translation with ID preservation the production contract?",
       "component": "C2/C5",
       "urgency": "now",
-      "status": "open",
+      "status": "decided",
       "blocks": "The C5 router design, and the worst known safety gap in the whole system.",
       "question": "Should production always translate in ID-preserving structured blocks, so a dropped block is directly observable?",
       "why_now": "It is a one-line architectural decision that dissolves a failure mode no detector we have can catch. Deciding it before the router is built avoids designing detection for a problem we can define away.",
@@ -83,14 +83,18 @@
       ],
       "recommendation": "Yes. It converts a detection problem we have measurably failed to solve into a structural property we get for free.",
       "issue": 2,
-      "decided": null
+      "decided": {
+        "choice": "blocks",
+        "date": "2026-08-14",
+        "note": "DECIDED: structured block translation with ID preservation is the production contract, and blocks are the QE unit. Answers D2e and D4c together. Retires two separately-measured failures with one architectural choice: (1) a dropped block is countable where a dropped clause is invisible to both COMETKiwi (22.9%, negative mean delta) and MetricX (0.0 on the same critical errors) and to the deterministic checks on unpunctuated Arabic; (2) short blocks stay inside MetricX's 1536-token window, where 39% of inputs currently truncate and have their apparent error roughly doubled. Harness already supports the structured template (structured_blocks_v1). FOLLOW-ON WORK: make structured blocks the default in the harness and Modal serving path; re-run the QE matrix per block; the C5 known-gap test for clause removal should be revisited once blocks land."
+      }
     },
     {
       "id": "D4c",
       "title": "How should QE handle passages longer than the model's token window?",
       "component": "C4/C5",
       "urgency": "now",
-      "status": "open",
+      "status": "decided",
       "blocks": "Trusting the QE matrix on long passages — which is exactly where silent omission, the failure we care most about, actually happens.",
       "question": "39% of MetricX-QE inputs exceed its 1536-token window. Do we chunk, translate in blocks, exclude those rows, or change model?",
       "why_now": "It biases results in the study now running, and it is the second problem that D2e (structured blocks) would solve — so the two decisions should be made together, not separately.",
@@ -130,7 +134,11 @@
       ],
       "recommendation": "Take the blocks option, together with D2e. One architectural decision retires two separately-measured failures; the alternatives each buy back only one and add calibration work.",
       "issue": 6,
-      "decided": null
+      "decided": {
+        "choice": "blocks",
+        "date": "2026-08-14",
+        "note": "DECIDED: structured block translation with ID preservation is the production contract, and blocks are the QE unit. Answers D2e and D4c together. Retires two separately-measured failures with one architectural choice: (1) a dropped block is countable where a dropped clause is invisible to both COMETKiwi (22.9%, negative mean delta) and MetricX (0.0 on the same critical errors) and to the deterministic checks on unpunctuated Arabic; (2) short blocks stay inside MetricX's 1536-token window, where 39% of inputs currently truncate and have their apparent error roughly doubled. Harness already supports the structured template (structured_blocks_v1). FOLLOW-ON WORK: make structured blocks the default in the harness and Modal serving path; re-run the QE matrix per block; the C5 known-gap test for clause removal should be revisited once blocks land."
+      }
     },
     {
       "id": "D2c",
@@ -210,7 +218,7 @@
       "title": "Approve and send the OpenITI letter",
       "component": "C6",
       "urgency": "now",
-      "status": "open",
+      "status": "decided",
       "blocks": "Nothing immediately — but the answer takes weeks and gates commercial use, so lead time is the whole point.",
       "question": "Is the drafted OpenITI letter approved to send?",
       "why_now": "Drafted 2026-08-12 and still unsent. It is pure lead time: the reply arrives while we build, or it does not arrive and we learn that too.",
@@ -235,7 +243,11 @@
       ],
       "recommendation": "Send as drafted. It is lead time we cannot buy back later.",
       "issue": 5,
-      "decided": null
+      "decided": {
+        "choice": "sent",
+        "date": "2026-08-14",
+        "note": "SENT 2026-08-14 to sarah.savant@aku.edu (Sarah Bowen Savant, AKU/ISMC — OpenITI co-PI and KITAB PI; no general OpenITI contact address is published). Bilal rewrote it in his own voice rather than sending the draft: personal framing (bilingual reader built for himself; listens to Arabic better than he reads), a live demo link to the typesetter, honest 'right now there are no users', and the waqf framing for wuquf.org. Kept the two-part ask intact — (1) does BY-NC-SA cover the underlying public-domain Arabic or OpenITI's own contributions, (2) would they grant commercial permission — plus the contribute-back offer. Known defect: the WhatsApp link was written as 'https://14782272253', not a resolvable URL (correct form https://wa.me/14782272253). AWAITING REPLY. Fallback if declined is unchanged: the provenance resolver establishes independent upstream sources for 96.5% of the top-200 works."
+      }
     }
   ]
 }

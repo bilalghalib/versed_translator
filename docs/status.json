@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T18:48:42.367164+00:00",
+  "generated_at": "2026-08-14T18:50:14.499739+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -465,28 +465,32 @@
   ],
   "recent_commits": [
     {
+      "subject": "Record the MetricX cost fact blocks did NOT improve",
+      "relative_date": "86 seconds ago"
+    },
+    {
       "subject": "Roadmap: drop the stale \"ratify D2e\" action item",
-      "relative_date": "2 minutes ago"
+      "relative_date": "3 minutes ago"
     },
     {
       "subject": "Modal run_blocks: id_loss_count could only ever report 0",
-      "relative_date": "2 minutes ago"
-    },
-    {
-      "subject": "D2e/D4c implemented: structured blocks, ID loss as a metric, truncation 37.5% -> 0.7%",
       "relative_date": "4 minutes ago"
     },
     {
+      "subject": "D2e/D4c implemented: structured blocks, ID loss as a metric, truncation 37.5% -> 0.7%",
+      "relative_date": "6 minutes ago"
+    },
+    {
       "subject": "Catalog sweep: Gutenberg complete + archive.org; long-band problem solved",
-      "relative_date": "24 minutes ago"
+      "relative_date": "26 minutes ago"
     },
     {
       "subject": "C1: record second PD alignment tranche",
-      "relative_date": "30 minutes ago"
+      "relative_date": "31 minutes ago"
     },
     {
       "subject": "C4 settled: MetricX full matrix \u2014 two QE systems, same blind spots",
-      "relative_date": "47 minutes ago"
+      "relative_date": "49 minutes ago"
     },
     {
       "subject": "C1: human spot audit 15/15 aligned; EXP-20260814-04 recorded",
@@ -507,20 +511,16 @@
     {
       "subject": "Tafsir sourcing investigated; D6a sent; all decisions closed",
       "relative_date": "5 hours ago"
-    },
-    {
-      "subject": "PD sources verified: 2 rights failures dropped, 6 wrong editions corrected",
-      "relative_date": "5 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T18:48:25.505000+00:00"
+      "mtime": "2026-08-14T18:49:56.427661+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
-      "mtime": "2026-08-14T18:48:32.401885+00:00"
+      "mtime": "2026-08-14T18:50:05.338663+00:00"
     },
     {
       "name": "VERSED_TRANSLATE_MASTER_PLAN.md",

@@ -14,6 +14,8 @@ import statistics
 
 import sacrebleu
 
+from versed_translator.harness.structured import ID_CONTRACT_ERRORS, id_error_counts
+
 # Arabic script + Arabic presentation forms + Arabic supplement blocks.
 _ARABIC_RE = re.compile(
     r"[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]"
@@ -64,17 +66,22 @@ def chrf_score(hypotheses: list[str], references: list[str]) -> float | None:
 def id_preservation_report(rows: list[dict]) -> dict:
     """id-preservation rate for structured-template rows.
 
-    A row counts as an id-preservation violation when its error field is
-    exactly "id_missing_from_structured_response" (set by the adapters when
-    a structured response dropped or renamed an id). Non-structured rows
-    (error is anything else, or None) don't count against the denominator
-    unless they came from a structured run -- callers should pass only the
-    rows belonging to a structured-template run.
+    A row counts as an id-preservation violation when its error is one of
+    ``structured.ID_CONTRACT_ERRORS``: the id was dropped from the response,
+    duplicated in it, or invented by it. All three mean the same thing for
+    safety purposes -- the model did not honour the id contract, so the block
+    it was supposed to translate is unaccounted for.
+
+    Non-structured rows (error is anything else, or None) don't count against
+    the denominator unless they came from a structured run -- callers should
+    pass only the rows belonging to a structured-template run.
     """
     total = len(rows)
-    violations = sum(1 for r in rows if r.get("error") == "id_missing_from_structured_response")
+    violations = sum(1 for r in rows if r.get("error") in ID_CONTRACT_ERRORS)
     rate = (total - violations) / total if total else None
-    return {"total": total, "id_violations": violations, "id_preservation_rate": rate}
+    report = {"total": total, "id_violations": violations, "id_preservation_rate": rate}
+    report.update(id_error_counts(rows))
+    return report
 
 
 def score_run(rows: list[dict], source_texts: dict[str, str] | None = None, reference_texts: dict[str, str] | None = None) -> dict:
@@ -156,6 +163,12 @@ def render_markdown(report: dict, title: str = "Harness Run Report") -> str:
     id_rate = report.get("id_id_preservation_rate")
     if id_rate is not None:
         lines.append(f"- ID preservation rate: {id_rate:.2%} ({report.get('id_id_violations')} violations)")
+        lines.append(
+            f"  - missing: {report.get('id_id_missing_count')}"
+            f"  |  unexpected: {report.get('id_id_unexpected_count')}"
+            f"  |  duplicated: {report.get('id_id_duplicate_count')}"
+            f"  |  empty: {report.get('id_structured_empty_count')}"
+        )
     lines.append("")
     lines.append("## Cost & latency")
     lat_mean = report.get("latency_s_mean")

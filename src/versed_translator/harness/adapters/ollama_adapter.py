@@ -25,6 +25,11 @@ import urllib.request
 
 from versed_translator.harness.adapters.base import AdapterError, TranslationResult
 from versed_translator.harness.prompts import PromptTemplate, parse_structured_response
+from versed_translator.harness.structured import (
+    ERR_PARSE_PREFIX,
+    batch_error_results,
+    split_structured_results,
+)
 
 DEFAULT_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = "translategemma:12b"
@@ -96,44 +101,16 @@ def _translate_structured(items, template, model, base_url, exemplar, timeout) -
     try:
         data, latency_s = _generate(base_url, model, template.system, prompt, timeout)
     except AdapterError as exc:
-        return [
-            TranslationResult(item_id=i, translation=None, source_tokens=None, output_tokens=None, latency_s=None, error=str(exc))
-            for i in ids
-        ]
+        return batch_error_results(ids, str(exc))
 
-    source_tokens = data.get("prompt_eval_count")
-    output_tokens = data.get("eval_count")
+    counts = {
+        "source_tokens": data.get("prompt_eval_count"),
+        "output_tokens": data.get("eval_count"),
+        "latency_s": latency_s,
+    }
     try:
         parsed = parse_structured_response(data.get("response", ""))
     except ValueError as exc:
-        err = f"structured_parse_error: {exc}"
-        return [
-            TranslationResult(item_id=i, translation=None, source_tokens=source_tokens, output_tokens=output_tokens, latency_s=latency_s, error=err)
-            for i in ids
-        ]
+        return batch_error_results(ids, f"{ERR_PARSE_PREFIX}: {exc}", **counts)
 
-    by_id = {obj["id"]: obj["english"] for obj in parsed if isinstance(obj, dict) and "id" in obj}
-    results = []
-    for item_id in ids:
-        if item_id in by_id:
-            results.append(
-                TranslationResult(
-                    item_id=item_id,
-                    translation=by_id[item_id],
-                    source_tokens=source_tokens,
-                    output_tokens=output_tokens,
-                    latency_s=latency_s,
-                )
-            )
-        else:
-            results.append(
-                TranslationResult(
-                    item_id=item_id,
-                    translation=None,
-                    source_tokens=source_tokens,
-                    output_tokens=output_tokens,
-                    latency_s=latency_s,
-                    error="id_missing_from_structured_response",
-                )
-            )
-    return results
+    return split_structured_results(parsed, ids, **counts)

@@ -1,7 +1,15 @@
 """CLI for the C2 translation harness.
 
+    # Segment an items file into ID-bearing blocks (the D2e production unit).
+    python -m versed_translator.harness blocks --items <jsonl> --out <blocks.jsonl>
+
+    # Translate. --template defaults to structured_blocks_v1 (D2e).
     python -m versed_translator.harness run --adapter anthropic --model claude-sonnet-5 \
-        --template v1 --items <jsonl path> --out-dir /Volumes/Nodes/versed-translator/runs
+        --items <blocks.jsonl> --out-dir /Volumes/Nodes/versed-translator/runs
+
+    # Join block translations back into one translation per source item.
+    python -m versed_translator.harness reassemble --run-dir <block run dir> \
+        --items <original items jsonl>
 
     python -m versed_translator.harness score --run-dir /Volumes/Nodes/versed-translator/runs/<run_id>
 
@@ -16,7 +24,9 @@ import json
 import sys
 from pathlib import Path
 
+from versed_translator.harness import blocks as blocks_mod
 from versed_translator.harness import ingest_modal, runner, score
+from versed_translator.harness.schema import make_row
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
@@ -40,6 +50,93 @@ def _cmd_run(args: argparse.Namespace) -> int:
         **adapter_cfg,
     )
     print(json.dumps(run_meta, indent=2))
+    return 0
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def _cmd_blocks(args: argparse.Namespace) -> int:
+    items = runner.load_items(args.items)
+    rows = blocks_mod.blockify(items, max_words=args.max_words)
+    out_path = Path(args.out).expanduser()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.writelines(json.dumps(row, ensure_ascii=False) + "\n" for row in rows)
+
+    stats = blocks_mod.block_stats(rows)
+    stats["source_items"] = len(items)
+    stats["max_words"] = args.max_words
+    stats["out"] = str(out_path)
+    # A source item that produced no blocks (empty Arabic) would vanish here;
+    # say so rather than letting the counts quietly disagree.
+    stats["items_with_no_blocks"] = len(items) - stats.get("items", 0)
+    print(json.dumps(stats, indent=2))
+    return 0
+
+
+def _cmd_reassemble(args: argparse.Namespace) -> int:
+    run_dir = Path(args.run_dir).expanduser()
+    rows = _read_jsonl(run_dir / "results.jsonl")
+    meta = json.loads((run_dir / "run_meta.json").read_text(encoding="utf-8"))
+
+    # Rows whose item_id is not a block id cannot be reassembled; they are
+    # reported, never silently skipped.
+    block_rows = [r for r in rows if blocks_mod.is_block_id(r["item_id"])]
+    non_block = [r["item_id"] for r in rows if not blocks_mod.is_block_id(r["item_id"])]
+
+    translations, incomplete = blocks_mod.reassemble(block_rows)
+
+    out_dir = Path(args.out_dir).expanduser() if args.out_dir else run_dir.parent
+    new_run_id = args.run_id or f"{run_dir.name}-reassembled"
+    new_dir = out_dir / new_run_id
+    new_dir.mkdir(parents=True, exist_ok=True)
+
+    parent_ids = sorted(set(translations) | set(incomplete))
+    out_rows = []
+    for parent_id in parent_ids:
+        bad = incomplete.get(parent_id)
+        out_rows.append(
+            make_row(
+                run_id=new_run_id,
+                item_id=parent_id,
+                model=meta.get("model"),
+                model_version=meta.get("model_version"),
+                adapter=meta.get("adapter"),
+                quantization=meta.get("quantization"),
+                prompt_template_id=meta.get("prompt_template_id"),
+                batch_size=meta.get("batch_size"),
+                gpu=meta.get("gpu"),
+                translation=translations.get(parent_id),
+                # An item missing any block is an ERROR row, not a shorter
+                # translation. Scoring a partial passage as if it were whole
+                # is the precise failure structured blocks exist to prevent.
+                error=(f"incomplete_blocks:{len(bad)}" if bad else None),
+            )
+        )
+    with open(new_dir / "results.jsonl", "w", encoding="utf-8") as f:
+        f.writelines(json.dumps(row, ensure_ascii=False) + "\n" for row in out_rows)
+
+    new_meta = dict(meta)
+    new_meta.update(
+        {
+            "run_id": new_run_id,
+            "reassembled_from": meta.get("run_id"),
+            "item_count": len(out_rows),
+            "row_count": len(out_rows),
+            "error_count": sum(1 for r in out_rows if r["error"]),
+            "incomplete_item_count": len(incomplete),
+            "non_block_row_count": len(non_block),
+            "block_row_count": len(block_rows),
+        }
+    )
+    if args.items:
+        new_meta["items_path"] = str(Path(args.items).expanduser())
+    with open(new_dir / "run_meta.json", "w", encoding="utf-8") as f:
+        json.dump(new_meta, f, indent=2)
+
+    print(json.dumps({"run_dir": str(new_dir), "run_meta": new_meta}, indent=2))
     return 0
 
 
@@ -97,13 +194,32 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="versed-harness")
     sub = parser.add_subparsers(dest="command", required=True)
 
+    blocks_p = sub.add_parser(
+        "blocks",
+        help="Segment an items file into ID-bearing blocks (the D2e translation unit).",
+    )
+    blocks_p.add_argument("--items", required=True, help="Path to a JSONL file of {id, arabic} items.")
+    blocks_p.add_argument("--out", required=True, help="Where to write the block items JSONL.")
+    blocks_p.add_argument(
+        "--max-words", type=int, default=blocks_mod.DEFAULT_MAX_BLOCK_WORDS,
+        help="Word budget per block (default sized to stay inside MetricX's 1536-token window).",
+    )
+    blocks_p.set_defaults(func=_cmd_blocks)
+
     run_p = sub.add_parser("run", help="Run the harness against a benchmark items file.")
     run_p.add_argument("--adapter", required=True, choices=["anthropic", "ollama", "openai_compat"])
     run_p.add_argument("--model", required=True)
-    run_p.add_argument("--template", required=True, dest="template")
+    run_p.add_argument(
+        "--template", dest="template", default=runner.DEFAULT_TEMPLATE_ID,
+        help=f"Prompt template id (default: {runner.DEFAULT_TEMPLATE_ID}, the D2e production contract).",
+    )
     run_p.add_argument("--items", required=True, help="Path to a JSONL file of {id, arabic} items.")
     run_p.add_argument("--out-dir", default=None)
-    run_p.add_argument("--batch-size", type=int, default=1)
+    run_p.add_argument(
+        "--batch-size", type=int, default=None,
+        help=f"Items per structured call (default: {runner.DEFAULT_STRUCTURED_BATCH_SIZE} "
+        "structured, 1 free-text).",
+    )
     run_p.add_argument("--gpu", default=None)
     run_p.add_argument("--quantization", default=None)
     run_p.add_argument("--model-version", default=None)
@@ -111,6 +227,20 @@ def main(argv: list[str] | None = None) -> int:
     run_p.add_argument("--base-url", default=None, help="Required for openai_compat; overrides ollama's default.")
     run_p.add_argument("--api-key", default=None, help="For openai_compat.")
     run_p.set_defaults(func=_cmd_run)
+
+    re_p = sub.add_parser(
+        "reassemble",
+        help="Join a block-level run back into one translation per source item.",
+    )
+    re_p.add_argument("--run-dir", required=True, help="Block-level harness run dir.")
+    re_p.add_argument("--out-dir", default=None, help="Defaults to the run dir's parent.")
+    re_p.add_argument("--run-id", default=None, help="Name for the reassembled run dir.")
+    re_p.add_argument(
+        "--items", default=None,
+        help="Original (pre-block) items JSONL; recorded as items_path so `score` "
+        "can find the references for chrF.",
+    )
+    re_p.set_defaults(func=_cmd_reassemble)
 
     score_p = sub.add_parser("score", help="Score a finished run directory.")
     score_p.add_argument("--run-dir", required=True)
@@ -123,10 +253,12 @@ def main(argv: list[str] | None = None) -> int:
     ing_p.add_argument("--raw", required=True, help="Path to run_batch's results_raw.jsonl.")
     ing_p.add_argument(
         "--template",
-        required=True,
+        default=None,
         dest="template",
-        help="prompt_template_id the Modal run actually used. Not recorded in the "
-        "raw file and not guessable, so you must state it.",
+        help="prompt_template_id the Modal run actually used. Required for "
+        "`run_batch` output, which does not record it (and it is not guessable). "
+        "`run_blocks` records its own; passing a conflicting value there is an "
+        "error, not an override.",
     )
     ing_p.add_argument("--out-dir", default=None)
     ing_p.add_argument("--run-id", default=None, help="Override the run_id derived from the raw file.")

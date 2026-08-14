@@ -25,6 +25,11 @@ import time
 
 from versed_translator.harness.adapters.base import AdapterError, TranslationResult
 from versed_translator.harness.prompts import PromptTemplate, parse_structured_response
+from versed_translator.harness.structured import (
+    ERR_PARSE_PREFIX,
+    batch_error_results,
+    split_structured_results,
+)
 
 DEFAULT_MODEL = "claude-sonnet-5"
 
@@ -159,85 +164,34 @@ def _translate_structured(client, items, template, model, exemplar, max_tokens) 
             messages=[{"role": "user", "content": user_content}],
         )
     except Exception as exc:  # noqa: BLE001
-        err = f"{type(exc).__name__}: {exc}"
-        return [
-            TranslationResult(item_id=i["id"], translation=None, source_tokens=None, output_tokens=None, latency_s=None, error=err)
-            for i in items
-        ]
+        return batch_error_results([i["id"] for i in items], f"{type(exc).__name__}: {exc}")
     latency_s = time.monotonic() - start
 
+    ids = [i["id"] for i in items]
+    usage = {
+        "source_tokens": response.usage.input_tokens,
+        "output_tokens": response.usage.output_tokens,
+        "latency_s": latency_s,
+    }
+
     if response.stop_reason == "refusal":
-        return [
-            TranslationResult(
-                item_id=i["id"],
-                translation=None,
-                source_tokens=response.usage.input_tokens,
-                output_tokens=response.usage.output_tokens,
-                latency_s=latency_s,
-                error="refusal",
-            )
-            for i in items
-        ]
+        return batch_error_results(ids, "refusal", **usage)
 
     text = "".join(block.text for block in response.content if block.type == "text")
-    ids = [i["id"] for i in items]
     if response.stop_reason == "max_tokens":
         # A truncated batch yields unparseable/partial JSON; fail the whole
         # batch explicitly rather than letting the parse error mask the cause.
-        return [
-            TranslationResult(
-                item_id=i,
-                translation=None,
-                source_tokens=response.usage.input_tokens,
-                output_tokens=response.usage.output_tokens,
-                latency_s=latency_s,
-                error=f"max_tokens_truncated (raise max_tokens above {max_tokens})",
-            )
-            for i in ids
-        ]
+        return batch_error_results(
+            ids, f"max_tokens_truncated (raise max_tokens above {max_tokens})", **usage
+        )
     try:
         parsed = parse_structured_response(text)
     except ValueError as exc:
-        err = f"structured_parse_error: {exc}"
-        return [
-            TranslationResult(
-                item_id=i,
-                translation=None,
-                source_tokens=response.usage.input_tokens,
-                output_tokens=response.usage.output_tokens,
-                latency_s=latency_s,
-                error=err,
-            )
-            for i in ids
-        ]
+        return batch_error_results(ids, f"{ERR_PARSE_PREFIX}: {exc}", **usage)
 
-    by_id = {obj["id"]: obj["english"] for obj in parsed if isinstance(obj, dict) and "id" in obj}
-    # Per-item token/latency figures aren't separable from a batched call;
-    # attribute the whole call's totals to each item so run-level aggregates
-    # (sum of source_tokens across a run) stay meaningful for cost tracking,
-    # while acknowledging this over-counts if summed per item.
-    results = []
-    for item_id in ids:
-        if item_id in by_id:
-            results.append(
-                TranslationResult(
-                    item_id=item_id,
-                    translation=by_id[item_id],
-                    source_tokens=response.usage.input_tokens,
-                    output_tokens=response.usage.output_tokens,
-                    latency_s=latency_s,
-                    cost_estimate=_cost_estimate(model, response.usage.input_tokens, response.usage.output_tokens),
-                )
-            )
-        else:
-            results.append(
-                TranslationResult(
-                    item_id=item_id,
-                    translation=None,
-                    source_tokens=response.usage.input_tokens,
-                    output_tokens=response.usage.output_tokens,
-                    latency_s=latency_s,
-                    error="id_missing_from_structured_response",
-                )
-            )
-    return results
+    return split_structured_results(
+        parsed,
+        ids,
+        cost_estimate=_cost_estimate(model, response.usage.input_tokens, response.usage.output_tokens),
+        **usage,
+    )

@@ -16,6 +16,18 @@ Usage (all commands spin real Modal compute — see README.md for costs):
     modal run throughput/serve_translategemma.py::download_weights --model-key 27b
     modal run throughput/serve_translategemma.py::smoke
     modal run throughput/serve_translategemma.py::run_batch --input <jsonl> --output <jsonl>
+    modal run throughput/serve_translategemma.py::run_blocks --input <blocks.jsonl> --output <jsonl>
+
+PROMPTS COME FROM THE REGISTRY (D2e / EXP-20260814-03). `run_blocks` builds
+every prompt through `versed_translator.harness.modal_batch`, which derives
+the prompt *and* its `prompt_template_id` from one registry lookup, and writes
+that label into the run summary. This is the fix for the mislabel that made
+both prior legs record `prompt_template_id: "v1"` while sending
+`modal_minimal_v1`. The import lives inside the local entrypoint on purpose:
+local entrypoints run on the local machine, where this package is installed —
+the CUDA/vLLM image is not asked to import it. The GPU class below is handed
+finished prompt strings and returns raw text; it knows nothing about
+templates. `run_batch` is unchanged and still sends DEFAULT_TEMPLATE.
 
 Design notes:
 - One Modal Volume ("versed-model-weights") holds HF snapshots for every
@@ -101,12 +113,19 @@ MAX_ITEMS_PER_CALL = 512
 MAX_ARABIC_CHARS_PER_ITEM = 20_000
 PROGRESS_EVERY_N_ITEMS = 25
 
+# Registered in the harness prompt registry as `modal_minimal_v1`. Pinned to
+# that entry by tests/test_prompts_modal_parity.py — do not edit one side
+# without the other. Used by `run_batch` and as `run_blocks`'s fallback.
 DEFAULT_TEMPLATE = (
     "Translate the following Classical Arabic text into fluent, faithful "
     "English. Preserve names, numbers, dates, and quotations exactly. "
     "Output only the English translation, nothing else.\n\n"
     "Arabic:\n{arabic}\n\nEnglish:"
 )
+
+# Cap on prompts per `generate` call — same guard as MAX_ITEMS_PER_CALL, for
+# the prompt-based entrypoint. run_blocks chunks under this.
+MAX_PROMPTS_PER_CALL = 512
 
 # --------------------------------------------------------------------------
 # Modal app / image / volume / secret plumbing
@@ -420,6 +439,123 @@ class TranslateGemmaServer:
         )
         return {"results": results, "metadata": metadata}
 
+    @modal.method()
+    def generate(
+        self,
+        requests: list[dict],
+        temperature: float = DEFAULT_TEMPERATURE,
+        max_new_tokens: int = DEFAULT_MAX_NEW_TOKENS,
+        top_p: float = 1.0,
+    ) -> dict:
+        """Generate for a list of pre-rendered prompts. No template logic here.
+
+        Each request is ``{"system": str|None, "user": str, "chat": bool}``.
+        When ``chat`` is true and the loaded tokenizer carries a chat template,
+        the two fields become system/user messages; otherwise they are
+        concatenated into a raw completion prompt (which is exactly what
+        `run_batch` has always sent).
+
+        This is the counterpart to `translate_batch` for callers that build
+        their prompts from the harness prompt registry — the container never
+        decides what a prompt says, so the label the caller records cannot
+        disagree with what was sent. Returns
+        ``{"outputs": [{index, text, output_tokens, latency_s, error}],
+        "metadata": {...}}``; a per-prompt failure is reported on its own row
+        and never raises out of the call.
+        """
+        from vllm import SamplingParams
+
+        wall_t0 = time.monotonic()
+        if not isinstance(requests, list) or not requests:
+            return {"outputs": [], "metadata": self._metadata(
+                batch_size=0, num_ok=0, num_skipped=0, wall_time_s=0.0, sampling={})}
+        if len(requests) > MAX_PROMPTS_PER_CALL:
+            raise ValueError(
+                f"{len(requests)} prompts exceeds MAX_PROMPTS_PER_CALL="
+                f"{MAX_PROMPTS_PER_CALL}; chunk on the caller side (see run_blocks)."
+            )
+
+        chat_template = getattr(self._tokenizer, "chat_template", None)
+        prompt_budget = MAX_MODEL_LEN - max_new_tokens
+
+        prompts: list[str] = []
+        indices: list[int] = []
+        outputs_by_index: dict[int, dict] = {}
+        modes: dict[str, int] = {}
+
+        for i, req in enumerate(requests):
+            try:
+                system = req.get("system")
+                user = req["user"]
+                if req.get("chat") and chat_template:
+                    messages = ([{"role": "system", "content": system}] if system else []) + [
+                        {"role": "user", "content": user}
+                    ]
+                    try:
+                        prompt = self._tokenizer.apply_chat_template(
+                            messages, tokenize=False, add_generation_prompt=True
+                        )
+                        mode = "chat"
+                    except Exception:  # noqa: BLE001 — some templates reject a system turn
+                        prompt = self._tokenizer.apply_chat_template(
+                            [{"role": "user", "content": f"{system}\n\n{user}" if system else user}],
+                            tokenize=False,
+                            add_generation_prompt=True,
+                        )
+                        mode = "chat_merged_system"
+                else:
+                    prompt = f"{system}\n\n{user}" if system else user
+                    mode = "raw"
+                n_tokens = len(self._tokenizer.encode(prompt))
+                if n_tokens > prompt_budget:
+                    raise ValueError(
+                        f"prompt is {n_tokens} tokens, exceeds budget {prompt_budget} "
+                        f"(max_model_len={MAX_MODEL_LEN} - max_new_tokens={max_new_tokens})"
+                    )
+                modes[mode] = modes.get(mode, 0) + 1
+                prompts.append(prompt)
+                indices.append(i)
+            except Exception as exc:  # noqa: BLE001 — one bad prompt must not sink the batch
+                outputs_by_index[i] = {
+                    "index": i, "text": None, "error": f"{type(exc).__name__}: {exc}",
+                }
+
+        if prompts:
+            sampling = SamplingParams(
+                temperature=temperature, top_p=top_p, max_tokens=max_new_tokens
+            )
+            gen_t0 = time.monotonic()
+            generated = self.llm.generate(prompts, sampling, use_tqdm=True)
+            per_item_latency = (time.monotonic() - gen_t0) / len(prompts)
+            for i, (index, output) in enumerate(zip(indices, generated)):
+                if i % PROGRESS_EVERY_N_ITEMS == 0:
+                    print(f"[generate] collecting {i}/{len(generated)}")
+                try:
+                    outputs_by_index[index] = {
+                        "index": index,
+                        "text": output.outputs[0].text,
+                        "output_tokens": len(output.outputs[0].token_ids),
+                        "finish_reason": getattr(output.outputs[0], "finish_reason", None),
+                        "latency_s": round(per_item_latency, 4),
+                    }
+                except Exception as exc:  # noqa: BLE001
+                    outputs_by_index[index] = {
+                        "index": index, "text": None,
+                        "error": f"postprocess {type(exc).__name__}: {exc}",
+                    }
+
+        outputs = [outputs_by_index[i] for i in range(len(requests))]
+        metadata = self._metadata(
+            batch_size=len(requests),
+            num_ok=sum(1 for o in outputs if o.get("text") is not None),
+            num_skipped=sum(1 for o in outputs if o.get("text") is None),
+            wall_time_s=round(time.monotonic() - wall_t0, 4),
+            sampling={"temperature": temperature, "top_p": top_p, "max_new_tokens": max_new_tokens},
+        )
+        metadata["prompt_modes"] = modes
+        metadata["has_chat_template"] = bool(chat_template)
+        return {"outputs": outputs, "metadata": metadata}
+
     def _metadata(self, *, batch_size: int, num_ok: int, num_skipped: int,
                    wall_time_s: float, sampling: dict) -> dict:
         entry = getattr(self, "_manifest_entry", {})
@@ -564,5 +700,170 @@ def run_batch(
 
     print(f"[run_batch] wrote {len(items)} results ({n_ok} ok, {n_err} error) to {out_path}")
     print(f"[run_batch] total GPU wall time (client-observed): {total_wall_s:.1f}s "
+          f"-> est. ${total_wall_s * H100_LIST_PRICE_PER_SEC_USD:.4f} "
+          f"[NEEDS-VERIFICATION price constant]")
+
+
+@app.local_entrypoint()
+def run_blocks(
+    input: str,
+    output: str,
+    model_key: str = "12b",
+    chunk_size: int = 4,
+    temperature: float = DEFAULT_TEMPERATURE,
+    max_new_tokens: int = DEFAULT_MAX_NEW_TOKENS,
+    prompts_per_call: int = 128,
+    probe_size: int = 4,
+    allow_fallback: bool = True,
+) -> None:
+    """Translate a jsonl of ID-bearing blocks under the D2e structured contract.
+
+    Prompts and their `prompt_template_id` both come from the harness registry
+    (`versed_translator.harness.modal_batch`), imported here — locally, where
+    the package exists — so the recorded label is the label of the prompt that
+    was actually sent.
+
+    ONE PROBE, THEN ONE DECISION. TranslateGemma is a translation model, not a
+    JSON-emitting agent, and a paid GPU job is not the place to find out it
+    will not hold the structured contract. So the first call is a `probe_size`
+    block probe; if every id does not come back intact, the run falls back —
+    once, for the whole run, recorded honestly in the summary — to the
+    known-good `modal_minimal_v1` prompt at one block per prompt. Either way
+    the output is per-block and ID-keyed. A fallback is a finding to report,
+    not a failure to hide: pass `--allow-fallback false` to abort instead.
+    """
+    from versed_translator.harness import modal_batch
+
+    in_path = Path(input)
+    out_path = Path(output)
+    if not in_path.exists():
+        raise FileNotFoundError(in_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    items = []
+    with in_path.open() as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                obj = json.loads(line)
+                items.append({"id": obj["id"], "arabic": obj["arabic"]})
+    if len({i["id"] for i in items}) != len(items):
+        raise ValueError(f"{in_path} contains duplicate block ids; ID accounting would be meaningless")
+    print(f"[run_blocks] loaded {len(items)} blocks from {in_path}")
+
+    server = TranslateGemmaServer(model_key=model_key)
+    run_started = datetime.now(timezone.utc).isoformat()
+    total_wall_s = 0.0
+
+    def _call(chunks: list) -> tuple[list[dict], dict, float]:
+        """Send PromptChunks in slices, return (raw rows, last metadata, wall)."""
+        rows: list[dict] = []
+        meta: dict = {}
+        wall = 0.0
+        for start in range(0, len(chunks), prompts_per_call):
+            slice_ = chunks[start : start + prompts_per_call]
+            print(f"[run_blocks] generating prompts {start}-{start + len(slice_)} of {len(chunks)} ...")
+            t0 = time.monotonic()
+            out = server.generate.remote(
+                [c.to_request() for c in slice_], temperature, max_new_tokens,
+            )
+            wall += time.monotonic() - t0
+            meta = out["metadata"]
+            for chunk, result in zip(slice_, out["outputs"]):
+                if result.get("text") is None:
+                    rows.extend(
+                        {"id": i, "english": None, "error": result.get("error", "no text returned")}
+                        for i in chunk.ids
+                    )
+                    continue
+                rows.extend(
+                    modal_batch.parse_chunk_output(
+                        chunk,
+                        result["text"],
+                        output_tokens=result.get("output_tokens"),
+                        latency_s=result.get("latency_s"),
+                    )
+                )
+            print(f"[run_blocks] slice done (metadata: {meta})")
+        return rows, meta, wall
+
+    # --- probe -------------------------------------------------------------
+    probe_items = items[: max(1, probe_size)]
+    probe_chunks = modal_batch.build_structured_chunks(
+        probe_items, chunk_size=max(1, probe_size)
+    )
+    probe_rows, probe_meta, probe_wall = _call(probe_chunks)
+    total_wall_s += probe_wall
+    structured_ok = modal_batch.probe_ok(probe_rows)
+    print(f"[run_blocks] structured probe over {len(probe_items)} blocks: "
+          f"{'OK' if structured_ok else 'FAILED'} "
+          f"({[r.get('error') for r in probe_rows]})")
+
+    if structured_ok:
+        template_id = modal_batch.STRUCTURED_TEMPLATE_ID
+        chunks = modal_batch.build_structured_chunks(items, chunk_size=chunk_size)
+    elif allow_fallback:
+        template_id = modal_batch.FALLBACK_TEMPLATE_ID
+        chunks = modal_batch.build_fallback_chunks(items)
+        print(f"[run_blocks] FALLING BACK to {template_id} (one block per prompt). "
+              "This is recorded in the run summary as the template actually used.")
+    else:
+        raise RuntimeError(
+            "structured probe failed and --allow-fallback is false; no blocks translated"
+        )
+
+    rows, meta, wall = _call(chunks)
+    total_wall_s += wall
+
+    by_id = {}
+    duplicates = 0
+    for row in rows:
+        if row["id"] in by_id:
+            duplicates += 1
+            continue
+        by_id[row["id"]] = row
+    sent_ids = [i["id"] for i in items]
+    missing = [i for i in sent_ids if i not in by_id]
+    unexpected = [i for i in by_id if i not in set(sent_ids)]
+    for item_id in missing:
+        rows.append({"id": item_id, "english": None, "error": "id_missing_from_structured_response"})
+
+    n_ok = sum(1 for r in rows if r.get("english"))
+    n_err = len(rows) - n_ok
+
+    with out_path.open("w") as out_f:
+        for row in rows:
+            out_f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        out_f.write(json.dumps({
+            "_run_summary": {
+                "input": str(in_path),
+                "output": str(out_path),
+                "model_key": model_key,
+                "started_at": run_started,
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "n_items": len(items),
+                "n_ok": n_ok,
+                "n_err": n_err,
+                "total_wall_s": round(total_wall_s, 2),
+                "est_cost_usd": round(total_wall_s * H100_LIST_PRICE_PER_SEC_USD, 4),
+                "price_constant_needs_verification": H100_LIST_PRICE_PER_HOUR_USD,
+                # The label of the prompt that was actually sent, taken from
+                # the same registry lookup that built it.
+                "prompt_template_id": template_id,
+                "structured": structured_ok,
+                "structured_probe_ok": structured_ok,
+                "structured_chunk_size": chunk_size if structured_ok else 1,
+                "prompt_modes": meta.get("prompt_modes"),
+                "has_chat_template": meta.get("has_chat_template"),
+                "id_loss_count": len(missing),
+                "id_unexpected_count": len(unexpected),
+                "id_duplicate_rows": duplicates,
+            }
+        }, ensure_ascii=False) + "\n")
+
+    print(f"[run_blocks] wrote {len(rows)} rows ({n_ok} ok, {n_err} error) to {out_path}")
+    print(f"[run_blocks] template actually used: {template_id}; "
+          f"id loss {len(missing)}, unexpected {len(unexpected)}")
+    print(f"[run_blocks] total GPU wall time (client-observed): {total_wall_s:.1f}s "
           f"-> est. ${total_wall_s * H100_LIST_PRICE_PER_SEC_USD:.4f} "
           f"[NEEDS-VERIFICATION price constant]")

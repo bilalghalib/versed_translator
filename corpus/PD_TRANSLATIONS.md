@@ -1,5 +1,43 @@
 # Public-Domain English Translations — Seed List
 
+> ## CATALOG SWEEP — 2026-08-14. The original 16 were never a survey; these are.
+>
+> The list below came from one WebSearch session. A systematic sweep has now been run: the **complete Gutenberg catalog** downloaded and grepped exhaustively (90,477 rows / 79,134 English — so the Gutenberg side is complete, not sampled), plus archive.org `advancedsearch` on subject/title/description/publisher facets. **24 full texts fetched, title page read inside each scan, body sampled, and scored** for dictionary-hit rate and paragraph-length distribution. Calibration: Gutenberg's Ockley (our quality ceiling) scores `dict=0.888` with 78 paragraphs ≥250 words; Hariri scores `0.881` / 154.
+>
+> ### The long-band problem is solved — by works that were NOT on the original list
+>
+> | # | Work / translator | Genre | ≥250-word paras | Text quality | OpenITI |
+> |---|---|---|---:|---|---|
+> | 1 | **Miskawayh, *Tajarib al-Umam*** → *Eclipse of the 'Abbasid Caliphate*, Margoliouth & Amedroz **1921** | historiography | **383** (3 vols, 460K tok) | dict 0.80 | `0421Miskawayh.Tajarib` 5.56 MB ✓ |
+> | 2 | **Ibn Rushd**, *Fasl al-Maqal* + *Damima* + *Kashf* → Jamil-ur-Rehman **1921**, **Gutenberg #65708** | **kalam/falsafa — absent genre** | 74 from only 54K tok | **dict 0.900 — best measured, above Ockley** | `0595IbnRushdHafid.FaslMaqal` ✓ (partial) |
+> | 3 | **al-Suyuti, *Tarikh al-Khulafa*** → Jarrett **1881** | historiography | **211** (single vol) | dict 0.806 | `0911Suyuti.TarikhKhulafa` ✓ |
+> | 4 | **Usama ibn Munqidh, *Kitab al-I'tibar*** → Hitti **1929** | memoir | 32 (≥250) / 398 (≥100) | dict 0.858 | `0584IbnMunqidhShayzari.Ictibar` ✓ |
+> | 5 | **al-Biruni, *Athar al-Baqiya*** → Sachau **1879** | **science/chronology — thin** | 24 | dict 0.808 | `0440AbuRayhanBiruni.AtharBaqiya` ✓ |
+> | 6 | **al-Tanukhi, *Nishwar al-Muhadara*** → Margoliouth **1922** | adab | **165 from 106K tok** | dict 0.867 | `0384MuhassinTanukhi.NishwarMuhadara` ✓ |
+> | 7 | **Alf Layla wa-Layla** → **Payne 1882–84, Gutenberg** | adab/narrative | 133–151 **per volume × 10** | **dict 0.905** | `1300Anonymous.AlfLaylaWaLayla` 6.7 MB ✓ |
+>
+> **Two free-anchor findings worth more than the counts:** Miskawayh's English prints the **Arabic edition's page numbers inline** as `(184)`, and Sachau's Biruni prints them **marginally** (`p.216.`) — both fuse into the OCR stream as ready-made hard alignment anchors, far stronger than transliterated-name matching. Suyuti is **isnad-heavy**, i.e. maximally name-dense, which is our best anchor type.
+>
+> **Prefer Payne over Burton** for the *Nights*: Burton's deliberate archaism ("Ere I do that thing") makes him a poor MT reference. ⚠️ Verify which recension the OpenITI witness is first — the *Nights* has severe textual variance.
+>
+> ⚠️ **Scan traps found:** use the **Cornell** Suyuti (`cu31924023164654`), not `in.ernet.dli.2015.501677` — measured b/h OCR confusion 0.0039 vs 0.0174, a 4.5× difference. Ibn Iyas's default `*_djvu.txt` **404s**; use `HighRes_39020021048494`. Usama's OCR eats Hitti's macrons (ū→i, "Mahmid" for Maḥmūd), degrading exactly the name anchors.
+>
+> ### Rejections (documented, do not re-derive)
+>
+> - **Le Strange, *Palestine under the Moslems*** — real translations but **thematically rearranged into his own construction**. Same failure as Lane's *Arabian Society*.
+> - **al-'Utbi *Kitab-i-Yamini*** (via Persian), **Baerlein's *Diwan of Abu'l-Ala*** (paraphrase of Margoliouth's English), **Hujwiri / Rumi / Maniri** (Persian originals) — fail direct-from-Arabic.
+> - **al-Muqaddasi** *Ahsan al-Taqasim*, Ranking & Azoo 1897 — the obvious geography candidate, and it fails: `dict=0.758`, sampled line *"the the mriHB and $he maklcuk"*. Arabic is in OpenITI if a better scan ever surfaces.
+> - **Ghazali *Mishkat al-Anwar*, Gairdner** — catalogued 1924, but the only IA scan's title page reads **"Reprinted, 1952"**; OCR catastrophic (mirror bleed-through), **zero** paragraphs ≥250 words. Dead end unless sourced from HathiTrust.
+> - **al-Khwarizmi *Algebra*** (only mathematics candidate) and **al-Razi on smallpox** (only medicine candidate) — both PD and direct, but **neither work is in OpenITI**. **al-Sirajiyyah** (genuine fiqh, direct, PD) likewise absent. **The fiqh/medicine/mathematics gaps look structural, not search failures.**
+>
+> ### ⚠️ Scope decision this forces
+>
+> Checked against `corpus/inventory.sqlite`: **only two candidates appear in the top-250 priority inventory** (Ghazali's *Mishkat*, Ibn Munqidh) — and those are precisely the two with the weakest English. **Every work in the table above is outside the top-250.** Adding them is the same scope call already flagged for Baydawi, now applying wholesale. Recommendation: **take them.** The priority list orders *publication*; the benchmark measures *capability*, and genre/period coverage is its stated goal. But it means benchmark results describe works the factory is not scheduled to publish first.
+>
+> ### Sweep boundaries
+>
+> **Not covered: HathiTrust and Google Books were never queried** — Gairdner's 1924 RAS *Mishkat* and a cleaner Gayangos most likely live there; that is the obvious next move. The 204 Oriental Translation Fund results were skimmed, not read row by row. Not sampled: Burton's supplements, Lane's *Nights*, Sale/Rodwell Qur'ans (both Gutenberg-clean and direct from Arabic — a cleaner stream than our OCR'd Palmer). Tafsir deliberately not reopened. **No legal determination made** — pre-1930 imprint verified on title pages and/or translator death year, the same plausibility standard used throughout; the Usama/Hitti 1929 entry is where that gap matters most (US PD since 2025, EU to 2049).
+
 > ## ⚠️ VERIFICATION PASS — 2026-08-14 (READ THIS BEFORE USING THE TABLE BELOW)
 >
 > The table further down was compiled by **WebSearch only**; its URLs were never fetched. A verification pass has now fetched all 16. **Several entries pointed at the wrong edition, and two are not public domain at all.** The table below is preserved as the original compilation record — **this block is authoritative where they disagree.**

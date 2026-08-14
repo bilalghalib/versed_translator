@@ -16,6 +16,11 @@ import urllib.request
 
 from versed_translator.harness.adapters.base import AdapterError, TranslationResult
 from versed_translator.harness.prompts import PromptTemplate, parse_structured_response
+from versed_translator.harness.structured import (
+    ERR_PARSE_PREFIX,
+    batch_error_results,
+    split_structured_results,
+)
 
 
 def _post(base_url: str, path: str, payload: dict, api_key: str | None, timeout: float) -> dict:
@@ -104,52 +109,20 @@ def _translate_structured(items, template, model, base_url, api_key, exemplar, t
     try:
         data, latency_s = _chat(base_url, model, api_key, template.system, user_content, timeout, max_tokens)
     except AdapterError as exc:
-        return [
-            TranslationResult(item_id=i, translation=None, source_tokens=None, output_tokens=None, latency_s=None, error=str(exc))
-            for i in ids
-        ]
+        return batch_error_results(ids, str(exc))
     try:
         text = data["choices"][0]["message"]["content"]
     except (KeyError, IndexError) as exc:
-        err = f"unexpected response shape: {exc}"
-        return [
-            TranslationResult(item_id=i, translation=None, source_tokens=None, output_tokens=None, latency_s=latency_s, error=err)
-            for i in ids
-        ]
+        return batch_error_results(ids, f"unexpected response shape: {exc}", latency_s=latency_s)
     usage = data.get("usage") or {}
-    source_tokens = usage.get("prompt_tokens")
-    output_tokens = usage.get("completion_tokens")
+    counts = {
+        "source_tokens": usage.get("prompt_tokens"),
+        "output_tokens": usage.get("completion_tokens"),
+        "latency_s": latency_s,
+    }
     try:
         parsed = parse_structured_response(text)
     except ValueError as exc:
-        err = f"structured_parse_error: {exc}"
-        return [
-            TranslationResult(item_id=i, translation=None, source_tokens=source_tokens, output_tokens=output_tokens, latency_s=latency_s, error=err)
-            for i in ids
-        ]
+        return batch_error_results(ids, f"{ERR_PARSE_PREFIX}: {exc}", **counts)
 
-    by_id = {obj["id"]: obj["english"] for obj in parsed if isinstance(obj, dict) and "id" in obj}
-    results = []
-    for item_id in ids:
-        if item_id in by_id:
-            results.append(
-                TranslationResult(
-                    item_id=item_id,
-                    translation=by_id[item_id],
-                    source_tokens=source_tokens,
-                    output_tokens=output_tokens,
-                    latency_s=latency_s,
-                )
-            )
-        else:
-            results.append(
-                TranslationResult(
-                    item_id=item_id,
-                    translation=None,
-                    source_tokens=source_tokens,
-                    output_tokens=output_tokens,
-                    latency_s=latency_s,
-                    error="id_missing_from_structured_response",
-                )
-            )
-    return results
+    return split_structured_results(parsed, ids, **counts)

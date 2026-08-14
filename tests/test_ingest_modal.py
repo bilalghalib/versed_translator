@@ -149,6 +149,12 @@ def test_ingest_writes_schema_rows_and_run_meta(tmp_path):
         "items_path": "/off/tree/benchmark-data/fixture_items.jsonl",
         "created_at": "2026-08-13T23:37:01.976323+00:00",
         "est_cost_usd_total": 0.2732,
+        # ID accounting is stamped on every ingested run, structured or not:
+        # a run with nothing to report says 0, it does not stay silent.
+        "id_missing_count": 0,
+        "id_unexpected_count": 0,
+        "id_duplicate_count": 0,
+        "structured_empty_count": 0,
     }
 
 
@@ -232,16 +238,23 @@ _REAL_REF = _DATA / "runs" / "20260813T233252Z-modal-translategemma_27b"
 def test_reconstructs_the_published_27b_leg(tmp_path):
     """Every field of the published 27B leg must be re-derivable from its raw file.
 
-    The one expected difference is output_tokens: it is present in the raw file
-    but the (lost, ad-hoc) original conversion script dropped it. This tool
-    carries it through, so the reconstruction is a strict superset of the
-    known-good output -- nothing is fabricated and nothing is lost.
+    The expected differences are additive only: output_tokens (present in the
+    raw file, dropped by the lost ad-hoc conversion script) and the ID-loss
+    counters added with the structured-block contract. The reconstruction is a
+    strict superset of the known-good output -- nothing is fabricated and
+    nothing that was there before is lost.
     """
     meta = ingest(_REAL_RAW, prompt_template_id="v1", out_dir=tmp_path / "runs")
     report = compare_runs(meta["run_dir"], _REAL_REF)
 
     assert report["row_count"] == {"new": 139, "ref": 139, "match": True}
-    assert report["meta_fields"] == {}, "run_meta.json must reconstruct exactly"
+    # No field the published leg recorded may change value; only new fields
+    # (whose reference side is absent) are allowed.
+    changed = {f: d for f, d in report["meta_fields"].items() if d["ref"] is not None}
+    assert changed == {}, "run_meta.json must reconstruct every published field exactly"
+    assert set(report["meta_fields"]) == {
+        "id_missing_count", "id_unexpected_count", "id_duplicate_count", "structured_empty_count",
+    }
 
     dirty = {f: d["differing"] for f, d in report["row_fields"].items() if d["differing"]}
     assert dirty == {"output_tokens": 139}, f"unexpected reconstruction drift: {dirty}"

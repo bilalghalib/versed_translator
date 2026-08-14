@@ -31,8 +31,15 @@ back-filled):
 FIELDS THAT COME FROM SERVING CONFIG, NOT THE RAW FILE: ``model``,
 ``quantization`` and ``gpu`` are constants of the serving path (mirrored below
 from serve_translategemma.py) and default from ``model_key``.
-``prompt_template_id`` is NOT recorded anywhere in the raw file and is NOT
-guessable, so it is a required argument the caller must state.
+
+``prompt_template_id``: ``run_batch`` does not record it, so for those files
+it is a required argument the caller must state (it is not guessable, and
+guessing it wrong is exactly how both TranslateGemma legs came to be
+mislabelled). ``run_blocks`` *does* record it, taken from the same registry
+lookup that built the prompt; when the summary carries it, it wins, and an
+explicit ``--template`` that disagrees is an error rather than an override.
+A caller's belief must never quietly overwrite the run's own record of what
+it sent.
 """
 
 from __future__ import annotations
@@ -42,6 +49,7 @@ from datetime import datetime
 from pathlib import Path
 
 from versed_translator.harness.schema import make_row, validate_row
+from versed_translator.harness.structured import id_error_counts
 from versed_translator.paths import SCRATCH_DIR
 
 #: Adapter name recorded on every row this module emits. There is no live
@@ -62,6 +70,41 @@ SERVING_GPU = "H100"
 SERVING_QUANTIZATION = "bfloat16"
 
 SUMMARY_KEY = "_run_summary"
+
+#: Summary keys `run_blocks` records that `build_run_meta` copies through, so
+#: the ID-loss accounting the GPU job observed survives into run_meta.json.
+PASSTHROUGH_SUMMARY_KEYS: tuple[str, ...] = (
+    "structured",
+    "structured_probe_ok",
+    "structured_chunk_size",
+    "prompt_modes",
+    "has_chat_template",
+    "id_loss_count",
+    "id_unexpected_count",
+    "id_duplicate_rows",
+)
+
+
+def resolve_template_id(summary: dict, requested: str | None) -> str:
+    """The prompt_template_id to record: the run's own, if it has one.
+
+    Raises RawIngestError when the caller states a template that contradicts
+    the one the run recorded, and when neither exists.
+    """
+    recorded = summary.get("prompt_template_id")
+    if recorded and requested and recorded != requested:
+        raise RawIngestError(
+            f"raw file records prompt_template_id={recorded!r} but --template "
+            f"says {requested!r}. The run's own record wins; drop --template "
+            "or fix the caller."
+        )
+    resolved = recorded or requested
+    if not resolved:
+        raise RawIngestError(
+            "no prompt_template_id in the raw file's summary and none passed; "
+            "it is not guessable -- state it with --template"
+        )
+    return resolved
 
 
 class RawIngestError(ValueError):
@@ -188,7 +231,7 @@ def build_run_meta(
     quantization: str | None,
 ) -> dict:
     """Build run_meta.json matching runner.run's shape, plus est_cost_usd_total."""
-    return {
+    meta = {
         "run_id": run_id,
         "adapter": ADAPTER_NAME,
         "model": model,
@@ -208,12 +251,17 @@ def build_run_meta(
         "created_at": summary.get("finished_at"),
         "est_cost_usd_total": summary.get("est_cost_usd"),
     }
+    meta.update(
+        {key: summary[key] for key in PASSTHROUGH_SUMMARY_KEYS if key in summary}
+    )
+    meta.update(id_error_counts(rows))
+    return meta
 
 
 def ingest(
     raw_path: str | Path,
     *,
-    prompt_template_id: str,
+    prompt_template_id: str | None = None,
     out_dir: str | Path | None = None,
     run_id: str | None = None,
     model: str | None = None,
@@ -227,12 +275,13 @@ def ingest(
     resolved_model = model or _repo_for(model_key)
     resolved_version = model_version if model_version is not None else model_key
     resolved_run_id = run_id or derive_run_id(summary)
+    resolved_template = resolve_template_id(summary, prompt_template_id)
 
     rows = build_rows(
         raw_rows,
         summary,
         run_id=resolved_run_id,
-        prompt_template_id=prompt_template_id,
+        prompt_template_id=resolved_template,
         model=resolved_model,
         model_version=resolved_version,
         gpu=gpu,
@@ -242,7 +291,7 @@ def ingest(
         rows,
         summary,
         run_id=resolved_run_id,
-        prompt_template_id=prompt_template_id,
+        prompt_template_id=resolved_template,
         model=resolved_model,
         model_version=resolved_version,
         gpu=gpu,

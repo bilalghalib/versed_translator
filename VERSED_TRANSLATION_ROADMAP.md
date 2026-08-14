@@ -149,8 +149,32 @@ Decisions:
 
 Model access (verified 2026-08-13): **COMETKiwi** (`Unbabel/wmt22-cometkiwi-da`) gated access granted, downloads fine — but it is **CC-BY-NC-SA-4.0**. Internal evaluation and threshold calibration are fine; it must **not** be embedded in, or required by, anything Versed ships commercially. MetricX-QE licensing to be checked at implementation.
 
+**RESULT (2026-08-14, COMETKiwi over 1,144 corrupted pairs from the TG27B run, 13/15 error types exercised):**
+
+**Overall detection rate 30.4% at delta>=0.02.** The failures cluster precisely on the highest-severity fidelity errors:
+
+| Corruption | Severity | n | mean delta | detection |
+| --- | --- | ---: | ---: | ---: |
+| mistranslate_term | major | 120 | 0.0003 | **0.8%** |
+| reverse_agent_patient | critical | 11 | 0.0063 | **9.1%** |
+| delete_negation | critical | 92 | 0.0076 | **10.9%** |
+| remove_isnad_narrator | critical | 127 | 0.0103 | 22.8% |
+| remove_clause | critical | 105 | **−0.0041** | 22.9% |
+| omit_quotation | critical | 131 | 0.0090 | 27.5% |
+| duplicate_sentence | moderate | 139 | 0.0612 | 71.9% |
+
+Three findings that shape C5:
+1. **Deleting a negation is invisible (10.9%, mean delta 0.008).** Inverting a claim — the single most consequential corruption for doctrinal text — barely moves the score.
+2. **Removing a clause has a NEGATIVE mean delta (−0.0041):** COMETKiwi scores the *truncated* text slightly **higher** than the complete translation. A fluency-weighted metric rewards silent omission, which is exactly backwards for a corpus where omission is the classic failure.
+3. **Detection tracks fluency, not fidelity.** The only well-detected corruption is `duplicate_sentence` (71.9%) — a fluency artifact. Every semantic corruption sits at or below ~30%.
+
+**Conclusion: COMETKiwi cannot be the primary safety gate for this corpus.** It is a usable fluency/adequacy signal, nothing more. Note this does **not** yet justify training a neural QE model — every one of its blind spots is cheaply detectable with deterministic checks (negation-count parity, sentence-count/length ratio, entity + isnad coverage, quotation-span coverage, terminology-glossary match). That is the C5 ensemble, and it is also the NC-free path (D4b), since the blind spots live in the NC-licensed model.
+
+Artifacts (outside repo, rights): `~/versed-translator-data/qe/tg27b-full/{detection_matrix.json,detection_matrix.md,scored_pairs.jsonl}`.
+Caveats: single QE model (MetricX-QE still untested); hadith-dominated slice; `alter_citation` and `collapse_paragraphs` not exercised (this slice has no verse citations or paragraph breaks); `alter_date`/`change_number` had n=1 each, so their 0% is directional only.
+
 Decisions:
-- **D4** [HUMAN ratifies] Do existing QE systems suffice as the core signal? Gates C5 design (ensemble-over-existing vs. train-custom later).
+- **D4** [HUMAN ratifies] Do existing QE systems suffice as the core signal? → **Evidence says NO as a primary gate.** Recommendation: ensemble COMETKiwi (fluency) + deterministic fidelity checks; defer any custom neural QE until the ensemble is measured against human judgments.
 - **D4b** [AGENT designs, HUMAN ratifies] Versed-QE must run in two modes: a **research** mode (may use NC models like COMETKiwi) and a **shippable** mode (deterministic checks + permissively-licensed signals only). If the NC-free mode loses too much accuracy, that becomes the concrete case for training our own QE model (master-plan Phase 6's "only if evidence shows").
 
 **STATUS:** NOT STARTED — model access cleared, unblocked once C2 outputs exist.
@@ -331,7 +355,7 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | C1 benchmark | ACTIVE |
 | C2 harness/bakeoff | ACTIVE |
 | C3 economics | ACTIVE (first real measurement: TG12B ~2 tok/s local) |
-| C4 QE truth study | NOT STARTED |
+| C4 QE truth study | ACTIVE (COMETKiwi matrix done: 30.4% detection, critical blind spots) |
 | C5 Versed-QE v0 | NOT STARTED |
 | C6 rights inventory | ACTIVE |
 | C7 Versed Align | NOT STARTED |

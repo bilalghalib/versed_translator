@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T22:59:51.470153+00:00",
+  "generated_at": "2026-08-14T04:59:59.904272+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -35,7 +35,7 @@
       "name": "QE truth study (existing systems + adversarial suite)",
       "end_state": "MetricX-QE + COMETKiwi (+ any clearly superior current QE found at execution time \u2014 pin exact versions) scored over **all** C2 outputs;",
       "next_dependency": "C2 outputs.",
-      "status": "NOT STARTED"
+      "status": "ACTIVE"
     },
     {
       "id": "C5",
@@ -181,50 +181,58 @@
   ],
   "recent_commits": [
     {
-      "subject": "Fix vLLM/Gemma3 rope_scaling regression via hf_overrides",
-      "relative_date": "2 hours ago"
-    },
-    {
-      "subject": "Ollama adapter: raise timeout to match measured local inference speed",
-      "relative_date": "2 hours ago"
-    },
-    {
-      "subject": "Harness: thread cost through, load references for chrF, fix TG12B run",
+      "subject": "C4: detection study runner + comet DataLoader compat fix",
       "relative_date": "5 hours ago"
     },
     {
-      "subject": "Fix Sonnet 5 token-budget trap; record COMETKiwi NC constraint",
+      "subject": "C4: detection-matrix engine + COMETKiwi wrapper",
+      "relative_date": "5 hours ago"
+    },
+    {
+      "subject": "C4: adversarial error-injection suite (all 15 master-plan corruption types)",
+      "relative_date": "5 hours ago"
+    },
+    {
+      "subject": "Fix KV cache OOM: util 0.90->0.95, bound max_num_seqs to 32",
       "relative_date": "6 hours ago"
     },
     {
+      "subject": "Pin transformers<5 (vLLM rope_scaling root cause); record C2 measured results",
+      "relative_date": "6 hours ago"
+    },
+    {
+      "subject": "Fix vLLM/Gemma3 rope_scaling regression via hf_overrides",
+      "relative_date": "8 hours ago"
+    },
+    {
+      "subject": "Ollama adapter: raise timeout to match measured local inference speed",
+      "relative_date": "8 hours ago"
+    },
+    {
+      "subject": "Harness: thread cost through, load references for chrF, fix TG12B run",
+      "relative_date": "11 hours ago"
+    },
+    {
+      "subject": "Fix Sonnet 5 token-budget trap; record COMETKiwi NC constraint",
+      "relative_date": "12 hours ago"
+    },
+    {
       "subject": "Harness runner: demote invalid rows to error rows, write results incrementally",
-      "relative_date": "7 hours ago"
+      "relative_date": "13 hours ago"
     },
     {
       "subject": "Fix Modal serve: real annotations for modal.parameter, unpin hub in vllm image",
-      "relative_date": "18 hours ago"
+      "relative_date": "24 hours ago"
     },
     {
       "subject": "C1 cp2 + C2 harness + Modal serve: v0.1-draft assembly (1,111+139), adapters (anthropic/ollama/openai-compat), scoring, TG27B vLLM batch app",
-      "relative_date": "31 hours ago"
-    },
-    {
-      "subject": "C1 checkpoint 1 + C6 checkpoints 1-2: source loaders, rights ledger, works inventory, provenance resolver, PD-translation seed",
-      "relative_date": "32 hours ago"
-    },
-    {
-      "subject": "Dashboard to GitHub Pages (docs/); model-archive fetch script; correct server-serving notes",
-      "relative_date": "32 hours ago"
-    },
-    {
-      "subject": "Versed Translate lab: founding docs, C0 scaffold, status dashboard",
-      "relative_date": "32 hours ago"
+      "relative_date": "2 days ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-13T22:59:38.623020+00:00"
+      "mtime": "2026-08-14T04:59:59.745413+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

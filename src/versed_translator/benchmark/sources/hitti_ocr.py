@@ -79,7 +79,7 @@ _MARGIN_MIN_RUN = 20
 # Hitti's abridged isnad head ends at a colon followed by a dash.
 _ISNAD_END_RE = re.compile(r":\s*[—–-]{1,2}")
 
-_RUNIN_HEADING_RE = re.compile(r"^(?P<head>[^.?!]{4,70}[.?])\s+(?P<rest>[A-Z'\"(\[].*)$", re.S)
+_RUNIN_HEADING_RE = re.compile(r"^(?P<head>[^.?!]{4,70}[.?])\s+(?P<rest>[A-Z'\"(\[].*)$", re.DOTALL)
 
 
 def _is_running_head(line: str) -> bool:
@@ -277,7 +277,7 @@ def split_run_in_heading(text: str) -> tuple[str | None, str]:
         return None, text
     head, rest = match.group("head").strip(), match.group("rest").strip()
     words = head.split()
-    if not (2 <= len(words) <= 8):
+    if not (1 <= len(words) <= 8):
         return None, text
     if ":" in head or re.search(r"\bfrom\b|\bsaid\b|\bsays\b", head, re.IGNORECASE):
         return None, text

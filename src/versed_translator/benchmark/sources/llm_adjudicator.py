@@ -108,7 +108,7 @@ def parse_verdict(text: str, model: str) -> Verdict:
     "aligned" -- a silent default here would be indistinguishable from a real
     judgement in the output file.
     """
-    match = re.search(r"\{.*\}", text, re.S)
+    match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         return Verdict("", 0.0, "", model, error=f"no JSON object in reply: {text[:120]!r}")
     try:

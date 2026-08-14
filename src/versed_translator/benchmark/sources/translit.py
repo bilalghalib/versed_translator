@@ -118,27 +118,29 @@ STOPWORD_SKELETONS: frozenset[str] = frozenset(
 )
 
 # English function words that appear inside Hitti's abridged isnad heads.
-ENGLISH_STOPWORDS: frozenset[str] = frozenset(
-    """
+_FUNCTION_WORDS = """
     a an the and or of on in to us by from with for said says say related
     reported transmitted communicated authority tradition similar same
     ibn bin ben abu abi abd umm bint banu bani banul who whom which that
     was were is are has have had following certain men learned one his her
     their my me our we they he she it its also according quoted quoting
     version account another added addition further al el as at
-    """.split()
-) | frozenset(
-    # Titles, epithets and religious vocabulary. Capitalised in Hitti but
-    # they are not identifying names -- "Prophet" occurs in nearly every
-    # paragraph on both sides and would inflate every anchor score.
-    """
+"""
+
+# Titles, epithets and religious vocabulary. Capitalised in Hitti but they
+# are not identifying names -- "Prophet" occurs in nearly every paragraph on
+# both sides and would inflate every anchor score.
+_TITLE_WORDS = """
     allah god prophet messenger apostle caliph caliphate commander believers
     moslem moslems muslim muslims islam islamic jew jews jewish christian
     christians koran quran ansar emigrants companions lord day night year
     years month monday tuesday wednesday thursday friday saturday sunday
     only now thus then when whenever therefore however hence
-    """.split()
-)
+"""
+
+ENGLISH_STOPWORDS: frozenset[str] = frozenset(
+    _FUNCTION_WORDS.split()
+) | frozenset(_TITLE_WORDS.split())
 
 
 def arabic_skeleton(text: str, ta_marbuta: str = "h") -> str:

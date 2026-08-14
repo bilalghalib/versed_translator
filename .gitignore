@@ -34,3 +34,6 @@ Translating OpenITI Efficiently.md
 
 # Outbound drafts stay local until sent
 OPENITI_LETTER_DRAFT.md
+
+# Browser-automation scratch output
+.playwright-mcp/

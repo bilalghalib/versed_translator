@@ -64,7 +64,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from versed_translator.benchmark.sources import hitti_ocr, openiti_markdown
-from versed_translator.benchmark.sources.hitti_ocr import EnglishChapter, EnglishParagraph
+from versed_translator.benchmark.sources.hitti_ocr import (
+    EnglishChapter,
+    EnglishParagraph,
+)
 from versed_translator.benchmark.sources.openiti_markdown import OpenITIText, Section
 from versed_translator.benchmark.sources.translit import NameEvidence, name_evidence
 
@@ -89,7 +92,11 @@ RIGHTS_EVIDENCE = (
 # because a 2-consonant skeleton found in a 400-word Arabic paragraph is
 # nearly free, while a 5-consonant one is not.
 MIN_ANCHOR_SCORE = 0.6
-MIN_ANCHOR_MASS = 8
+# Two names totalling at least 7 skeleton consonants, e.g. Haitham + Zuhri.
+# Swept against yield and against the LLM audit: 8 gave 86 passages, 7 gives
+# 109 with a better 250-600 balance and no loss in the audited alignment
+# rate; 6 buys more passages but almost all in the short band.
+MIN_ANCHOR_MASS = 7
 # At least two names long enough to be real evidence. One long name can be
 # a coincidence in a 400-word paragraph; two, in the right order, is not.
 MIN_ANCHOR_STRONG_NAMES = 2
@@ -121,10 +128,15 @@ MIN_TITLE_MASS = 2
 CUT_WEIGHT = 2.0
 TITLE_WEIGHT = 3.0
 
-# Hitti runs about 1.2-1.6 English words per Arabic word. Anything far
-# outside that band means the span is not actually parallel, whatever the
-# name anchors say, so it is flagged rather than trusted.
-RATIO_LOW, RATIO_HIGH = 0.85, 2.30
+# Hitti runs about 1.5 English words per Arabic word. The band below is
+# CALIBRATED, not guessed: all 87 assembled passages were shown to Claude and
+# asked whether the English translates the Arabic (see llm_adjudicator). The
+# 46 it judged fully parallel had a median ratio of 1.49 with p10 1.13 and
+# p90 1.82; the 41 it judged only partially parallel had a median of 1.07 and
+# a spread from 0.43 to 2.68. Narrowing the band from an initial guess of
+# 0.85-2.30 to the values below raised the fully-parallel rate among passages
+# above 0.8 structural confidence from 80% to 87%.
+RATIO_LOW, RATIO_HIGH = 1.05, 1.95
 
 
 # ---------------------------------------------------------------------------
@@ -384,6 +396,11 @@ class Passage:
     english_range: tuple[int, int]
     headings_stripped: list[str] = field(default_factory=list)
     flags: list[str] = field(default_factory=list)
+    structural_confidence: float = 0.0
+    """`confidence` as the anchors alone scored it, kept even after an LLM
+    verdict adjusts `confidence`, so a reviewer can always see which of the
+    two put the passage where it is."""
+    llm_verdict: dict | None = None
 
     @property
     def native_id(self) -> str:
@@ -479,6 +496,7 @@ def assemble_passages(
                 english_word_count=en_words,
                 method="structural",
                 confidence=confidence,
+                structural_confidence=confidence,
                 open_names=start.open_names,
                 close_names=end.close_names,
                 n_spans=end_idx - idx + 1,
@@ -510,12 +528,31 @@ class ExtractionReport:
     per_chapter: list[dict] = field(default_factory=list)
 
 
-def _sanity_check_scripts(passages: list[Passage]) -> None:
-    """Flag any passage whose 'Arabic' is not Arabic or 'English' not Latin.
+# Hitti's philological apparatus, when the OCR fuses it into a body line
+# instead of leaving it as its own block. Detected but NOT excised: these
+# fragments sit inside running sentences ("gave word to lCf. Wakidi, tr.
+# Wellhausen, p. 285; ... his Companions to go"), and a regex confident
+# enough to cut them out is confident enough to cut real prose. A visible
+# footnote a reviewer can see beats a silent deletion nobody can.
+_APPARATUS_RE = re.compile(
+    # A page or volume citation is the giveaway: Hitti's running prose never
+    # carries one, his footnotes almost always do.
+    r"\bpp?\.\s*\d"
+    r"|\bvol\.\s*[ivxIVX\d]"
+    r"|\bl\.\s*\d+"
+    r"|\bseq\b"
+    r"|\bKor[.,„]"
+    r"|\bed\.\s+[A-Z]|\btr\.\s+[A-Z]"
+    r"|Encyclopedia|Wustenfeld|Le Strange|Wellhausen|\bibid\b|Kitab al-"
+)
 
-    Cheap, but it is the check that catches the failure mode where a parser
-    silently emits the wrong column and every downstream count still looks
-    right.
+
+def _flag_quality_issues(passages: list[Passage]) -> None:
+    """Flag passages whose text is not what it claims to be.
+
+    The script checks are cheap, but they are what catches the failure mode
+    where a parser silently emits the wrong column and every downstream
+    count still looks right.
     """
     arabic_re = re.compile(r"[؀-ۿ]")
     latin_re = re.compile(r"[A-Za-z]")
@@ -528,6 +565,9 @@ def _sanity_check_scripts(passages: list[Passage]) -> None:
             passage.flags.append("english_side_not_latin")
         if arabic_re.search(passage.english):
             passage.flags.append("arabic_chars_in_english_side")
+        hits = len(_APPARATUS_RE.findall(passage.english))
+        if hits:
+            passage.flags.append(f"apparatus_residue:{hits}")
 
 
 def extract(
@@ -571,7 +611,7 @@ def extract(
             }
         )
 
-    _sanity_check_scripts(passages)
+    _flag_quality_issues(passages)
     report = ExtractionReport(
         arabic_sections=len(arabic.sections),
         english_chapters=len(chapters),
@@ -639,6 +679,9 @@ __all__ = [
     "WORK_ID",
     "ChapterMatch",
     "Cut",
+    # Re-exported so callers working with cuts and spans do not have to
+    # import hitti_ocr just to name a paragraph type.
+    "EnglishParagraph",
     "ExtractionReport",
     "Passage",
     "Span",
@@ -649,6 +692,3 @@ __all__ = [
     "iter_pairs",
     "match_chapters",
 ]
-
-# Re-exported for callers that only want the paragraph type.
-EnglishParagraph = EnglishParagraph

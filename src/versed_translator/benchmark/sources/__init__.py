@@ -5,6 +5,21 @@ Each submodule (athar, lk_hadith, hadith_json) exposes ``iter_pairs(corpus_dir)
 package does no normalization, sampling, or coverage-target logic -- that
 is C1 checkpoint 2. It only loads what each source actually provides and
 records rights_status per corpus/rights_ledger.json.
+
+Also here, but deliberately NOT in SOURCE_MODULES, is the D1e option (d)
+PD-alignment stack:
+
+    openiti_markdown  read-only OpenITI mARkdown reader (no factory imports)
+    translit          Arabic <-> transliteration consonant-skeleton anchors
+    hitti_ocr         OCR cleanup for one specific 1916 archive.org scan
+    baladhuri         per-work alignment: Futuh al-Buldan <-> Hitti vol. 1
+    llm_adjudicator   second opinion on spans the anchors cannot settle
+
+Those are excluded from SOURCE_MODULES because they do not fit the
+``iter_pairs(corpus_dir)`` contract: alignment needs BOTH an Arabic and an
+English path, so `baladhuri.iter_pairs` takes two. They are driven by
+`versed_translator.benchmark.pd_alignment` instead. Registering them here
+would break the per-source summary CLI, which assumes one directory.
 """
 
 from __future__ import annotations

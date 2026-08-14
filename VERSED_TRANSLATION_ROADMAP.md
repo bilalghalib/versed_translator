@@ -17,6 +17,8 @@ Read this block, then §Component end states for whatever you pick up. Everythin
 
 **⚠️ Correction (2026-08-14 drift review): genre diversification is NOT a sampling fix, and ATHAR cannot supply it as-is.** Two measured facts (recorded in `src/versed_translator/benchmark/assemble.py`): (1) ATHAR's parquet files carry only `(arabic, english)` columns — no per-row work/author/genre metadata exists, so genre stratification over ATHAR is impossible today; (2) ATHAR's median is 18 Arabic words, below the benchmark's own 30-word band floor — that, not a sampler bug, is why only 4 ATHAR rows survived. Genre coverage is therefore a **data-source decision** — see **D1e**, a [HUMAN] fork. Do not start an agent session on "fix genre coverage" before D1e is decided; it will stall or silently balloon into C7.
 
+**Update 2026-08-14: D1e option (d) now has a working first slice — 39 aligned *history* passages from al-Baladhuri / Hitti**, the first non-hadith genre in the benchmark. Method, yield and honest limits in C1 below; a [HUMAN] spot-check page is built and waiting at `~/versed-translator-data/benchmark-alignment/baladhuri_hitti/review.html` (off-repo: it contains corpus text). The measured yield says one work gives ~30 passages in the 100–250 band but only ~9 in 250–600, so **closing the long-band gap needs 3–4 PD works, not one.**
+
 **Measured results so far** (all hadith-only, see caveat above):
 - **C2 bakeoff:** TG27B, TG12B and Claude Sonnet 5 all 139/139 clean — chrF **50.24 / 49.86 / 50.60**. TG27B ran ~36× faster than Claude (0.68s vs 24.5s mean) at ~$0.27; **TG12B reaches 99.24% of 27B's chrF for 2.14× less GPU time at $0.20**, making it the serving-economics favourite. ⚠️ TranslateGemma ran on a *weaker prompt* than Claude (mislabel, see C2) — its near-parity understates it. Qwen-MT / Gemini / DeepSeek never ran (no API keys) → **D2c**.
 - **C4 QE study:** COMETKiwi detects **30.4%** of 1,144 injected errors. Negation deletion 10.9%, terminology 0.8%, agent/patient reversal 9.1%. Clause removal has a **negative** mean delta — it scores truncated text *higher* than complete text. Only fluency artifacts are caught well (duplicate sentence 71.9%). **COMETKiwi is a fluency signal, not a safety gate.** MetricX-QE still untested, so this rests on one model.
@@ -160,8 +162,26 @@ Decisions:
   - **(b)** Interim: add a sub-30-word band so ATHAR's sentence-level diversity counts, accepting coarse genre labels until (a) answers.
   - **(c)** Accept v0.1-draft as hadith-only (every result already labeled so) and get genre via PD-translation alignment — this pulls C7 forward and is a genuinely bigger scope; take it deliberately as the v0.2 path, never by drift.
 
-**STATUS:** ACTIVE — checkpoints 1–2 done at draft level (v0.1-draft: 1,111 draft_test + 139 dev_bakeoff, assembly deterministic); **not frozen**, and genre coverage blocked on D1e. Longer bands still need PD sources.
-**NEXT DEPENDENCY:** none for short bands; C7 (or manual alignment of 1–2 PD works) for 100+-word bands.
+### D1e option (d) — FIRST VERTICAL SLICE SHIPPED 2026-08-14: al-Baladhuri / Hitti
+
+One work, end to end. Code: `src/versed_translator/benchmark/sources/{openiti_markdown,translit,hitti_ocr,baladhuri,llm_adjudicator}.py`, driven by `versed_translator.benchmark.pd_alignment`. Repo-tracked output (no text): `benchmark/alignment/baladhuri_hitti/`. Text + the [HUMAN] review page live at `~/versed-translator-data/benchmark-alignment/baladhuri_hitti/`.
+
+**Why Baladhuri and not Hariri**, which the verification block ranked #1: the criterion that decides a first slice is *bilateral* structure, and Baladhuri/Hitti is the only candidate with three layers of it. (1) 90 Arabic `### |` sections against 70 Hitti Part/Chapter units whose titles transliterate the Arabic ones. (2) Baladhuri is a chain of **akhbar**, each opening with an isnad, and Hitti keeps one paragraph per khabar with the isnad abridged to first + last authority (his own footnote, p. 16) — so the *transmitter names* are shared between the two scripts and give a **checkable** anchor. (3) A passage bracketed by a matched name at each end cannot be off-by-one. Hariri's 50 maqamat are single anchors per unit with nothing inside them, and each maqama is far longer than the target bands, so sub-unit alignment there would have been LLM guesswork with no way to check it. Genre also decided it: `021.BookSUBJ` = التاريخ (history), absent from v0.1-draft entirely.
+
+**Yield:** 90 sections → 39 confirmed section↔chapter pairs → 199 khabar-level cuts → 109 assembled passages → **39 selected** (30 in 100–250, 9 in 250–600, across 20 chapters; 21 `structural`, 18 `llm_proposed`).
+
+**Findings worth carrying forward:**
+
+1. **Transliteration anchors work far better than expected.** Romanising Arabic to the same digraph spellings the English uses, then deleting vowels/w/y/hamza from both sides, matched 23/23 hand-checked name pairs. `translit.py`.
+2. **Titles alone are not enough, and failing on them is invisible.** Matching Arabic section titles to English chapter titles put ذكر حفائر مكة against "The Floods in Makkah" — Hitti *translates* half his titles, so the only shared word is the place name, which the adjacent chapter also has. Fixed by scoring candidates on khabar-level cut counts, not titles. **Every downstream count looked right while it was wrong.**
+3. **A cut must be tested head-against-head.** Matching English names anywhere in an Arabic paragraph, or merely near its start, both produced passages whose Arabic began one khabar before the English — at word ratios of 1.3–1.5, i.e. exactly the healthy-looking number a shifted alignment gives.
+4. **Length ratio is a usable filter once calibrated, and worthless before.** All 109 passages were audited by LLM: fully-parallel ones run 1.13–1.82 (median 1.49), partial ones 0.43–2.68 (median 1.07). Narrowing from a guessed 0.85–2.30 to 1.05–1.95 raised the fully-parallel rate above 0.8 structural confidence from 80% to 87%.
+5. **Structural confidence is genuinely calibrated:** ≥0.9 → 91% fully parallel, 0.8–0.9 → 76%, <0.7 → 22%. **Zero passages in 109 were grossly misaligned**; the failure mode is partial overlap, not shift.
+6. **The long band is the expensive one.** 250–600 yields ~9 usable passages per work, against ~30 for 100–250: longer spans are likelier to contain a footnote and likelier to hit one of Hitti's omissions. **Closing the benchmark's 250–600 gap needs 3–4 PD works, not one.**
+7. **OCR apparatus is the residual quality ceiling**, not alignment. 13 of 109 passages carry a footnote fused into a body sentence. They are flagged and excluded rather than excised — a regex confident enough to cut them is confident enough to cut real prose.
+
+**STATUS:** ACTIVE — checkpoints 1–2 done at draft level (v0.1-draft: 1,111 draft_test + 139 dev_bakeoff, assembly deterministic); **not frozen**. D1e option (d) has a working first slice (39 history passages); genre coverage still needs more works. Checkpoint 3 ([HUMAN] spot audit) is now unblocked for this slice — the review page is built and waiting.
+**NEXT DEPENDENCY:** [HUMAN] review of `~/versed-translator-data/benchmark-alignment/baladhuri_hitti/review.html`, then the next 2–3 PD works (Ibn Khallikan's per-entry structure is the natural second; it should need only new per-work anchor logic, since the reader, transliteration and adjudicator are work-agnostic).
 
 ---
 

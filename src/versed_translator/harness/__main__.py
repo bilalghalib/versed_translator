@@ -4,6 +4,9 @@
         --template v1 --items <jsonl path> --out-dir /Volumes/Nodes/versed-translator/runs
 
     python -m versed_translator.harness score --run-dir /Volumes/Nodes/versed-translator/runs/<run_id>
+
+    python -m versed_translator.harness ingest-modal --raw <results_raw.jsonl> \
+        --template v1 --out-dir /Volumes/Nodes/versed-translator/runs
 """
 
 from __future__ import annotations
@@ -13,7 +16,7 @@ import json
 import sys
 from pathlib import Path
 
-from versed_translator.harness import runner, score
+from versed_translator.harness import ingest_modal, runner, score
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
@@ -72,6 +75,24 @@ def _cmd_score(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_ingest_modal(args: argparse.Namespace) -> int:
+    run_meta = ingest_modal.ingest(
+        args.raw,
+        prompt_template_id=args.template,
+        out_dir=args.out_dir,
+        run_id=args.run_id,
+        model=args.model,
+        model_version=args.model_version,
+        gpu=args.gpu,
+        quantization=args.quantization,
+    )
+    out: dict = {"run_meta": run_meta}
+    if args.compare_to:
+        out["reconstruction_diff"] = ingest_modal.compare_runs(run_meta["run_dir"], args.compare_to)
+    print(json.dumps(out, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="versed-harness")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -94,6 +115,31 @@ def main(argv: list[str] | None = None) -> int:
     score_p = sub.add_parser("score", help="Score a finished run directory.")
     score_p.add_argument("--run-dir", required=True)
     score_p.set_defaults(func=_cmd_score)
+
+    ing_p = sub.add_parser(
+        "ingest-modal",
+        help="Convert a Modal run_batch results_raw.jsonl into a harness run directory.",
+    )
+    ing_p.add_argument("--raw", required=True, help="Path to run_batch's results_raw.jsonl.")
+    ing_p.add_argument(
+        "--template",
+        required=True,
+        dest="template",
+        help="prompt_template_id the Modal run actually used. Not recorded in the "
+        "raw file and not guessable, so you must state it.",
+    )
+    ing_p.add_argument("--out-dir", default=None)
+    ing_p.add_argument("--run-id", default=None, help="Override the run_id derived from the raw file.")
+    ing_p.add_argument("--model", default=None, help="Override the model derived from model_key.")
+    ing_p.add_argument("--model-version", default=None, help="Defaults to the raw file's model_key.")
+    ing_p.add_argument("--gpu", default=ingest_modal.SERVING_GPU)
+    ing_p.add_argument("--quantization", default=ingest_modal.SERVING_QUANTIZATION)
+    ing_p.add_argument(
+        "--compare-to",
+        default=None,
+        help="Existing run dir to diff the reconstruction against (field-by-field).",
+    )
+    ing_p.set_defaults(func=_cmd_ingest_modal)
 
     args = parser.parse_args(argv)
     return args.func(args)

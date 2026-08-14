@@ -259,16 +259,18 @@ class TranslateGemmaServer:
     def load(self) -> None:
         from vllm import LLM
 
-        # NOTE: TranslateGemma's shipped config.json has rope_scaling=null,
-        # which this vLLM version's ModelConfig validator rejects ("rope_scaling
-        # should have a 'rope_type' key") -- a known vLLM/Gemma3 regression
-        # (reported starting 2026-02). Tried an in-code hf_overrides= fix first;
-        # it didn't take (same error, so the override isn't applied before
-        # validation runs in this vLLM version). Fixed instead by patching
-        # config.json directly on the weights volume to carry an explicit
-        # no-op rope_scaling ({"rope_type": "linear", "factor": 1.0}) --
-        # see download_weights()'s manifest for the exact revision this
-        # applies to; re-patch if weights are ever re-fetched.
+        # NOTE (corrected 2026-08-14): an earlier version of this comment
+        # claimed the "rope_scaling should have a 'rope_type' key" crash was
+        # fixed by patching config.json on the weights volume. **That is
+        # wrong and was never true.** Verified by pulling both configs off
+        # the volume before the 12B run: `text_config.rope_scaling` is null
+        # in BOTH 27b and 12b, unpatched and structurally identical, and
+        # both serve fine. The fix that actually works is the
+        # `transformers<5` pin in the image (see the image definition
+        # above for the root cause). Patching config.json does NOT help --
+        # three attempts proved that, because the mismatch is in how
+        # transformers parses the field, not in the file. Do not re-patch
+        # weights on the strength of this comment's earlier claim.
         volume.reload()
         manifest = _read_manifest()
         entry = manifest.get(self.model_key)

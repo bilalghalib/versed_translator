@@ -118,6 +118,27 @@ class PromptTemplate:
         return "\n".join(parts)
 
 
+# The Modal batch path (throughput/serve_translategemma.py) does NOT send
+# ``v1``. It sends this minimal instruction, which carries none of the six
+# FIDELITY_RULES above -- notably not "Translate every clause. Do not
+# summarize, compress, or silently drop material", the rule aimed at the
+# exact omission failure C5's checks cannot detect.
+#
+# It is registered here so runs on that path have an honest version label to
+# record. The 2026-08-13 TG27B and 2026-08-14 TG12B legs were both written to
+# their run_meta as ``prompt_template_id: "v1"``; that label is WRONG -- they
+# used this template. See TRANSLATION_EXPERIMENTS.md EXP-20260814-03.
+#
+# tests/test_prompts_modal_parity.py pins this text to the literal in
+# serve_translategemma.py so the two cannot drift apart again.
+MODAL_MINIMAL_V1_ID = "modal_minimal_v1"
+MODAL_MINIMAL_V1_TEXT = (
+    "Translate the following Classical Arabic text into fluent, faithful "
+    "English. Preserve names, numbers, dates, and quotations exactly. "
+    "Output only the English translation, nothing else.\n\n"
+    "Arabic:\n{arabic}\n\nEnglish:"
+)
+
 TEMPLATES: dict[str, PromptTemplate] = {
     "v1": PromptTemplate(template_id="v1", system=_V1_SYSTEM, structured=False),
     "structured_blocks_v1": PromptTemplate(

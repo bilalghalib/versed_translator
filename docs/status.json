@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T19:03:32.671558+00:00",
+  "generated_at": "2026-08-14T19:12:33.811666+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -465,40 +465,44 @@
   ],
   "recent_commits": [
     {
+      "subject": "Settle the MetricX cost figure on the gross rate",
+      "relative_date": "9 minutes ago"
+    },
+    {
       "subject": "Code review fixes: reassemble could hide a missing block entirely",
-      "relative_date": "2 minutes ago"
+      "relative_date": "11 minutes ago"
     },
     {
       "subject": "Correct the MetricX cost figure with a second data point",
-      "relative_date": "13 minutes ago"
+      "relative_date": "22 minutes ago"
     },
     {
       "subject": "Record the MetricX cost fact blocks did NOT improve",
-      "relative_date": "15 minutes ago"
+      "relative_date": "24 minutes ago"
     },
     {
       "subject": "Roadmap: drop the stale \"ratify D2e\" action item",
-      "relative_date": "17 minutes ago"
+      "relative_date": "26 minutes ago"
     },
     {
       "subject": "Modal run_blocks: id_loss_count could only ever report 0",
-      "relative_date": "17 minutes ago"
+      "relative_date": "26 minutes ago"
     },
     {
       "subject": "D2e/D4c implemented: structured blocks, ID loss as a metric, truncation 37.5% -> 0.7%",
-      "relative_date": "19 minutes ago"
+      "relative_date": "28 minutes ago"
     },
     {
       "subject": "Catalog sweep: Gutenberg complete + archive.org; long-band problem solved",
-      "relative_date": "39 minutes ago"
+      "relative_date": "48 minutes ago"
     },
     {
       "subject": "C1: record second PD alignment tranche",
-      "relative_date": "44 minutes ago"
+      "relative_date": "53 minutes ago"
     },
     {
       "subject": "C4 settled: MetricX full matrix \u2014 two QE systems, same blind spots",
-      "relative_date": "62 minutes ago"
+      "relative_date": "71 minutes ago"
     },
     {
       "subject": "C1: human spot audit 15/15 aligned; EXP-20260814-04 recorded",
@@ -506,21 +510,17 @@
     },
     {
       "subject": "C1: PD references abridge \u2014 measured, tagged, and recorded as a risk",
-      "relative_date": "4 hours ago"
-    },
-    {
-      "subject": "D1e(d) first vertical slice: 39 aligned history passages, Baladhuri/Hitti",
       "relative_date": "5 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T19:03:11.727496+00:00"
+      "mtime": "2026-08-14T19:12:09.495688+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
-      "mtime": "2026-08-14T19:03:21.388711+00:00"
+      "mtime": "2026-08-14T19:12:22.003519+00:00"
     },
     {
       "name": "VERSED_TRANSLATE_MASTER_PLAN.md",

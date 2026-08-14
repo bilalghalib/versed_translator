@@ -1,0 +1,174 @@
+{
+  "_README": "Decision briefs — the single source of truth for OPEN decisions needing Bilal. The roadmap's Decision queue table is the index; this file carries the evidence, options, and recommendation, and the dashboard renders it as answerable cards. When a decision is answered (GitHub issue or in person): set status='decided', fill 'decided', and reflect the outcome into VERSED_TRANSLATION_ROADMAP.md in the same commit. Agents: read this file to know what is blocked and why; never invent an answer for an open decision.",
+  "decisions": [
+    {
+      "id": "D1e",
+      "title": "Genre coverage: how do we stop the benchmark being 99.6% hadith?",
+      "component": "C1",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "Every measured number in the project. Nothing generalizes past hadith until this is answered, and the benchmark cannot be frozen.",
+      "question": "The draft benchmark is 1,107 hadith items out of 1,111. Where does genre diversity actually come from?",
+      "why_now": "This gates the benchmark rebuild, and the rebuild gates re-running the bakeoff and QE study. Deciding it late means paying for those runs twice.",
+      "evidence": [
+        "1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4. Zero tafsir, philosophy, adab, history, poetry.",
+        "ATHAR's parquet files carry ONLY (arabic, english) columns — no per-row work, author, or genre metadata exists. Verified against both train and test schemas (src/versed_translator/benchmark/assemble.py:20).",
+        "ATHAR's median item is 18 Arabic words, below the benchmark's own 30-word band floor — that, not a sampling bug, is why only 4 rows survived.",
+        "Hadith is unusually formulaic (isnad chains, fixed openings). A model that handles it well may fail on Sufi metaphor or legal reasoning and we would not see it."
+      ],
+      "options": [
+        {
+          "key": "a",
+          "label": "Email the ATHAR author for per-work/genre provenance",
+          "detail": "Combine with the D1d license question — one email, two possible unlocks. Costs nothing and may hand us the genre axis outright. Does not block starting (b) in parallel.",
+          "recommended": true
+        },
+        {
+          "key": "b",
+          "label": "Add a sub-30-word band so ATHAR's diversity counts",
+          "detail": "Cheap interim fix. Gets ATHAR's sentence-level material into the benchmark immediately, but genre labels stay coarse until (a) answers.",
+          "recommended": false
+        },
+        {
+          "key": "c",
+          "label": "Accept hadith-only for v0.1; get genre via PD alignment in v0.2",
+          "detail": "Honest and already labeled that way. But it pulls C7 (Versed Align) forward, which is a genuinely bigger scope — take it deliberately, never by drift.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Do (a) immediately and (b) as the interim. Treat (c) as the deliberate v0.2 path, not something an agent session backs into.",
+      "issue": 1,
+      "decided": null
+    },
+    {
+      "id": "D2e",
+      "title": "Make structured block translation with ID preservation the production contract?",
+      "component": "C2/C5",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "The C5 router design, and the worst known safety gap in the whole system.",
+      "question": "Should production always translate in ID-preserving structured blocks, so a dropped block is directly observable?",
+      "why_now": "It is a one-line architectural decision that dissolves a failure mode no detector we have can catch. Deciding it before the router is built avoids designing detection for a problem we can define away.",
+      "evidence": [
+        "Partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic: sentence_ratio_flag cannot run and a truncated output stays inside the normal Arabic→English expansion band.",
+        "COMETKiwi also misses it — 22.9% detection, and a NEGATIVE mean delta, meaning it scores truncated text HIGHER than the complete translation.",
+        "So neither the neural signal nor the deterministic checks cover the single highest-severity omission failure. It is asserted as a known gap in tests/test_checks.py so it cannot regress silently.",
+        "The harness already supports the structured template — this costs implementation discipline, not new code."
+      ],
+      "options": [
+        {
+          "key": "yes",
+          "label": "Yes — structured blocks with IDs are the production contract",
+          "detail": "A dropped or truncated block becomes structurally visible instead of semantically invisible. Cheaper than any detection scheme we could build.",
+          "recommended": true
+        },
+        {
+          "key": "no",
+          "label": "No — keep free-form translation, invest in detection",
+          "detail": "Means accepting that the highest-severity omission failure stays undetectable, or funding an LLM verifier pass to catch it.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Yes. It converts a detection problem we have measurably failed to solve into a structural property we get for free.",
+      "issue": 2,
+      "decided": null
+    },
+    {
+      "id": "D2c",
+      "title": "Provision the remaining provider API keys, or formally descope the bakeoff field?",
+      "component": "C2",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "Closing out C2 and ratifying D2a. Currently carried as ambient blockage, which is the worst of both.",
+      "question": "Do we get Gemini / Qwen-MT / DeepSeek keys, or do we record the bakeoff field as deliberately narrowed?",
+      "why_now": "Every session so far has listed 'no API keys' as a gap without either fixing it or dropping it. Either answer unblocks; carrying it does not.",
+      "evidence": [
+        "TG27B (open, Modal H100) and Claude Sonnet 5 tied on hadith: chrF 50.24 vs 50.60, both 139/139 clean.",
+        "TG27B ran ~36x faster (0.68s vs 24.5s mean) at ~$0.27 for the whole set.",
+        "C8 requires an OPEN, fine-tunable base. Gemini / DeepSeek-API / Qwen-MT-API cannot be that regardless of their scores, so they do not actually compete for the production-translator slot.",
+        "The missing legs answer a different question — what a pure-API corpus route would cost — which only matters if fine-tuning fails at D8a."
+      ],
+      "options": [
+        {
+          "key": "descope",
+          "label": "Descope the field to TG27B / TG12B / Claude ceiling",
+          "detail": "Record D2a as decided-by-field. Revisit the API route only if D8a (fine-tune GO/NO-GO) fails. Fastest path to a closed C2.",
+          "recommended": true
+        },
+        {
+          "key": "keys",
+          "label": "Provision the keys this week and run the full field",
+          "detail": "Gives a complete comparison table and a real API-route cost baseline. Costs money and a session, and does not change the likely D2a outcome.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Descope, with the TG12B Modal leg still run — the 12B-vs-27B gap is the number that actually drives serving economics and has never been measured.",
+      "issue": 3,
+      "decided": null
+    },
+    {
+      "id": "D1d",
+      "title": "ATHAR license conflict — which license is actually intended?",
+      "component": "C1",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "Using ATHAR in the C8 training corpus. Currently held at eval-internal.",
+      "question": "ATHAR's dataset card says CC-BY-SA-4.0 in its YAML and CC-BY-NC-4.0 in its prose. Which governs?",
+      "why_now": "The same email should carry the D1e metadata question. One message, two unlocks — and the answer takes days to come back, so it should be out now.",
+      "evidence": [
+        "ATHAR is the largest source we have: 66,043 pairs (65,043 train + 1,000 native test).",
+        "Card YAML says CC-BY-SA-4.0; card prose says CC-BY-NC-4.0. NC would bar it from anything Versed ships commercially.",
+        "Held at rights_status=eval_internal until resolved, so it is currently unusable for C8 training data."
+      ],
+      "options": [
+        {
+          "key": "email",
+          "label": "Email the author now, combined with the D1e metadata question",
+          "detail": "One message: which license is intended, and does per-work/genre provenance exist for the pairs?",
+          "recommended": true
+        },
+        {
+          "key": "hold",
+          "label": "Assume NC and keep it eval-internal permanently",
+          "detail": "Safe but costs us the largest parallel source for training, and we never find out whether that was necessary.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Send the combined email. Assume NC in the meantime so nothing blocks on the reply.",
+      "issue": 4,
+      "decided": null
+    },
+    {
+      "id": "D6a",
+      "title": "Approve and send the OpenITI letter",
+      "component": "C6",
+      "urgency": "now",
+      "status": "open",
+      "blocks": "Nothing immediately — but the answer takes weeks and gates commercial use, so lead time is the whole point.",
+      "question": "Is the drafted OpenITI letter approved to send?",
+      "why_now": "Drafted 2026-08-12 and still unsent. It is pure lead time: the reply arrives while we build, or it does not arrive and we learn that too.",
+      "evidence": [
+        "Draft ready at OPENITI_LETTER_DRAFT.md (gitignored, local-only).",
+        "Asks: we strip OpenITI markup/metadata and use only the underlying public-domain Arabic strings, most originating in pre-existing digital libraries; we create our own segmentation, translations, and audio. Is BY-NC-SA intended to cover those underlying strings or OpenITI's annotations and corpus-database? Would you grant Versed commercial permission for this public-access project?",
+        "Nothing in the roadmap blocks on the answer except commercial exploitation (D6b counsel is the other half)."
+      ],
+      "options": [
+        {
+          "key": "send",
+          "label": "Approve and send as drafted",
+          "detail": "Starts the clock. The reply informs D6b (counsel) and the C12 release licensing.",
+          "recommended": true
+        },
+        {
+          "key": "revise",
+          "label": "Revise first — I want to change the framing",
+          "detail": "Say what to change and it gets redrafted before sending.",
+          "recommended": false
+        }
+      ],
+      "recommendation": "Send as drafted. It is lead time we cannot buy back later.",
+      "issue": 5,
+      "decided": null
+    }
+  ]
+}

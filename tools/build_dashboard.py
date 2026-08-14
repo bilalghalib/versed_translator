@@ -26,6 +26,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROADMAP_PATH = REPO_ROOT / "VERSED_TRANSLATION_ROADMAP.md"
 EXPERIMENTS_PATH = REPO_ROOT / "TRANSLATION_EXPERIMENTS.md"
+DECISIONS_PATH = REPO_ROOT / "decisions" / "decisions.json"
 DASHBOARD_DIR = REPO_ROOT / "docs"  # served by GitHub Pages (main:/docs)
 
 ROOT_DOCS = [
@@ -307,6 +308,32 @@ def get_recent_commits(n: int, gaps: list[str]) -> list[dict[str, str]]:
     return commits
 
 
+def load_decision_briefs(gaps: list[str]) -> list[dict]:
+    """Load decisions/decisions.json — the rich briefs Bilal actually answers from.
+
+    Tolerant like everything else here: a missing or malformed file degrades to
+    an empty brief list plus a gap note, so the dashboard still builds.
+    """
+    try:
+        raw = json.loads(DECISIONS_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        gaps.append(f"No decision briefs file at {DECISIONS_PATH} — decision cards omitted.")
+        return []
+    except (OSError, json.JSONDecodeError) as exc:
+        gaps.append(f"Could not parse {DECISIONS_PATH.name}: {exc}")
+        return []
+
+    briefs = raw.get("decisions", [])
+    if not isinstance(briefs, list):
+        gaps.append("decisions.json: 'decisions' is not a list; decision cards omitted.")
+        return []
+    for b in briefs:
+        missing = [k for k in ("id", "title", "status", "options") if k not in b]
+        if missing:
+            gaps.append(f"decision brief {b.get('id', '?')}: missing keys {missing}")
+    return briefs
+
+
 def get_doc_mtimes(gaps: list[str]) -> list[dict[str, str]]:
     out = []
     for name in ROOT_DOCS:
@@ -333,6 +360,7 @@ def build_status_data() -> dict:
 
     ledger_status = parse_status_ledger(roadmap_text, gaps)
     decisions = parse_decision_queue(roadmap_text, gaps)
+    decision_briefs = load_decision_briefs(gaps)
     components = parse_components(roadmap_text, gaps)
     experiments = parse_experiments(experiments_text, gaps)
     commits = get_recent_commits(12, gaps)
@@ -373,6 +401,7 @@ def build_status_data() -> dict:
         "repo_url": REPO_URL,
         "components": components,
         "decisions": decisions,
+        "decision_briefs": decision_briefs,
         "experiments": experiments,
         "recent_commits": commits,
         "doc_mtimes": doc_mtimes,
@@ -413,6 +442,82 @@ def render_component_cards(components: list[dict]) -> str:
           {next_dep_html}
         </div>""")
     return f'<div class="component-grid">{"".join(cards)}</div>'
+
+
+def render_decision_briefs(briefs: list[dict]) -> str:
+    """Render open decisions as self-contained, answerable cards.
+
+    Each card carries everything needed to decide without opening the roadmap:
+    what is blocked, the measured evidence, the options with their costs, and a
+    recommendation. The answer link goes to the decision's GitHub issue when one
+    exists (issues are the durable channel agents read back).
+    """
+    open_briefs = [b for b in briefs if b.get("status") == "open"]
+    if not open_briefs:
+        return (
+            '<p class="empty-note">No open decisions — nothing is waiting on you. '
+            "Answered decisions are recorded in <code>decisions/decisions.json</code>.</p>"
+        )
+
+    cards = []
+    for b in open_briefs:
+        evidence = "".join(f"<li>{esc(e)}</li>" for e in b.get("evidence", []))
+        evidence_html = (
+            f'<div class="brief-label">What we measured</div><ul class="brief-evidence">{evidence}</ul>'
+            if evidence else ""
+        )
+
+        opts = []
+        for o in b.get("options", []):
+            rec = o.get("recommended")
+            badge = '<span class="chip chip-green rec-chip">recommended</span>' if rec else ""
+            opts.append(f"""
+          <li class="opt{' opt-rec' if rec else ''}">
+            <div class="opt-head"><span class="opt-key">{esc(o.get('key', '?'))}</span>
+              <span class="opt-label">{esc(o.get('label', ''))}</span>{badge}</div>
+            <div class="opt-detail">{esc(o.get('detail', ''))}</div>
+          </li>""")
+        opts_html = f'<div class="brief-label">Options</div><ul class="brief-opts">{"".join(opts)}</ul>'
+
+        issue = b.get("issue")
+        if issue:
+            answer_html = (
+                f'<a class="answer-btn" href="{esc(REPO_URL)}/issues/{esc(issue)}">'
+                f"Answer this &rarr;</a>"
+                f'<span class="answer-note">Opens issue #{esc(issue)} — reply there and '
+                f"the next session picks it up.</span>"
+            )
+        else:
+            answer_html = (
+                '<span class="answer-note">No issue filed yet — answer here in chat, '
+                "or ask for an issue to be opened.</span>"
+            )
+
+        rec_html = (
+            f'<div class="brief-rec"><span class="brief-label-inline">Recommendation</span> '
+            f'{esc(b.get("recommendation", ""))}</div>'
+            if b.get("recommendation") else ""
+        )
+
+        cards.append(f"""
+      <div class="brief">
+        <div class="brief-head">
+          <span class="brief-id">{esc(b.get('id', '?'))}</span>
+          <span class="chip chip-red">needs you</span>
+          <span class="brief-comp">{esc(b.get('component', ''))}</span>
+        </div>
+        <div class="brief-title">{esc(b.get('title', ''))}</div>
+        <div class="brief-q">{esc(b.get('question', ''))}</div>
+        <div class="brief-blocks"><span class="brief-label-inline">Blocks</span>
+          {esc(b.get('blocks', ''))}</div>
+        <div class="brief-why"><span class="brief-label-inline">Why now</span>
+          {esc(b.get('why_now', ''))}</div>
+        {evidence_html}
+        {opts_html}
+        {rec_html}
+        <div class="brief-answer">{answer_html}</div>
+      </div>""")
+    return f'<div class="brief-list">{"".join(cards)}</div>'
 
 
 def render_decisions_table(decisions: list[dict]) -> str:
@@ -712,6 +817,147 @@ ul.experiment-list li:last-child, ul.commit-list li:last-child {{
   font-size: 0.9rem;
 }}
 
+/* --- Decision briefs (the part Bilal acts on) --- */
+#decisions-open {{
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 1.25rem 1.35rem 1.4rem;
+}}
+.brief-list {{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}}
+.brief {{
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  background: var(--bg);
+}}
+.brief-head {{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.45rem;
+}}
+.brief-id {{
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}}
+.brief-comp {{
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}}
+.brief-title {{
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}}
+.brief-q {{
+  font-size: 0.92rem;
+  margin-bottom: 0.6rem;
+}}
+.brief-blocks, .brief-why {{
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}}
+.brief-label-inline {{
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.35rem;
+}}
+.brief-label {{
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0.75rem 0 0.3rem;
+}}
+.brief-evidence {{
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}}
+.brief-evidence li {{ margin-bottom: 0.25rem; }}
+.brief-opts {{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}}
+.opt {{
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+}}
+.opt-rec {{
+  border-color: var(--chip-green-text);
+  background: var(--chip-green-bg);
+}}
+.opt-head {{
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}}
+.opt-key {{
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  background: var(--code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}}
+.opt-rec .opt-key {{ background: var(--bg-elevated); }}
+.opt-label {{ font-weight: 600; font-size: 0.9rem; }}
+.opt-rec .opt-label, .opt-rec .opt-detail {{ color: var(--chip-green-text); }}
+.rec-chip {{ margin-left: auto; }}
+.opt-detail {{
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}}
+.brief-rec {{
+  margin-top: 0.75rem;
+  font-size: 0.87rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+}}
+.brief-answer {{
+  margin-top: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}}
+.answer-btn {{
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg-elevated);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+}}
+.answer-btn:hover {{ opacity: 0.9; }}
+.answer-note {{
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}}
+
 footer.site-footer {{
   border-top: 1px solid var(--border);
   padding-top: 1.25rem;
@@ -741,6 +987,13 @@ footer.site-footer ul {{
   </div>
 </header>
 
+<section id="decisions-open">
+  <h2>Your call &mdash; {len([b for b in data['decision_briefs'] if b.get('status') == 'open'])} open</h2>
+  <p class="section-note">Everything needed to decide is on the card; you shouldn't have to open a doc.
+  Work is queued behind these.</p>
+  {render_decision_briefs(data['decision_briefs'])}
+</section>
+
 <section id="components">
   <h2>Components</h2>
   <p class="section-note">C0 through C12, status and end state per the roadmap's STATUS ledger and component sections.</p>
@@ -748,8 +1001,8 @@ footer.site-footer ul {{
 </section>
 
 <section id="decisions">
-  <h2>Decisions waiting on Bilal</h2>
-  <p class="section-note">From the roadmap's Decision queue.</p>
+  <h2>Full decision queue</h2>
+  <p class="section-note">Every decision including later ones, from the roadmap's Decision queue table.</p>
   {render_decisions_table(data['decisions'])}
 </section>
 
@@ -802,6 +1055,8 @@ def main() -> int:
     print(f"Wrote {html_path}")
     print(f"Components parsed: {len(data['components'])}")
     print(f"Decisions parsed: {len(data['decisions'])}")
+    n_open = len([b for b in data["decision_briefs"] if b.get("status") == "open"])
+    print(f"Decision briefs: {len(data['decision_briefs'])} ({n_open} open)")
     print(f"Experiments parsed: {len(data['experiments'])}")
     print(f"Commits captured: {len(data['recent_commits'])}")
     if data["gaps"]:

@@ -9,6 +9,8 @@
 
 Read this block, then §Component end states for whatever you pick up. Everything below is measured, not planned — treat any number without a date as unverified.
 
+**Bilal does not read this file.** Open decisions live as answerable cards at the top of the dashboard (**https://bilalghalib.github.io/versed_translator/**), backed by `decisions/decisions.json` and one GitHub issue each (label `decision`). Agents: run `gh issue list --label decision` at session start — an answered issue is an instruction. When one is answered, set `status`/`decided` in `decisions/decisions.json`, close the issue, and reflect the outcome here in the same commit. Never invent an answer for an open decision, and never route a new [HUMAN] decision through this doc alone — add a brief so it shows up where he'll see it.
+
 **Where we actually are (2026-08-14).** Master-plan execution steps 0–7 are underway *in the prescribed order*. The machinery works end to end: benchmark assembly → harness → GPU serving → QE study. What is thin is **depth at each step**, not sequence.
 
 **⚠️ The one thing to fix before trusting any result: the benchmark is 99.6% hadith** (1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4; zero tafsir, philosophy, adab, history, poetry). Every headline number below was measured on that single genre. Hadith is unusually formulaic (isnad chains, fixed openings), so **none of these results can be assumed to generalize.**

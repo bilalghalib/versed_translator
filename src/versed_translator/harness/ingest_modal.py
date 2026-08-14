@@ -71,17 +71,19 @@ SERVING_QUANTIZATION = "bfloat16"
 
 SUMMARY_KEY = "_run_summary"
 
-#: Summary keys `run_blocks` records that `build_run_meta` copies through, so
-#: the ID-loss accounting the GPU job observed survives into run_meta.json.
+#: Summary keys `run_blocks` records that `build_run_meta` copies through.
+#: The GPU job's own id counters are deliberately NOT here: ``id_error_counts``
+#: re-derives them from the rows actually on disk, which is the stronger
+#: source (it cannot disagree with the file it describes), and two keys of the
+#: same name from two sources would silently shadow each other.
 PASSTHROUGH_SUMMARY_KEYS: tuple[str, ...] = (
     "structured",
     "structured_probe_ok",
     "structured_chunk_size",
     "prompt_modes",
     "has_chat_template",
-    "id_loss_count",
-    "id_unexpected_count",
-    "id_duplicate_rows",
+    "sampling",
+    "chat_template_errors",
 )
 
 

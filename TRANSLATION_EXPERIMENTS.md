@@ -105,3 +105,40 @@ Where they differ, MetricX is better on omission-type errors (`remove_clause` 0.
 ⚠️ `duplicate_sentence` 0.065 with a **negative** mean delta (−1.36) is the known truncation artifact, not a property of MetricX: **37.5% of inputs (859) exceeded the 1536-token window**, confirming the smoke's 39%. Length-increasing corruptions truncate more than their clean counterparts. D2e/D4c (structured blocks) removes this.
 CAVEATS: hadith-only slice; `alter_date`/`change_number` have n=1 each so their 0% is directional only; thresholds (0.02 vs 0.5) are scale-matched by proportion, not calibrated against human judgments — C5 checkpoint 2 must do that.
 DECISION FED: D4 (settled — existing QE cannot be the primary gate), D4b (shippable mode: MetricX, apache-2.0, better on omission), C5 (deterministic checks confirmed load-bearing), D2e/D4c (truncation confirmed at full scale).
+
+## EXP-20260814-06 — Structured blocks implemented: truncation 37.5% → 0.7% (D2e/D4c)
+
+HYPOTHESIS: Translating in ID-bearing blocks retires two separately-measured failures at once — (a) a dropped block is countable where a dropped clause is invisible, (b) short blocks stay inside MetricX's 1536-token window.
+SETUP: `harness.blocks` segments on sentence then clause punctuation, packing to an *evened* budget of ≤60 Arabic words; block id = `<item_id>#bNNNN`. Applied to the same 139 `dev_bakeoff` items → **522 blocks** (mean 3.76/item, median 3, max 14; mean 43.3 words, median 48). 60 words was sized from the measured mT5 tokenization of this slice: diacritized classical Arabic runs **5.84 mT5 tokens/word** (max 7.3), so an item's median source alone is 710 tokens and its max 3,851 — the whole cause of the 37.5% truncation. Translation: `google/translategemma-12b-it` (revision `d1b225e1…`), Modal H100, vLLM 0.11.0, bfloat16, temperature 0.1, max_new_tokens 1536, one detached run, sentinel `done-tg12b-blocks` = 0.
+COST: predicted ≤$1.00 hard stop, ≤$0.30 expected (the 12B item-level leg was $0.1989) → **actual $0.1753** (159.8s wall incl. cold start). Plus ~$0.001 of DeepSeek API for the structured-contract leg below.
+RESULTS:
+
+**(1) The truncation claim — measured, and validated against the known baseline.** Computed through the project's own `metricx_qe_input` + `metricx_encode`, which **reproduces the published `truncated_fraction: 0.3754` exactly** on the 27B item-level run before being applied to blocks:
+
+| | pairs | segments | truncated | **truncated_fraction** | median seg tokens | max |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| item-level TG27B (published baseline) | 1,144 | 2,288 | 859 | **0.3754** | 1,085 | 5,150 |
+| item-level TG12B (same model, free-form) | 1,166 | 2,332 | 895 | 0.3838 | 1,110 | 4,999 |
+| **block-level TG12B (D2e)** | 3,235 | 6,470 | 47 | **0.0073** | **394** | 4,032 |
+
+**A 51× reduction, and it is better than it looks: all 47 truncations trace to exactly 3 of 522 blocks** (see (3)), which the fix committed alongside this entry now reports as errors. With those excluded the block-level figure is **0.0000**. Median QE input falls 1,085 → 394 tokens; nothing else in the study changed.
+
+**(2) ID loss became a counted error, and immediately caught a real one.** A 40-block structured leg through `deepseek-chat` (`--adapter openai_compat`, template `structured_blocks_v1`): 39 clean, and **1 block (2.5%) silently dropped by the model**, surfaced as `id_missing_from_structured_response` with `id_loss_count: 1`, `id_preservation_rate: 0.975` in `run_meta.json`. On the free-text path that block would have been an unremarkably shorter passage — the exact failure COMETKiwi scores *higher* (22.9%, negative mean delta) and MetricX catches 33.3% of the time. This is the D2e claim demonstrated rather than argued.
+
+**(3) Quality cost of blocking, honestly separated.** chrF against `reference_english`, same 139 items, same model:
+
+| | chrF (139) | chrF (136, excl. the 3 degenerate items) | rows containing Arabic |
+| --- | ---: | ---: | ---: |
+| free-form item-level | **49.857** | 49.983 | 0 |
+| block-level, reassembled | 48.817 | 49.335 | 3 |
+
+So **blocking itself costs −0.65 chrF (−1.3% relative)** — context lost across block boundaries — and a further −0.52 comes from three generations that derailed. That −0.65 is the real price of the contract on this slice, and it is the number to re-check on non-hadith genres.
+
+⚠️ **FINDING — TranslateGemma's chat template is not a general chat API.** The structured JSON probe failed on the first GPU call with `TemplateError: User role must provide 'content' as an iterable with exactly one item... mapping(type:'text'|'image', source_lang_code, target_lang_code, text, image)`. `translategemma-12b-it` is fine-tuned behind a fixed translation API, so a plain `{"role":"user","content":"<json>"}` is rejected *by the template*, before the model sees anything. The run therefore fell back — by design, once, recorded — to `modal_minimal_v1` at one block per prompt, which still gives ID-preserving blocks (one prompt in, one translation out) and is what produced every number above. **Whether TranslateGemma can hold the JSON contract remains unmeasured**; the failure was our message shape, not its capability, and the handler now degrades to a raw completion prompt instead of erroring. The contract itself is proven on a general instruct model in (2).
+
+⚠️ **FINDING — 3/522 blocks (0.6%) degenerated into repetition loops** and ran to the 1536-token cap, two in English (`"And he narrated..."` ×N), one flipping into Arabic. Same shape as the Sonnet 5 `max_tokens` trap: the text is real up to the point it derails, so nothing flagged it — `n_ok` said 522/522. Fixed: `finish_reason == "length"` is now the named error `max_new_tokens_truncated` and the sampling config is written to the run summary. These three rows are the *entire* source of the residual block-level truncation and of all 3 Arabic-bearing rows.
+
+Verification (the `wall_s: 0.06` false-success mode did not recur): error_count 0 with real per-slice engine times (7.2s / 23.8s / 7.4s / 7.4s / 1.8s across five 128-prompt slices); output_tokens min 12 / median 101.5 / max 1536, sum 54,337; zero empty outputs; translations read as real English and were spot-read at four random block ids; `prompt_template_id` verified against the code path that ran (the summary records the label the builder returned, and the log shows the probe failing and the fallback engaging).
+CONCLUSION: **D2e/D4c delivered on both counts.** Truncation is retired (0.3754 → 0.0073, and 0.0000 once capped generations are errors), which un-confounds every length-increasing injector in the C4 matrix; and ID loss is now a first-class run-level metric that caught a live 2.5% omission on its first real use. The cost is −0.65 chrF on hadith. The block-level MetricX detection matrix is running detached (6,470 segments; log `metricx-blocks.log`, sentinel `done-metricx-blocks`) — it will say whether short blocks also move the *detection* rates, which this entry does not claim.
+CAVEATS: hadith-only slice; 60 words is sized from this slice's tokenization and should be re-derived per genre; the −0.65 chrF is measured against an abridging-reference corpus (see EXP-20260814-04) and one prompt; the structured JSON path is proven on DeepSeek, not on the serving model.
+DECISION FED: **D2e** (implemented — structured blocks are the harness default and ID loss is a run metric), **D4c** (settled — the token window is dissolved by blocks, not by chunking or a longer-context model), C5 (the clause-removal known gap should now be re-scoped: a dropped *block* is observable), D2a/D3a (block-level serving costs $0.1753/139 items at 12B).

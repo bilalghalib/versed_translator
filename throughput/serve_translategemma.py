@@ -482,30 +482,39 @@ class TranslateGemmaServer:
         indices: list[int] = []
         outputs_by_index: dict[int, dict] = {}
         modes: dict[str, int] = {}
+        template_errors: list[str] = []
 
         for i, req in enumerate(requests):
             try:
                 system = req.get("system")
                 user = req["user"]
+                merged = f"{system}\n\n{user}" if system else user
+                prompt, mode = merged, "raw"
                 if req.get("chat") and chat_template:
-                    messages = ([{"role": "system", "content": system}] if system else []) + [
-                        {"role": "user", "content": user}
-                    ]
-                    try:
-                        prompt = self._tokenizer.apply_chat_template(
-                            messages, tokenize=False, add_generation_prompt=True
-                        )
-                        mode = "chat"
-                    except Exception:  # noqa: BLE001 — some templates reject a system turn
-                        prompt = self._tokenizer.apply_chat_template(
-                            [{"role": "user", "content": f"{system}\n\n{user}" if system else user}],
-                            tokenize=False,
-                            add_generation_prompt=True,
-                        )
-                        mode = "chat_merged_system"
-                else:
-                    prompt = f"{system}\n\n{user}" if system else user
-                    mode = "raw"
+                    # MEASURED 2026-08-14: TranslateGemma-12b-it's chat template
+                    # is NOT a general chat API. It requires `content` to be a
+                    # list of one mapping with source_lang_code/target_lang_code
+                    # fields, and raises a TemplateError on a plain string —
+                    # which failed a structured probe on a paid GPU run. A chat
+                    # template that will not accept our messages is a fact about
+                    # the model, not a reason to fail the request: fall through
+                    # to the raw completion prompt and say so in the metadata.
+                    for candidate in (
+                        ([{"role": "system", "content": system}] if system else [])
+                        + [{"role": "user", "content": user}],
+                        [{"role": "user", "content": merged}],
+                    ):
+                        try:
+                            prompt = self._tokenizer.apply_chat_template(
+                                candidate, tokenize=False, add_generation_prompt=True
+                            )
+                            mode = "chat" if len(candidate) > 1 else "chat_merged_system"
+                            break
+                        except Exception as exc:  # noqa: BLE001 — template shape varies per model
+                            if len(template_errors) < 3:
+                                template_errors.append(f"{type(exc).__name__}: {exc}")
+                    else:
+                        mode = "raw_chat_template_incompatible"
                 n_tokens = len(self._tokenizer.encode(prompt))
                 if n_tokens > prompt_budget:
                     raise ValueError(
@@ -554,6 +563,7 @@ class TranslateGemmaServer:
         )
         metadata["prompt_modes"] = modes
         metadata["has_chat_template"] = bool(chat_template)
+        metadata["chat_template_errors"] = template_errors
         return {"outputs": outputs, "metadata": metadata}
 
     def _metadata(self, *, batch_size: int, num_ok: int, num_skipped: int,
@@ -776,14 +786,23 @@ def run_blocks(
                         for i in chunk.ids
                     )
                     continue
-                rows.extend(
-                    modal_batch.parse_chunk_output(
-                        chunk,
-                        result["text"],
-                        output_tokens=result.get("output_tokens"),
-                        latency_s=result.get("latency_s"),
-                    )
+                parsed = modal_batch.parse_chunk_output(
+                    chunk,
+                    result["text"],
+                    output_tokens=result.get("output_tokens"),
+                    latency_s=result.get("latency_s"),
                 )
+                if result.get("finish_reason") == "length":
+                    # MEASURED 2026-08-14: 3/522 blocks degenerated into a
+                    # repetition loop and ran to the token cap. The text is
+                    # real English up to the point it derails, so nothing flags
+                    # it -- same shape as the Sonnet 5 max_tokens trap. A
+                    # truncated generation is an error, never a translation.
+                    for row in parsed:
+                        row.setdefault("error", f"max_new_tokens_truncated (cap {max_new_tokens})")
+                        if row.get("error"):
+                            row["english"] = None
+                rows.extend(parsed)
             print(f"[run_blocks] slice done (metadata: {meta})")
         return rows, meta, wall
 
@@ -792,7 +811,7 @@ def run_blocks(
     probe_chunks = modal_batch.build_structured_chunks(
         probe_items, chunk_size=max(1, probe_size)
     )
-    probe_rows, probe_meta, probe_wall = _call(probe_chunks)
+    probe_rows, _probe_meta, probe_wall = _call(probe_chunks)
     total_wall_s += probe_wall
     structured_ok = modal_batch.probe_ok(probe_rows)
     print(f"[run_blocks] structured probe over {len(probe_items)} blocks: "
@@ -855,6 +874,13 @@ def run_blocks(
                 "structured_chunk_size": chunk_size if structured_ok else 1,
                 "prompt_modes": meta.get("prompt_modes"),
                 "has_chat_template": meta.get("has_chat_template"),
+                # Recorded so a later reader can tell a capped generation from
+                # a short one without guessing which flags the run was given.
+                "sampling": {
+                    "temperature": temperature,
+                    "max_new_tokens": max_new_tokens,
+                },
+                "chat_template_errors": meta.get("chat_template_errors"),
                 "id_loss_count": len(missing),
                 "id_unexpected_count": len(unexpected),
                 "id_duplicate_rows": duplicates,

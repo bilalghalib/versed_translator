@@ -104,9 +104,18 @@ def _split_on(words: list[str], boundary_chars: str) -> list[list[str]]:
     return units
 
 
-def _hard_split(words: list[str], max_words: int) -> list[list[str]]:
-    """Last resort for a run with no internal punctuation: cut on word count."""
-    return [words[i : i + max_words] for i in range(0, len(words), max_words)]
+def _even_chunks(words: list[str], max_words: int) -> list[list[str]]:
+    """Cut `words` into the fewest chunks of at most `max_words`, evenly sized.
+
+    Evenly, not greedily: greedy leaves a runt tail (61 words at a 60 budget
+    becomes 60 + 1), and a one-word block is a bad unit to hand a translator,
+    a bad unit to score, and a bad unit to ask a reviewer to re-read.
+    """
+    if not words:
+        return []
+    n_chunks = -(-len(words) // max_words)  # ceil
+    size = -(-len(words) // n_chunks)
+    return [words[i : i + size] for i in range(0, len(words), size)]
 
 
 def segment(text: str, max_words: int = DEFAULT_MAX_BLOCK_WORDS) -> list[str]:
@@ -117,8 +126,11 @@ def segment(text: str, max_words: int = DEFAULT_MAX_BLOCK_WORDS) -> list[str]:
     input.
 
     Cut preference, strongest first: sentence punctuation, then clause
-    punctuation, then a blunt word-count cut. Pieces are then packed greedily
-    back up to the budget so a three-word clause never becomes its own block.
+    punctuation, then a blunt word-count cut. Pieces are then packed back up
+    to an *evened* budget -- ``total/ceil(total/max_words)`` rather than
+    ``max_words`` -- so a three-word clause never becomes its own block and a
+    passage one word over the budget becomes two halves rather than a full
+    block plus a one-word runt.
     """
     if max_words < 1:
         raise ValueError(f"max_words must be >= 1, got {max_words}")
@@ -135,11 +147,13 @@ def segment(text: str, max_words: int = DEFAULT_MAX_BLOCK_WORDS) -> list[str]:
             if len(soft_unit) <= max_words:
                 pieces.append(soft_unit)
             else:
-                pieces.extend(_hard_split(soft_unit, max_words))
+                pieces.extend(_even_chunks(soft_unit, max_words))
 
+    n_blocks = -(-len(words) // max_words)
+    target = -(-len(words) // n_blocks)
     blocks: list[list[str]] = []
     for piece in pieces:
-        if blocks and len(blocks[-1]) + len(piece) <= max_words:
+        if blocks and len(blocks[-1]) + len(piece) <= target:
             blocks[-1].extend(piece)
         else:
             blocks.append(list(piece))

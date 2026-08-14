@@ -106,7 +106,13 @@ def test_segment_prefers_sentence_boundaries_over_packing():
 
 def test_segment_splits_a_run_with_no_punctuation_at_all():
     blocks = segment(" ".join(f"w{i}" for i in range(25)), max_words=10)
-    assert [len(b.split()) for b in blocks] == [10, 10, 5]
+    # Evened, not greedy: three near-equal blocks, not 10 + 10 + a 5-word tail.
+    assert [len(b.split()) for b in blocks] == [9, 9, 7]
+
+
+def test_segment_evens_out_rather_than_leaving_a_one_word_runt():
+    blocks = segment(" ".join(f"w{i}" for i in range(61)), max_words=60)
+    assert [len(b.split()) for b in blocks] == [31, 30]
 
 
 def test_segment_rejects_a_nonsense_budget():

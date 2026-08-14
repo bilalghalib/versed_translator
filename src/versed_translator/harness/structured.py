@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from versed_translator.harness.adapters.base import TranslationResult
+from versed_translator.harness.results import TranslationResult
 
 ERR_ID_MISSING = "id_missing_from_structured_response"
 ERR_ID_UNEXPECTED = "id_unexpected_in_structured_response"

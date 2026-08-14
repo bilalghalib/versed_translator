@@ -18,29 +18,10 @@ harness package must not touch pyproject.toml (owned elsewhere).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+# Defined in harness.results, not here: harness.structured also constructs
+# TranslationResults, and importing this module from there would initialise
+# the adapters package -> every adapter -> harness.structured, a cycle. The
+# names are re-exported so this stays the canonical import site for adapters.
+from versed_translator.harness.results import AdapterError, TranslationResult
 
-
-@dataclass
-class TranslationResult:
-    item_id: str
-    translation: str | None
-    source_tokens: int | None
-    output_tokens: int | None
-    latency_s: float | None
-    error: str | None = None
-    # Adapters that know their provider's prices fill this in (see each
-    # adapter's PRICE_TABLE); local/self-hosted adapters leave it None and
-    # the run's GPU-hour cost is accounted for separately in throughput/.
-    cost_estimate: float | None = None
-
-
-class AdapterError(RuntimeError):
-    """Raised for adapter-level setup failures (e.g. missing API key).
-
-    Adapters should fail loudly (raise) for configuration problems that
-    block the whole run, but capture per-item failures (a single bad
-    response, a network hiccup on one call) as an ``error`` string on that
-    item's TranslationResult instead of raising, so one bad item doesn't
-    abort an entire batch.
-    """
+__all__ = ["AdapterError", "TranslationResult"]

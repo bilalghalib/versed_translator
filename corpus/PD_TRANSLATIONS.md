@@ -1,5 +1,44 @@
 # Public-Domain English Translations — Seed List
 
+> ## ⚠️ VERIFICATION PASS — 2026-08-14 (READ THIS BEFORE USING THE TABLE BELOW)
+>
+> The table further down was compiled by **WebSearch only**; its URLs were never fetched. A verification pass has now fetched all 16. **Several entries pointed at the wrong edition, and two are not public domain at all.** The table below is preserved as the original compilation record — **this block is authoritative where they disagree.**
+>
+> ### DROP — rights failures (do NOT use)
+>
+> - **#13 Mishkat al-Masabih.** The archive.org text is **not** Matthews' bare 1809 translation. Its title page reads *"TRANSLATED BY Capt. A. N. MATTHEWS / REVISED AND EDITED, WITH NOTES, BY F. K. KHAN DURRANI"*, publisher Tabligh Literature Company Lahore, stamped **"(All Rights Reserved)"**. Durrani (d. 1962) wove modernist editorial introductions into the body. It is also a part-issue fragment. **Not PD, not complete, not the claimed edition.**
+> - **#14 Rehatsek, *Sirat Rasul Allah*.** Guillaume confusion is *cleared* (zero hits for Guillaume/Oxford/Wüstenfeld) — but the text is the **1964 Folio Society edition: Michael Edwardes' abridgement of Rehatsek**, and says so in its own preface. Edwardes' linking passages and bracketed glosses are woven into the running prose and cannot be mechanically stripped; first published 1964 in the UK, so URAA risk applies. **There is no public-domain English translation of the Sira at all** — Rehatsek's was the first ever and was not printed until 1964. The only PD Western-language option is Weil's German (1864).
+> - **#12 Lane, *Arabian Society*** — PD is fine, but **confirmed not a translation of a work** (essays *about* the Nights). Drop as an alignment pair; keep only for genre colour.
+>
+> ### CORRECTED URLs — the doc's link is the wrong edition
+>
+> | # | Problem with the doc's URL | Use instead |
+> |---|---|---|
+> | 1 Baladhuri | 1968 AMS reprint, `access-restricted-item: true`, djvu.txt returns **HTTP 401** | v1 `originsofislamic01albauoft_djvu.txt` (974K) + v2 `originsoftheisla032520mbp_djvu.txt` (524K). ⚠️ `originsofislamic02albauoft` is **mislabeled** — a second copy of vol 1, not Murgotten |
+> | 7 Hariri | **vol II only** ("CONTAINING THE LAST TWENTY-FOUR") | `the-assembly-of-al-hariri-all-50` → `The Assembly of Al Hariri All 50_djvu.txt` (654K) — all 50, headers FIRST→FIFTIETH verified, and **notes-free** (no philological apparatus to strip) |
+> | 8 Ibn Tufayl | the **1929 Fulton-revised Stokes edition** — precisely what the doc's own note says to avoid | **Gutenberg** `https://www.gutenberg.org/cache/epub/16831/pg16831.txt` (279K) — the 1708 Ockley, human-proofread, **zero OCR noise** |
+> | 15 Palmer Qur'an | **Part I only** (suras 1–16). The doc's secondary UMich URL is **SBE vol 14, *Sacred Laws of the Aryas*** — a different book entirely | `qurn01palm_djvu.txt` (784K) + `qurn02palm_djvu.txt` (677K) |
+> | 16 Blunt | no archive.org item exists for the 1903 edition | `poeticalworksofw02blunuoft_djvu.txt`, odes at byte offsets **87,303–171,163**. MARC confirms Lady Anne translated, W.S. Blunt versified. ⚠️ `moallakat0000unse` is **Jones's 1782**, not Blunt |
+> | 2 Ibn Khallikan | doc's Google scan is noisy but usable | Prefer GWU HighRes `HighRes_3288201929395{3,6,7}9_djvu.txt` (1.8–1.9M each) — markedly cleaner. Avoid the 1961/1970 reprints (`biographicaldict0001macg`, `ibnkhallikansbio0001ibnk`) — restricted |
+> | 10 Lyall | scan is the **1930 reprint, not 1885**, carrying a new 1930 publishers' foreword | Usable only with that foreword excluded; OCR is poor regardless (`Chiistian monastoiy`) |
+>
+> ### RANKED for benchmark passage alignment (D1e option d)
+>
+> 1. **al-Hariri, *Assemblies* (all 50)** — adab/maqama. Complete, 50 discrete self-contained units, notes-free stream. Fills the highest-value empty genre. **Best overall.**
+> 2. **Ibn Khallikan, *Biographical Dictionary*** — biography. Per-entry structure is the gold standard for 1:1/1:N validation; complete 4 vols; cleanest long-form text in the list (~7.8M chars).
+> 3. **Ockley, *Hayy ibn Yaqzan*** — philosophy. Only human-proofread, zero-OCR-noise text found. Small (279K) but flawless — ideal **clean control set**.
+> 4. **Baladhuri, *Origins of the Islamic State*** — history. Complete across the two replacement URLs; chapter-structured; needs footnote/running-header stripping.
+> 5. **Blunt, *Seven Golden Odes*** — poetry. All seven odes, good OCR, structurally faithful line-for-line to the Arabic bayt.
+> 6. **Knatchbull, *Kalila and Dimna*** — adab/fables. Complete, direct from Arabic, good OCR, headed fable units.
+> 7. **Palmer, *Qur'an*** — scripture. Not a missing genre, but sura/verse headers are the strongest structural anchors in the list.
+> 8. **Hamilton, *Antar*** — poetry/epic. All 4 vols (better than the doc claims) but continuous narrative + quote-mark OCR damage.
+>
+> **Deprioritize:** Lyall (poor OCR), Lee's Ibn Battuta (pages dominated by Persian/Arabic footnote garbage), Mas'udi (vol 1 only, inline Arabic mangled to noise), Ghazali (short condensation, indirect chain), Keith-Falconer (Syriac recension, not direct Arabic).
+>
+> ### ⚠️ GAP THIS LIST CANNOT CLOSE
+>
+> **Zero tafsir sources.** None of the 16 addresses tafsir, so D1e option (d) **cannot** close the tafsir hole from this list alone. Tafsir needs a separate sourcing decision.
+
 Companion to `corpus/pd_translations_seed.json`. Compiled 2026-08-12 for **C6 checkpoint 1** (rights inventory seed) and **C7 gold-work candidates** (alignment engine validation set) per `VERSED_TRANSLATION_ROADMAP.md`.
 
 **Method:** WebSearch only (no WebFetch verification pass in this session — every `source_url` below is a URL that actually appeared in search results, never constructed from memory). No rights claim here is a legal opinion; **D6b** (EU/French IP counsel) still gates commercial use, and every "PD" rationale is a plausibility argument (translator death year and/or pre-1930 publication year), not a cleared determination. Entries the compiler was unsure about are marked `confidence: low` rather than asserted as safe — see the table.

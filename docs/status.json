@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T13:14:41.645136+00:00",
+  "generated_at": "2026-08-14T13:20:43.803270+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -441,8 +441,12 @@
   ],
   "recent_commits": [
     {
+      "subject": "D1e DECIDED: option (d), PD passage alignment; Arabic side verified",
+      "relative_date": "6 minutes ago"
+    },
+    {
       "subject": "D1d + D2c decided; D1e gains option (d) \u2014 PD passage alignment",
-      "relative_date": "8 minutes ago"
+      "relative_date": "14 minutes ago"
     },
     {
       "subject": "C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment",
@@ -454,7 +458,7 @@
     },
     {
       "subject": "C4: MetricX-24 results, experiment ledger entries, D4c token-window decision",
-      "relative_date": "2 hours ago"
+      "relative_date": "3 hours ago"
     },
     {
       "subject": "MetricX-24 as a second QE backend (Apache-2.0, shippable)",
@@ -483,16 +487,12 @@
     {
       "subject": "C4 result: COMETKiwi detects 30.4% of injected errors; critical blind spots",
       "relative_date": "8 hours ago"
-    },
-    {
-      "subject": "C4: detection study runner + comet DataLoader compat fix",
-      "relative_date": "13 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T13:14:28.511081+00:00"
+      "mtime": "2026-08-14T13:20:28.214767+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

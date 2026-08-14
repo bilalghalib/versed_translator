@@ -170,22 +170,23 @@ def parse_chunk_output(chunk: PromptChunk, text: str, **extra) -> list[dict]:
             row["error"] = ERR_EMPTY
         return [row]
 
+    # The whole body is guarded, not just the parse: this function's contract
+    # is that nothing raises, and an escaping exception costs a paid GPU run.
     try:
         parsed = parse_structured_response(text or "")
-    except (ValueError, TypeError) as exc:
+        seen: dict[str, object] = {}
+        duplicated: set[str] = set()
+        for obj in parsed:
+            oid = obj["id"]
+            if oid in seen:
+                duplicated.add(oid)
+                continue
+            seen[oid] = obj.get("english")
+    except Exception as exc:  # noqa: BLE001 -- degrade the chunk, never the run
         return [
             {"id": i, "english": None, "error": f"{ERR_PARSE_PREFIX}: {exc}", **extra}
             for i in chunk.ids
         ]
-
-    seen: dict[str, object] = {}
-    duplicated: set[str] = set()
-    for obj in parsed:
-        oid = obj.get("id")
-        if oid in seen:
-            duplicated.add(oid)
-            continue
-        seen[oid] = obj.get("english")
 
     rows: list[dict] = []
     for item_id in chunk.ids:
@@ -201,7 +202,7 @@ def parse_chunk_output(chunk: PromptChunk, text: str, **extra) -> list[dict]:
 
     expected = set(chunk.ids)
     rows.extend(
-        {"id": str(oid), "english": None, "error": ERR_ID_UNEXPECTED, **extra}
+        {"id": oid, "english": None, "error": ERR_ID_UNEXPECTED, **extra}
         for oid in seen
         if oid not in expected
     )

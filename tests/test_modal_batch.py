@@ -174,6 +174,23 @@ def test_parse_of_an_empty_fallback_response_is_an_error_not_an_empty_string():
 # ---------------------------------------------------------------------------
 
 
+def test_parse_never_raises_on_a_malformed_id():
+    """The contract is that nothing escapes -- an escape costs a paid GPU run."""
+    chunk = _chunk(2)
+    rows = parse_chunk_output(chunk, json.dumps([{"id": ["a"], "english": "x"}]))
+    assert [r["id"] for r in rows] == list(chunk.ids)
+    assert all(r["error"].startswith(ERR_PARSE_PREFIX) for r in rows)
+
+
+def test_fallback_template_id_is_a_known_label():
+    """A label a run records must be resolvable by whatever reads the run."""
+    from versed_translator.harness.prompts import is_known_template_id
+
+    assert is_known_template_id(FALLBACK_TEMPLATE_ID)
+    assert is_known_template_id(STRUCTURED_TEMPLATE_ID)
+    assert not is_known_template_id("not_a_template")
+
+
 def test_probe_ok_requires_every_id_clean():
     assert probe_ok([{"id": "a", "english": "A"}]) is True
     assert probe_ok([{"id": "a", "english": "A"}, {"id": "b", "english": None, "error": "x"}]) is False

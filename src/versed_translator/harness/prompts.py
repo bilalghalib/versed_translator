@@ -124,8 +124,10 @@ class PromptTemplate:
 # summarize, compress, or silently drop material", the rule aimed at the
 # exact omission failure C5's checks cannot detect.
 #
-# It is registered here so runs on that path have an honest version label to
-# record. The 2026-08-13 TG27B and 2026-08-14 TG12B legs were both written to
+# Its id is listed in KNOWN_TEMPLATE_IDS (below) so runs on that path have an
+# honest version label to record and validate against -- it is deliberately
+# NOT a renderable PromptTemplate; see that constant for why.
+# The 2026-08-13 TG27B and 2026-08-14 TG12B legs were both written to
 # their run_meta as ``prompt_template_id: "v1"``; that label is WRONG -- they
 # used this template. See TRANSLATION_EXPERIMENTS.md EXP-20260814-03.
 #
@@ -147,12 +149,34 @@ TEMPLATES: dict[str, PromptTemplate] = {
 }
 
 
+#: Every template id a run may legitimately record. Deliberately WIDER than
+#: ``TEMPLATES``: ``modal_minimal_v1`` is a raw completion string with an
+#: ``{arabic}`` slot, not a system prompt, so it has no ``PromptTemplate`` to
+#: render -- forcing one would put a second renderer beside the literal
+#: serve_translategemma.py actually sends, recreating the exact drift the
+#: parity test exists to prevent. But a label that no consumer can resolve is
+#: its own bug (``ingest-modal`` recorded it while ``get_template`` rejected
+#: it), so validation goes through this set and rendering through TEMPLATES.
+KNOWN_TEMPLATE_IDS: frozenset[str] = frozenset(TEMPLATES) | {MODAL_MINIMAL_V1_ID}
+
+
+def is_known_template_id(template_id: str) -> bool:
+    """True if `template_id` is a label a run may record. See KNOWN_TEMPLATE_IDS."""
+    return template_id in KNOWN_TEMPLATE_IDS
+
+
 def get_template(template_id: str) -> PromptTemplate:
     try:
         return TEMPLATES[template_id]
     except KeyError as exc:
+        if template_id in KNOWN_TEMPLATE_IDS:
+            raise ValueError(
+                f"{template_id!r} is a valid recorded label but has no renderable "
+                "PromptTemplate (see KNOWN_TEMPLATE_IDS); it is sent as a raw "
+                "completion string by the Modal serving path"
+            ) from exc
         raise ValueError(
-            f"unknown prompt template_id {template_id!r}; known: {sorted(TEMPLATES)}"
+            f"unknown prompt template_id {template_id!r}; known: {sorted(KNOWN_TEMPLATE_IDS)}"
         ) from exc
 
 
@@ -190,4 +214,16 @@ def parse_structured_response(raw: str) -> list[dict]:
     for obj in data:
         if not isinstance(obj, dict) or "id" not in obj or "english" not in obj:
             raise ValueError("structured response item missing 'id' or 'english'")
+        # An id must be a string, and this is the only place that can enforce
+        # it cheaply. Every consumer immediately uses the id as a dict key, so
+        # a list-valued id (`{"id": ["a"], ...}`) raised an unhashable-type
+        # TypeError out of the splitting loop, past the ValueError guards, and
+        # took the whole run with it. A malformed id is a parse error.
+        if not isinstance(obj["id"], str):
+            # ValueError, not TypeError, on purpose: every caller degrades a
+            # batch on ValueError, and a bad id in a model response is bad
+            # *data*, not a programming error on our side.
+            raise ValueError(  # noqa: TRY004
+                f"structured response item has a non-string 'id': {type(obj['id']).__name__}"
+            )
     return data

@@ -88,7 +88,10 @@ def split_structured_results(
     duplicated: set[str] = set()
     unexpected: list[str] = []
     for obj in parsed:
-        oid = obj.get("id")
+        # `parse_structured_response` guarantees a string id, which is what
+        # makes this dict-keying safe; a non-string id is a parse error there,
+        # not an unhashable-type crash here.
+        oid = obj["id"]
         if oid in seen:
             duplicated.add(oid)
             continue
@@ -124,7 +127,7 @@ def split_structured_results(
     # id contract is meant to surface.
     results.extend(
         batch_error_results(
-            [str(oid) for oid in unexpected],
+            unexpected,
             ERR_ID_UNEXPECTED,
             source_tokens=source_tokens,
             output_tokens=output_tokens,

@@ -126,11 +126,17 @@ def segment(text: str, max_words: int = DEFAULT_MAX_BLOCK_WORDS) -> list[str]:
     input.
 
     Cut preference, strongest first: sentence punctuation, then clause
-    punctuation, then a blunt word-count cut. Pieces are then packed back up
-    to an *evened* budget -- ``total/ceil(total/max_words)`` rather than
-    ``max_words`` -- so a three-word clause never becomes its own block and a
-    passage one word over the budget becomes two halves rather than a full
+    punctuation, then a blunt word-count cut. The resulting pieces are packed
+    twice (see below) so a three-word clause does not become its own block and
+    a passage one word over the budget becomes two halves rather than a full
     block plus a one-word runt.
+
+    Evening is best-effort, not guaranteed: punctuation pieces are
+    indivisible, so a source whose last sentence ends exactly at the budget
+    followed by a two-word sentence still yields a short tail block. That is
+    cosmetic -- every block is still id-bearing, translated and accounted
+    for -- and on the real v0.1-draft slice it leaves 4 blocks under 10 words
+    out of 522.
     """
     if max_words < 1:
         raise ValueError(f"max_words must be >= 1, got {max_words}")
@@ -149,15 +155,32 @@ def segment(text: str, max_words: int = DEFAULT_MAX_BLOCK_WORDS) -> list[str]:
             else:
                 pieces.extend(_even_chunks(soft_unit, max_words))
 
-    n_blocks = -(-len(words) // max_words)
-    target = -(-len(words) // n_blocks)
+    # Pack twice. The first pass at the full budget establishes how few blocks
+    # the pieces actually fit into; the second evens them out at that count.
+    # Deriving the target from total/max_words instead (the obvious shortcut)
+    # under-counts, because punctuation pieces are indivisible: three 30-word
+    # sentences plus a 10-word one fit in 2 blocks of 60, but a target of 50
+    # splits them into 3 -- more blocks, more calls, no benefit. If evening
+    # ever costs a block, keep the tighter packing.
+    packed = _pack(pieces, max_words)
+    evened = _pack(pieces, -(-len(words) // len(packed)))
+    blocks = evened if len(evened) <= len(packed) else packed
+    return [" ".join(block) for block in blocks]
+
+
+def _pack(pieces: list[list[str]], limit: int) -> list[list[str]]:
+    """Greedily merge consecutive pieces while they fit under `limit`.
+
+    A piece already larger than `limit` becomes its own block rather than
+    being split -- splitting happens earlier, at punctuation.
+    """
     blocks: list[list[str]] = []
     for piece in pieces:
-        if blocks and len(blocks[-1]) + len(piece) <= target:
+        if blocks and len(blocks[-1]) + len(piece) <= limit:
             blocks[-1].extend(piece)
         else:
             blocks.append(list(piece))
-    return [" ".join(block) for block in blocks]
+    return blocks
 
 
 def blockify(
@@ -216,31 +239,85 @@ def block_stats(blocks: list[dict]) -> dict:
     }
 
 
-def reassemble(rows: list[dict], joiner: str = " ") -> tuple[dict[str, str], dict[str, list[str]]]:
+def reassemble(
+    rows: list[dict],
+    joiner: str = " ",
+    expected_counts: dict[str, int] | None = None,
+) -> tuple[dict[str, str], dict[str, list[str]]]:
     """Join block-level result rows back into one translation per source item.
 
     `rows` are harness result rows (``schema.ROW_FIELDS`` shape) whose
     ``item_id`` is a block id. Returns ``(translations, incomplete)`` where
     ``translations`` maps parent item id -> joined English for the items whose
     every block came back clean, and ``incomplete`` maps parent item id -> the
-    block ids that did not.
+    block ids that are missing or failed.
 
     Splitting the return this way is the whole point: an item with a failed
     block must never quietly appear as a shorter translation, which is the
     exact silent-omission failure blocks exist to expose.
+
+    THREE WAYS A BLOCK CAN BE ABSENT, and all three must be caught. An earlier
+    version checked only the first and would happily join ``#b0001`` to
+    ``#b0003`` and report the item clean:
+
+    1. a row is present and carries an error (or a blank translation);
+    2. a row is **entirely absent from the middle**, leaving a gap in the
+       index sequence -- caught by requiring indices to be exactly
+       ``1..n`` with no holes;
+    3. a row is absent from the **end**, which leaves no gap and is therefore
+       invisible to a contiguity check. Only an external count can catch it,
+       so pass `expected_counts` (parent id -> block count, straight off the
+       block items file, which records ``block_count`` per block). Without it
+       trailing loss is undetectable and this function says so rather than
+       pretending otherwise.
     """
     by_parent: dict[str, list[tuple[int, dict]]] = {}
     for row in rows:
         parent, index = parse_block_id(row["item_id"])
         by_parent.setdefault(parent, []).append((index, row))
 
+    parents = set(by_parent) | set(expected_counts or {})
     translations: dict[str, str] = {}
     incomplete: dict[str, list[str]] = {}
-    for parent, entries in by_parent.items():
-        entries.sort(key=lambda pair: pair[0])
-        bad = [row["item_id"] for _i, row in entries if row.get("error") or not (row.get("translation") or "").strip()]
+    for parent in parents:
+        entries = sorted(by_parent.get(parent, []), key=lambda pair: pair[0])
+        expected = (expected_counts or {}).get(parent, len(entries))
+        present = {index for index, _row in entries}
+
+        bad = [
+            row["item_id"]
+            for _i, row in entries
+            if row.get("error") or not (row.get("translation") or "").strip()
+        ]
+        # Absent block ids are named the same way a failed one is, so a caller
+        # counting `incomplete[parent]` gets the true number of lost blocks.
+        bad += [block_id(parent, i) for i in range(1, expected + 1) if i not in present]
+
         if bad:
-            incomplete[parent] = bad
+            incomplete[parent] = sorted(set(bad))
             continue
-        translations[parent] = joiner.join((row["translation"] or "").strip() for _i, row in entries)
+        translations[parent] = joiner.join(
+            (row["translation"] or "").strip() for _i, row in entries
+        )
     return translations, incomplete
+
+
+def expected_block_counts(block_items: list[dict]) -> dict[str, int]:
+    """parent id -> number of blocks, from a block items file.
+
+    The authoritative answer to "how many blocks should this item have",
+    which ``reassemble`` cannot infer from the results alone (a missing
+    trailing block leaves no gap). ``blockify`` writes ``block_count`` on
+    every row; this falls back to counting rows per parent if it is absent.
+    """
+    counts: dict[str, int] = {}
+    for block in block_items:
+        parent = block.get("parent_id")
+        if parent is None:
+            parent, _index = parse_block_id(block["id"])
+        declared = block.get("block_count")
+        if isinstance(declared, int) and declared > 0:
+            counts[parent] = declared
+        else:
+            counts[parent] = counts.get(parent, 0) + 1
+    return counts

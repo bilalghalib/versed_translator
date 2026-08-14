@@ -39,6 +39,7 @@ from versed_translator.harness.adapters.base import AdapterError
 from versed_translator.harness.prompts import get_template, load_exemplar
 from versed_translator.harness.schema import make_row, validate_row
 from versed_translator.harness.structured import (
+    ERR_ID_DUPLICATE,
     ERR_ID_MISSING,
     ERR_ID_UNEXPECTED,
     ID_CONTRACT_ERRORS,
@@ -123,7 +124,16 @@ def reconcile_ids(items: list[dict], results: list) -> tuple[list, dict]:
             lost.add(item_id)
             ordered.extend(batch_error_results([item_id], ERR_ID_MISSING))
             continue
-        if all(r.error in ID_CONTRACT_ERRORS for r in got):
+        if len(got) > 1:
+            # The same id came back from more than one chunk -- e.g. a model
+            # that invented `X#b0009` while translating chunk 1, where it is
+            # unexpected, and then legitimately translated it in chunk 2.
+            # Emitting both would put a duplicate item_id in results.jsonl and
+            # desynchronise row_count from item_count. One row per sent id,
+            # flagged, is both the safer reading and the honest one.
+            lost.add(item_id)
+            got = batch_error_results([item_id], ERR_ID_DUPLICATE)
+        elif got[0].error in ID_CONTRACT_ERRORS:
             lost.add(item_id)
         ordered.extend(got)
 

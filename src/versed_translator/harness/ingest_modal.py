@@ -48,6 +48,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from versed_translator.harness.prompts import KNOWN_TEMPLATE_IDS, is_known_template_id
 from versed_translator.harness.schema import make_row, validate_row
 from versed_translator.harness.structured import id_error_counts
 from versed_translator.paths import SCRATCH_DIR
@@ -84,6 +85,8 @@ PASSTHROUGH_SUMMARY_KEYS: tuple[str, ...] = (
     "has_chat_template",
     "sampling",
     "chat_template_errors",
+    "probe_prompt_modes",
+    "probe_chat_template_errors",
 )
 
 
@@ -105,6 +108,13 @@ def resolve_template_id(summary: dict, requested: str | None) -> str:
         raise RawIngestError(
             "no prompt_template_id in the raw file's summary and none passed; "
             "it is not guessable -- state it with --template"
+        )
+    if not is_known_template_id(resolved):
+        # A label nothing can resolve is how the original mislabel survived:
+        # it is only a version record if a reader can look it up.
+        raise RawIngestError(
+            f"prompt_template_id {resolved!r} is not a known template id "
+            f"({sorted(KNOWN_TEMPLATE_IDS)}); register it before recording it"
         )
     return resolved
 

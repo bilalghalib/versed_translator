@@ -86,7 +86,24 @@ def _cmd_reassemble(args: argparse.Namespace) -> int:
     block_rows = [r for r in rows if blocks_mod.is_block_id(r["item_id"])]
     non_block = [r["item_id"] for r in rows if not blocks_mod.is_block_id(r["item_id"])]
 
-    translations, incomplete = blocks_mod.reassemble(block_rows)
+    # How many blocks each item SHOULD have, from the block items file the run
+    # was given. Without it, a block missing from the END of an item leaves no
+    # gap in the index sequence and cannot be detected -- the item would
+    # reassemble into a shortened translation marked clean.
+    block_items_path = Path(args.block_items).expanduser() if args.block_items else Path(
+        str(meta.get("items_path") or "")
+    )
+    expected_counts = None
+    if block_items_path.exists():
+        expected_counts = blocks_mod.expected_block_counts(_read_jsonl(block_items_path))
+    else:
+        print(
+            f"WARNING: block items file not found ({block_items_path}); a block "
+            "lost from the end of an item cannot be detected. Pass --block-items.",
+            file=sys.stderr,
+        )
+
+    translations, incomplete = blocks_mod.reassemble(block_rows, expected_counts=expected_counts)
 
     out_dir = Path(args.out_dir).expanduser() if args.out_dir else run_dir.parent
     new_run_id = args.run_id or f"{run_dir.name}-reassembled"
@@ -118,6 +135,19 @@ def _cmd_reassemble(args: argparse.Namespace) -> int:
     with open(new_dir / "results.jsonl", "w", encoding="utf-8") as f:
         f.writelines(json.dumps(row, ensure_ascii=False) + "\n" for row in out_rows)
 
+    # Counters measured over BLOCKS are moved under their own key rather than
+    # left beside item-level counts they no longer describe: `id_expected: 522`
+    # sitting next to `item_count: 139` invites reading one as the other.
+    block_metrics = {
+        k: meta.pop(k)
+        for k in (
+            "id_expected", "id_returned", "id_loss_count", "id_unexpected_count",
+            "id_preservation_rate", "id_error_rows", "batch_failure_count",
+            "id_missing_count", "id_duplicate_count", "structured_empty_count",
+            "item_count", "row_count", "error_count",
+        )
+        if k in meta
+    }
     new_meta = dict(meta)
     new_meta.update(
         {
@@ -127,8 +157,11 @@ def _cmd_reassemble(args: argparse.Namespace) -> int:
             "row_count": len(out_rows),
             "error_count": sum(1 for r in out_rows if r["error"]),
             "incomplete_item_count": len(incomplete),
+            "incomplete_block_count": sum(len(v) for v in incomplete.values()),
             "non_block_row_count": len(non_block),
             "block_row_count": len(block_rows),
+            "expected_counts_available": expected_counts is not None,
+            "block_run_metrics": block_metrics,
         }
     )
     if args.items:
@@ -239,6 +272,12 @@ def main(argv: list[str] | None = None) -> int:
         "--items", default=None,
         help="Original (pre-block) items JSONL; recorded as items_path so `score` "
         "can find the references for chrF.",
+    )
+    re_p.add_argument(
+        "--block-items", default=None,
+        help="Block items JSONL the run translated. Defaults to the run's own "
+        "items_path. Supplies the expected block count per item, without which "
+        "a block lost from the END of an item is undetectable.",
     )
     re_p.set_defaults(func=_cmd_reassemble)
 

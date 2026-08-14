@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T18:50:14.499739+00:00",
+  "generated_at": "2026-08-14T19:01:55.666867+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -465,36 +465,40 @@
   ],
   "recent_commits": [
     {
+      "subject": "Correct the MetricX cost figure with a second data point",
+      "relative_date": "12 minutes ago"
+    },
+    {
       "subject": "Record the MetricX cost fact blocks did NOT improve",
-      "relative_date": "86 seconds ago"
+      "relative_date": "13 minutes ago"
     },
     {
       "subject": "Roadmap: drop the stale \"ratify D2e\" action item",
-      "relative_date": "3 minutes ago"
+      "relative_date": "15 minutes ago"
     },
     {
       "subject": "Modal run_blocks: id_loss_count could only ever report 0",
-      "relative_date": "4 minutes ago"
+      "relative_date": "16 minutes ago"
     },
     {
       "subject": "D2e/D4c implemented: structured blocks, ID loss as a metric, truncation 37.5% -> 0.7%",
-      "relative_date": "6 minutes ago"
+      "relative_date": "18 minutes ago"
     },
     {
       "subject": "Catalog sweep: Gutenberg complete + archive.org; long-band problem solved",
-      "relative_date": "26 minutes ago"
+      "relative_date": "37 minutes ago"
     },
     {
       "subject": "C1: record second PD alignment tranche",
-      "relative_date": "31 minutes ago"
+      "relative_date": "43 minutes ago"
     },
     {
       "subject": "C4 settled: MetricX full matrix \u2014 two QE systems, same blind spots",
-      "relative_date": "49 minutes ago"
+      "relative_date": "60 minutes ago"
     },
     {
       "subject": "C1: human spot audit 15/15 aligned; EXP-20260814-04 recorded",
-      "relative_date": "2 hours ago"
+      "relative_date": "3 hours ago"
     },
     {
       "subject": "C1: PD references abridge \u2014 measured, tagged, and recorded as a risk",
@@ -502,14 +506,10 @@
     },
     {
       "subject": "D1e(d) first vertical slice: 39 aligned history passages, Baladhuri/Hitti",
-      "relative_date": "4 hours ago"
-    },
-    {
-      "subject": "Tafsir: shallow coverage accepted deliberately, no permission letter",
       "relative_date": "5 hours ago"
     },
     {
-      "subject": "Tafsir sourcing investigated; D6a sent; all decisions closed",
+      "subject": "Tafsir: shallow coverage accepted deliberately, no permission letter",
       "relative_date": "5 hours ago"
     }
   ],
@@ -520,7 +520,7 @@
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
-      "mtime": "2026-08-14T18:50:05.338663+00:00"
+      "mtime": "2026-08-14T19:00:15.140702+00:00"
     },
     {
       "name": "VERSED_TRANSLATE_MASTER_PLAN.md",

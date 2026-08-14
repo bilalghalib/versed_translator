@@ -24,6 +24,7 @@ from versed_translator.harness.blocks import (
     block_id,
     block_stats,
     blockify,
+    expected_block_counts,
     is_block_id,
     parse_block_id,
     reassemble,
@@ -115,6 +116,19 @@ def test_segment_evens_out_rather_than_leaving_a_one_word_runt():
     assert [len(b.split()) for b in blocks] == [31, 30]
 
 
+def test_segment_never_evens_at_the_cost_of_an_extra_block():
+    """Evening must not inflate the block count -- blocks are API calls.
+
+    Three 30-word sentences plus a 10-word one fit in two 60-word blocks. A
+    target derived from total/max_words alone is 50, which splits them into
+    three: more calls, no benefit.
+    """
+    text = " ".join(
+        [" ".join(["a"] * 29 + ["a."]), " ".join(["b"] * 29 + ["b."]), " ".join(["c"] * 9 + ["c."])]
+    )
+    assert [len(b.split()) for b in segment(text, max_words=60)] == [60, 10]
+
+
 def test_segment_rejects_a_nonsense_budget():
     with pytest.raises(ValueError):
         segment("text", max_words=0)
@@ -188,6 +202,41 @@ def test_reassemble_treats_a_blank_translation_as_incomplete():
     assert incomplete["A"] == ["A#b0002"]
 
 
+def test_reassemble_refuses_to_join_across_an_absent_block():
+    """The row is not merely errored -- it is not in the file at all.
+
+    Caught by index contiguity. Before this, `#b0001` + `#b0003` joined into a
+    shortened translation reported clean, which is precisely the silent
+    omission blocks exist to expose.
+    """
+    translations, incomplete = reassemble([_row("A#b0001", "first"), _row("A#b0003", "third")])
+    assert translations == {}
+    assert incomplete == {"A": ["A#b0002"]}
+
+
+def test_reassemble_catches_a_block_lost_from_the_end():
+    """Trailing loss leaves no gap, so only an external count can see it."""
+    rows = [_row("A#b0001", "first"), _row("A#b0002", "second")]
+    translations, incomplete = reassemble(rows, expected_counts={"A": 3})
+    assert translations == {}
+    assert incomplete == {"A": ["A#b0003"]}
+    # ...and the same rows are clean when that really is all the blocks.
+    assert reassemble(rows, expected_counts={"A": 2}) == ({"A": "first second"}, {})
+
+
+def test_reassemble_reports_an_item_whose_blocks_are_all_missing():
+    _t, incomplete = reassemble([], expected_counts={"A": 2})
+    assert incomplete == {"A": ["A#b0001", "A#b0002"]}
+
+
+def test_expected_block_counts_uses_the_declared_count():
+    blocks = blockify([{"id": "A", "arabic": "one two. three four."}], max_words=2)
+    assert expected_block_counts(blocks) == {"A": 2}
+    # Falls back to counting rows when block_count is absent.
+    stripped = [{k: v for k, v in b.items() if k != "block_count"} for b in blocks]
+    assert expected_block_counts(stripped) == {"A": 2}
+
+
 def test_reassemble_keeps_unaffected_items_whole():
     rows = [_row("A#b0001", "a"), _row("B#b0001", "b"), _row("B#b0002", None, error="boom")]
     translations, incomplete = reassemble(rows)
@@ -201,6 +250,23 @@ def test_reassemble_keeps_unaffected_items_whole():
 
 _DATA = Path(os.environ.get("VERSED_DATA_ROOT", Path.home() / "versed-translator-data"))
 _DEV = _DATA / "benchmark-data" / "v0.1-draft" / "dev_bakeoff.jsonl"
+
+
+@pytest.mark.skipif(not _DEV.exists(), reason="off-tree benchmark data not present on this machine")
+def test_segmentation_of_the_real_slice_is_stable():
+    """Pin the block count on the frozen slice.
+
+    Block ids are positional, so a change here silently re-keys every
+    downstream artifact — run rows, QE pairs, the lot. This caught a real
+    change once already: fixing the over-splitting bug moved the count from
+    522 to 496 *after* a paid GPU run had been measured on the 522-block file.
+    That is fine as long as it is noticed; the point of this test is that it
+    cannot happen unnoticed.
+    """
+    items = [json.loads(line) for line in _DEV.read_text(encoding="utf-8").splitlines() if line.strip()]
+    blocks = blockify(items)
+    assert len(blocks) == 496
+    assert min(len(b["arabic"].split()) for b in blocks) >= 9
 
 
 @pytest.mark.skipif(not _DEV.exists(), reason="off-tree benchmark data not present on this machine")

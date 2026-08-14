@@ -499,16 +499,22 @@ class TranslateGemmaServer:
                     # template that will not accept our messages is a fact about
                     # the model, not a reason to fail the request: fall through
                     # to the raw completion prompt and say so in the metadata.
-                    for candidate in (
-                        ([{"role": "system", "content": system}] if system else [])
-                        + [{"role": "user", "content": user}],
-                        [{"role": "user", "content": merged}],
-                    ):
+                    # With no system message the two candidates are identical,
+                    # so try one -- retrying it verbatim would just log the
+                    # same template error twice into a 3-entry buffer.
+                    candidates = [([{"role": "user", "content": user}], "chat")]
+                    if system:
+                        candidates = [
+                            ([{"role": "system", "content": system},
+                              {"role": "user", "content": user}], "chat"),
+                            ([{"role": "user", "content": merged}], "chat_merged_system"),
+                        ]
+                    for messages, candidate_mode in candidates:
                         try:
                             prompt = self._tokenizer.apply_chat_template(
-                                candidate, tokenize=False, add_generation_prompt=True
+                                messages, tokenize=False, add_generation_prompt=True
                             )
-                            mode = "chat" if len(candidate) > 1 else "chat_merged_system"
+                            mode = candidate_mode
                             break
                         except Exception as exc:  # noqa: BLE001 — template shape varies per model
                             if len(template_errors) < 3:
@@ -765,10 +771,20 @@ def run_blocks(
     run_started = datetime.now(timezone.utc).isoformat()
     total_wall_s = 0.0
 
-    def _call(chunks: list) -> tuple[list[dict], dict, float]:
-        """Send PromptChunks in slices, return (raw rows, last metadata, wall)."""
+    def _call(chunks: list, sink=None) -> tuple[list[dict], dict, float]:
+        """Send PromptChunks in slices, return (raw rows, merged metadata, wall).
+
+        `sink` is an open file: rows are written and flushed as each slice
+        returns, so a transport error or container restart mid-run leaves the
+        completed slices on disk. Buffering the whole run and writing at the
+        end is how 139 finished rows were once lost; on a paid GPU path the
+        same mistake also throws away the money that produced them.
+        """
         rows: list[dict] = []
-        meta: dict = {}
+        # Merged across slices, not overwritten by the last one: a chat-template
+        # incompatibility in slice 1 must not vanish from the record because
+        # slice 5 went fine. These fields exist to diagnose exactly that.
+        meta: dict = {"prompt_modes": {}, "chat_template_errors": [], "has_chat_template": None}
         wall = 0.0
         for start in range(0, len(chunks), prompts_per_call):
             slice_ = chunks[start : start + prompts_per_call]
@@ -778,10 +794,17 @@ def run_blocks(
                 [c.to_request() for c in slice_], temperature, max_new_tokens,
             )
             wall += time.monotonic() - t0
-            meta = out["metadata"]
+            slice_meta = out["metadata"]
+            for mode, n in (slice_meta.get("prompt_modes") or {}).items():
+                meta["prompt_modes"][mode] = meta["prompt_modes"].get(mode, 0) + n
+            for err in slice_meta.get("chat_template_errors") or []:
+                if err not in meta["chat_template_errors"]:
+                    meta["chat_template_errors"].append(err)
+            meta["has_chat_template"] = slice_meta.get("has_chat_template")
+            slice_rows: list[dict] = []
             for chunk, result in zip(slice_, out["outputs"]):
                 if result.get("text") is None:
-                    rows.extend(
+                    slice_rows.extend(
                         {"id": i, "english": None, "error": result.get("error", "no text returned")}
                         for i in chunk.ids
                     )
@@ -802,7 +825,12 @@ def run_blocks(
                         row.setdefault("error", f"max_new_tokens_truncated (cap {max_new_tokens})")
                         if row.get("error"):
                             row["english"] = None
-                rows.extend(parsed)
+                slice_rows.extend(parsed)
+            if sink is not None:
+                for row in slice_rows:
+                    sink.write(json.dumps(row, ensure_ascii=False) + "\n")
+                sink.flush()
+            rows.extend(slice_rows)
             print(f"[run_blocks] slice done (metadata: {meta})")
         return rows, meta, wall
 
@@ -811,7 +839,7 @@ def run_blocks(
     probe_chunks = modal_batch.build_structured_chunks(
         probe_items, chunk_size=max(1, probe_size)
     )
-    probe_rows, _probe_meta, probe_wall = _call(probe_chunks)
+    probe_rows, probe_meta, probe_wall = _call(probe_chunks)
     total_wall_s += probe_wall
     structured_ok = modal_batch.probe_ok(probe_rows)
     print(f"[run_blocks] structured probe over {len(probe_items)} blocks: "
@@ -831,7 +859,11 @@ def run_blocks(
             "structured probe failed and --allow-fallback is false; no blocks translated"
         )
 
-    rows, meta, wall = _call(chunks)
+    # Rows stream into the output file as each slice lands (see _call), so a
+    # failure partway through leaves the finished work on disk instead of
+    # discarding a paid run. The trailing _run_summary line is appended after.
+    with out_path.open("w") as out_f:
+        rows, meta, wall = _call(chunks, sink=out_f)
     total_wall_s += wall
 
     by_id: dict[str, list] = {}
@@ -847,20 +879,25 @@ def run_blocks(
     # run, because parse_chunk_output already emits an error row for each
     # dropped id -- a safety metric that can only ever report success.
     missing = []
+    reconciliation_rows: list[dict] = []
     for item_id in sent_ids:
         got = by_id.get(item_id)
         if not got:
             missing.append(item_id)
-            rows.append({"id": item_id, "english": None,
-                         "error": modal_batch.ERR_ID_MISSING})
+            reconciliation_rows.append(
+                {"id": item_id, "english": None, "error": modal_batch.ERR_ID_MISSING}
+            )
         elif all(r.get("error") in modal_batch.ID_CONTRACT_ERRORS for r in got):
             missing.append(item_id)
+    rows.extend(reconciliation_rows)
 
     n_ok = sum(1 for r in rows if r.get("english"))
     n_err = len(rows) - n_ok
 
-    with out_path.open("w") as out_f:
-        for row in rows:
+    with out_path.open("a") as out_f:
+        # Only the reconciliation rows _call could not know about, then the
+        # summary. Everything else is already on disk.
+        for row in reconciliation_rows:
             out_f.write(json.dumps(row, ensure_ascii=False) + "\n")
         out_f.write(json.dumps({
             "_run_summary": {
@@ -883,6 +920,11 @@ def run_blocks(
                 "structured_chunk_size": chunk_size if structured_ok else 1,
                 "prompt_modes": meta.get("prompt_modes"),
                 "has_chat_template": meta.get("has_chat_template"),
+                # The probe is where a chat-template incompatibility surfaces
+                # (it is the only structured call on a fallback run), so its
+                # metadata must reach the summary or the diagnosis is lost.
+                "probe_prompt_modes": probe_meta.get("prompt_modes"),
+                "probe_chat_template_errors": probe_meta.get("chat_template_errors"),
                 # Recorded so a later reader can tell a capped generation from
                 # a short one without guessing which flags the run was given.
                 "sampling": {

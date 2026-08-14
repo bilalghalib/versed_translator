@@ -280,6 +280,68 @@ def test_runner_counts_adapter_reported_id_loss_not_just_absent_rows(tmp_path, m
     assert meta["id_preservation_rate"] == 0.0
 
 
+def test_split_rejects_a_non_string_id_as_a_parse_error(tmp_path, monkeypatch):
+    """An unhashable id used to escape every guard as a TypeError.
+
+    Every consumer keys a dict by the id, so `{"id": ["a"]}` raised
+    `unhashable type: 'list'` out of the splitting loop, past the ValueError
+    handlers, and took the whole run with it.
+    """
+    from versed_translator.harness.prompts import parse_structured_response
+
+    for bad in ([{"id": ["a"], "english": "x"}], [{"id": 7, "english": "x"}]):
+        with pytest.raises(ValueError, match="non-string 'id'"):
+            parse_structured_response(json.dumps(bad))
+
+
+def test_ollama_structured_survives_a_non_string_id(monkeypatch):
+    from versed_translator.harness.adapters import ollama_adapter
+    from versed_translator.harness.prompts import get_template
+
+    payload = json.dumps([{"id": ["a"], "english": "x"}])
+    monkeypatch.setattr(
+        ollama_adapter, "_post", lambda *a, **k: {"response": payload}
+    )
+    results = ollama_adapter.translate_batch(
+        [{"id": "a", "arabic": "x"}], get_template("structured_blocks_v1"), model="m"
+    )
+    assert results[0].error.startswith(ERR_PARSE_PREFIX)
+
+
+def test_runner_emits_exactly_one_row_per_sent_id_on_a_cross_chunk_collision(tmp_path, monkeypatch):
+    """A model inventing an id that a LATER chunk legitimately owns.
+
+    Both results carry the same item_id; emitting both would duplicate a row
+    in results.jsonl and desynchronise row_count from item_count.
+    """
+    from versed_translator.harness.adapters import ollama_adapter
+
+    calls = {"n": 0}
+
+    def fake(items, template, **cfg):
+        calls["n"] += 1
+        out = [
+            TranslationResult(item_id=i["id"], translation="EN", source_tokens=1,
+                              output_tokens=1, latency_s=0.1)
+            for i in items
+        ]
+        if calls["n"] == 1:
+            # Invents an id that chunk 2 will legitimately return.
+            out += batch_error_results(["AR_003"], ERR_ID_UNEXPECTED)
+        return out
+
+    monkeypatch.setattr(ollama_adapter, "translate_batch", fake)
+    meta = runner.run(adapter_name="ollama", model="m", items_path=_items_file(tmp_path, 4),
+                      out_dir=tmp_path / "runs", batch_size=2)
+    rows = [json.loads(line) for line in (tmp_path / "runs" / meta["run_id"] / "results.jsonl").read_text().splitlines()]
+    ids = [r["item_id"] for r in rows]
+    assert len(ids) == len(set(ids)) == 4
+    assert meta["row_count"] == meta["item_count"] == 4
+    collided = next(r for r in rows if r["item_id"] == "AR_003")
+    assert collided["error"] == ERR_ID_DUPLICATE
+    assert meta["id_loss_count"] == 1
+
+
 def test_runner_keeps_an_invented_id_as_an_error_row(tmp_path, monkeypatch):
     from versed_translator.harness.adapters import ollama_adapter
 

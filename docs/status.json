@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T14:29:56.245283+00:00",
+  "generated_at": "2026-08-14T14:42:58.947695+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -453,28 +453,32 @@
   ],
   "recent_commits": [
     {
+      "subject": "D1e(d) first vertical slice: 39 aligned history passages, Baladhuri/Hitti",
+      "relative_date": "12 minutes ago"
+    },
+    {
       "subject": "Tafsir: shallow coverage accepted deliberately, no permission letter",
-      "relative_date": "40 minutes ago"
+      "relative_date": "53 minutes ago"
     },
     {
       "subject": "Tafsir sourcing investigated; D6a sent; all decisions closed",
-      "relative_date": "41 minutes ago"
+      "relative_date": "54 minutes ago"
     },
     {
       "subject": "PD sources verified: 2 rights failures dropped, 6 wrong editions corrected",
-      "relative_date": "69 minutes ago"
+      "relative_date": "82 minutes ago"
     },
     {
       "subject": "D1e DECIDED: option (d), PD passage alignment; Arabic side verified",
-      "relative_date": "75 minutes ago"
+      "relative_date": "88 minutes ago"
     },
     {
       "subject": "D1d + D2c decided; D1e gains option (d) \u2014 PD passage alignment",
-      "relative_date": "84 minutes ago"
+      "relative_date": "2 hours ago"
     },
     {
       "subject": "C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment",
-      "relative_date": "3 hours ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "Modal ingest: committed, tested path from run_batch raw -> harness schema",
@@ -495,16 +499,12 @@
     {
       "subject": "Drift review: correct START HERE (ATHAR can't supply genre as-is), add D1e/D2c/D2e, fix STATUS drift",
       "relative_date": "6 hours ago"
-    },
-    {
-      "subject": "Add START HERE orientation block for fresh sessions",
-      "relative_date": "6 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-14T14:29:27.453133+00:00"
+      "mtime": "2026-08-14T14:42:44.078522+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",

@@ -25,7 +25,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from versed_translator.qe import detection_matrix as dm  # noqa: E402
+from versed_translator.qe import detection_matrix as dm
 
 
 def load_jsonl(path: Path) -> list[dict]:

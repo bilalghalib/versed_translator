@@ -82,3 +82,26 @@ RESULTS: **Human spot audit 15/15 aligned** (Bilal, LLM-assisted, report-level c
 CONCLUSION: Option (d) works. **Alignment quality and reference fidelity are two separate properties and must be measured separately** — a pair can be perfectly aligned and still be an abridged translation. Yield says one work gives ~30 passages in 100–250 but only ~9 in 250–600, so **closing the long-band gap needs 3–4 PD works, not one**. OCR apparatus, not alignment, is the quality ceiling (13/109 carry a footnote fused mid-sentence; flagged and excluded rather than excised).
 CAVEATS: one work, one translator, one genre. The 40% scaffolding ratio is translator-specific and tells us nothing about de Slane or Chenery — re-measure per work. 15 audited of 39 shipped; the ~100-item target (C1 checkpoint 3) is not met.
 DECISION FED: D1e (option d validated), C1 checkpoint 3 (first tranche), C8 (exclude these from isnad training signal), C2 scoring (report isnad fidelity separately from chrF).
+
+## EXP-20260814-05 — MetricX-24 full detection matrix (C4) — completes EXP-20260814-02
+
+HYPOTHESIS: (update at full scale) MetricX-QE covers COMETKiwi's fidelity blind spots.
+SETUP: identical to EXP-20260814-02 but the **full 1,144 pairs**, 13/15 injectors, threshold 0.5 on the negated [-25,0] scale. Ran detached; sentinel `done-metricx-full` = 0.
+RESULTS: `~/versed-translator-data/qe/tg27b-full-metricx/`. Plausibility checks pass — score range [−22.16, −1.67] over **962 distinct values** (not constant), 1,144 pairs scored.
+
+| injector | severity | n | COMETKiwi | MetricX |
+| --- | --- | ---: | ---: | ---: |
+| reverse_agent_patient | critical | 11 | 0.091 | **0.000** |
+| mistranslate_term | major | 120 | 0.008 | **0.008** |
+| delete_negation | critical | 92 | 0.109 | **0.098** |
+| remove_isnad_narrator | critical | 127 | 0.228 | 0.252 |
+| remove_clause | critical | 105 | 0.229 | **0.333** |
+| omit_quotation | critical | 131 | 0.275 | **0.405** |
+| duplicate_sentence | moderate | 139 | **0.719** | 0.065 |
+| **OVERALL** | | 1144 | **0.304** | **0.307** |
+
+CONCLUSION: **Two independently-trained QE systems, from different labs, on different scales, agree to within 0.3 points overall (30.4% vs 30.7%) — and are blind to the same three critical errors.** Agent/patient reversal 9%→**0%**, terminology substitution ~1% in both, negation deletion ~10% in both. That convergence is much stronger evidence than either result alone: it is not a quirk of one model's training, it is what reference-free neural QE does not measure. **The C5 deterministic ensemble is therefore load-bearing, not a stopgap**, and no amount of swapping neural QE models will fix it.
+Where they differ, MetricX is better on omission-type errors (`remove_clause` 0.333 vs 0.229, `omit_quotation` 0.405 vs 0.275) — which matters, since omission is our highest-severity failure. Combined with its apache-2.0 licence (vs COMETKiwi's CC-BY-NC-SA), **MetricX is the better choice for the shippable mode on both counts.**
+⚠️ `duplicate_sentence` 0.065 with a **negative** mean delta (−1.36) is the known truncation artifact, not a property of MetricX: **37.5% of inputs (859) exceeded the 1536-token window**, confirming the smoke's 39%. Length-increasing corruptions truncate more than their clean counterparts. D2e/D4c (structured blocks) removes this.
+CAVEATS: hadith-only slice; `alter_date`/`change_number` have n=1 each so their 0% is directional only; thresholds (0.02 vs 0.5) are scale-matched by proportion, not calibrated against human judgments — C5 checkpoint 2 must do that.
+DECISION FED: D4 (settled — existing QE cannot be the primary gate), D4b (shippable mode: MetricX, apache-2.0, better on omission), C5 (deterministic checks confirmed load-bearing), D2e/D4c (truncation confirmed at full scale).

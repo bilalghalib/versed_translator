@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T16:21:09.165725+00:00",
+  "generated_at": "2026-08-14T18:01:35.831431+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -443,6 +443,10 @@
       "name": "Baladhuri/Hitti passage alignment + human spot audit (C1)"
     },
     {
+      "id": "EXP-20260814-05",
+      "name": "MetricX-24 full detection matrix (C4) \u2014 completes EXP-20260814-02"
+    },
+    {
       "id": "EXP-20260326-01",
       "name": "Ihya register bakeoff"
     },
@@ -457,51 +461,51 @@
   ],
   "recent_commits": [
     {
-      "subject": "C1: PD references abridge \u2014 measured, tagged, and recorded as a risk",
+      "subject": "C1: human spot audit 15/15 aligned; EXP-20260814-04 recorded",
       "relative_date": "2 hours ago"
+    },
+    {
+      "subject": "C1: PD references abridge \u2014 measured, tagged, and recorded as a risk",
+      "relative_date": "3 hours ago"
     },
     {
       "subject": "D1e(d) first vertical slice: 39 aligned history passages, Baladhuri/Hitti",
-      "relative_date": "2 hours ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "Tafsir: shallow coverage accepted deliberately, no permission letter",
-      "relative_date": "3 hours ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "Tafsir sourcing investigated; D6a sent; all decisions closed",
-      "relative_date": "3 hours ago"
+      "relative_date": "4 hours ago"
     },
     {
       "subject": "PD sources verified: 2 rights failures dropped, 6 wrong editions corrected",
-      "relative_date": "3 hours ago"
+      "relative_date": "5 hours ago"
     },
     {
       "subject": "D1e DECIDED: option (d), PD passage alignment; Arabic side verified",
-      "relative_date": "3 hours ago"
+      "relative_date": "5 hours ago"
     },
     {
       "subject": "D1d + D2c decided; D1e gains option (d) \u2014 PD passage alignment",
-      "relative_date": "3 hours ago"
+      "relative_date": "5 hours ago"
     },
     {
       "subject": "C2/C3: TG12B leg, prompt mislabel correction, stale rope_scaling comment",
-      "relative_date": "5 hours ago"
+      "relative_date": "7 hours ago"
     },
     {
       "subject": "Modal ingest: committed, tested path from run_batch raw -> harness schema",
-      "relative_date": "5 hours ago"
+      "relative_date": "7 hours ago"
     },
     {
       "subject": "C4: MetricX-24 results, experiment ledger entries, D4c token-window decision",
-      "relative_date": "6 hours ago"
+      "relative_date": "7 hours ago"
     },
     {
       "subject": "MetricX-24 as a second QE backend (Apache-2.0, shippable)",
-      "relative_date": "6 hours ago"
-    },
-    {
-      "subject": "Dashboard: answerable decision cards + GitHub issues as the decision channel",
       "relative_date": "7 hours ago"
     }
   ],
@@ -512,7 +516,7 @@
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
-      "mtime": "2026-08-14T16:21:09.071500+00:00"
+      "mtime": "2026-08-14T18:01:35.607836+00:00"
     },
     {
       "name": "VERSED_TRANSLATE_MASTER_PLAN.md",

@@ -44,11 +44,15 @@ DEFAULT_MAX_TOKENS = 8000
 
 VERDICTS = ("aligned", "partial", "misaligned")
 
+DEFAULT_CONTEXT = (
+    "The Arabic is from al-Baladhuri's Futuh al-Buldan. The English is from "
+    "Philip Hitti's 1916 translation, which is literal but does abridge isnads "
+    "and occasionally omits a report."
+)
+
 PROMPT = """\
 You are auditing a candidate alignment for a Classical Arabic <-> English \
-translation benchmark. The Arabic is from al-Baladhuri's Futuh al-Buldan. The \
-English is from Philip Hitti's 1916 translation, which is literal but does \
-abridge isnads and occasionally omits a report.
+translation benchmark. {context}
 
 Judge ONLY whether the English passage is a translation of the Arabic passage.
 
@@ -134,6 +138,7 @@ def adjudicate(
     model: str = DEFAULT_MODEL,
     max_tokens: int = DEFAULT_MAX_TOKENS,
     client=None,
+    context: str = DEFAULT_CONTEXT,
 ) -> Verdict:
     """Ask the model whether `english` translates `arabic`."""
     client = client or _get_client()
@@ -144,7 +149,11 @@ def adjudicate(
             messages=[
                 {
                     "role": "user",
-                    "content": PROMPT.format(arabic=arabic, english=english),
+                    "content": PROMPT.format(
+                        context=context,
+                        arabic=arabic,
+                        english=english,
+                    ),
                 }
             ],
         )

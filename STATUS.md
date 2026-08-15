@@ -35,23 +35,24 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 - **Miskawayh year-anchor + mandatory adjudication works, at a 20% aligned yield.** 504 proposals, 120 year-spread judged, 24 selected (15/9 across the two bands). 70% came back `partial` — the running-head page lag, caught. Driver: `python -m versed_translator.benchmark.miskawayh_alignment`. Shipping page exists. History is over the 40% cap; do not mine this source further. EXP-20260815-02.
 - **Hariri maqama-anchor works, at a 50% aligned yield.** 50/50 sequence-paired, 132 proposals, 103 judged, **37 selected** (17 in 100–250, 20 in 250–600, 26 maqamat). 51 aligned / 52 partial / 0 misaligned / 0 errors. Driver: `python -m versed_translator.benchmark.hariri_alignment`. The all-50 scan still carries Chenery/Steingass synopses; the extractor drops them. Adab/maqama is no longer empty. EXP-20260815-03.
 - **Ibn Rushd treatise-anchor does not fill kalam/falsafa.** OpenITI `FaslMaqal` is Fasl+Damima only; Gutenberg Kashf has no Arabic and was left unpaired. 25 proposals, 22 judged, **2 aligned / 20 partial / 0 misaligned**. Interior length cuts smear (Ockley-family). Driver is wired; take is not a genre slice. Do not run another length pass — embeddings if this source is retried, else leave it. EXP-20260815-05.
+- **Opus blind re-audit of the 61 shipping pairs is in.** `claude-opus-5`, blind to the Sonnet `aligned` that selected them. Miskawayh **7 aligned / 17 partial** (the empty `end_turn` pair retried at 16k tokens → partial). Hariri **32 aligned / 3 partial / 2 unparseable** (Opus continued Chenery saj' instead of JSON; higher tokens and a JSON-only nudge did not fix it; Opus 5 rejects assistant prefill). **0 misaligned** among parseable replies. Only Opus `aligned` joins the 81: **+39 → 120**. Eval file: `~/versed-translator-data/benchmark-data/v0.1-draft/matched_prompt_eval_120.jsonl`. EXP-20260815-06.
 - **Sources are not the constraint.** Catalog sweep found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10. **Usama/Hitti and Biruni/Sachau are staged** (`~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`). Usama is structurally cuttable (3 abwāb ↔ SECTION I–III, `[N]` ↔ `PageV01PNNN` on the same pagination) but OpenITI `021.BookSUBJ` is **التاريخ** (already over cap) and Hitti is **1929** (US PD via 95-year term as of 2025, not `PD_US_PRE_1930_PUBLICATION`; EU life+70 evidence to 2049 — record only). Biruni science is empty-genre but **not cut-ready**: English `p.N.` is Sachau 1878 Leipzig, PRIMARY Arabic is uncorrected OCR of a 2001 Tehran print. Do not pair those numbers.
 
 ## What is running
 
-- Nothing. Usama/Biruni recon finished (off-repo note `~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`). Ibn Rushd and MetricX readout are in.
+- Nothing. Opus re-audit of the 61 finished (EXP-20260815-06). Eval JSONL for the bakeoff is assembled off-repo.
 
 ## Next 3 things
 
-1. **You: shipping reviews (20–30 min).** Miskawayh `review_shipping.html` (spot-check 10–15 of 24; take is the 9 long-band). Hariri `review_shipping.html` (spot-check 10–15 of 37). Never `review.html`. That turns 61 pending into trusted long-band + maqama, which the hadith-only bakeoff never saw.
-2. **Soft-freeze and run matched-prompt TG12B vs TG27B.** Do not wait for 300–500 or for kalam/science. Run on **81 trusted + whatever of those 61 passes review**, same blocks, same prompt (`modal_minimal_v1` or the fidelity prompt — pick one and *record the literal*), same decoding, same hardware. Oversample Hariri verse/saj', Miskawayh 250–600, and the error types QE is blind to. Then **one real book**. Palmer Qur'an (scripture, sura anchors) can land in parallel as a cheap extra genre; it does not gate Modal.
-3. **Fine-tune only after the book, on v1.0.** v0.1 answers “12B or 27B?” and “does the factory path work?” It is not a training set. Do not delay the book to hunt Usama/Biruni/Ibn Rushd walls.
+1. **Matched-prompt TG12B vs TG27B** on the 120 (`matched_prompt_eval_120.jsonl`). Same prompt literal recorded (`modal_minimal_v1` vs fidelity — pick one, don't mislabel `v1`). Then one real book.
+2. Fine-tune / Isnād A/B/C after the book.
+3. Palmer Qur'an extractor is optional and does not gate Modal.
 
 ## 🛑 STOP CONDITION FOR BENCHMARK WORK
 
 **Two bars, on purpose:**
 
-- **D2a / Modal gate (now):** contamination-clean PD refs, both length bands, ≥5 materially different registers, honest documented gaps. That is **already true** of the 81 (hadith + history + biography + philosophy + poetry) and becomes strong once Hariri/Miskawayh pass review. **Proceed to matched-prompt.** The original 300–500 / 6–10 / no-genre-40% line is an **accretion ceiling** — stop adding when we hit it, do not wait for it when sources bounce.
+- **D2a / Modal gate (now):** contamination-clean PD refs, both length bands, ≥5 materially different registers, honest documented gaps. That is **already true** of the 81 (hadith + history + biography + philosophy + poetry) and is stronger with Hariri's 32 Opus-aligned maqamat. Miskawayh adds only 7 long-history survivors — do not treat the original 24 as trusted. **Proceed to matched-prompt.** The original 300–500 / 6–10 / no-genre-40% line is an **accretion ceiling** — stop adding when we hit it, do not wait for it when sources bounce.
 - **v1.0 / fine-tune claims:** 2,000–5,000 items, 10+ genres × 4 bands × 5+ centuries, private holdout, SHA manifest, contamination CI. Required before serious FT claims, not before the bakeoff or the pilot book.
 
 v0.1 still needs rights/provenance metadata and **contamination-clean references** (fresh PD alignments, never ATHAR/rasaif). Those do not relax.
@@ -78,6 +79,7 @@ The one standing ask, when the small benchmark exists: **label passages** "would
 - PDF rendering needs Homebrew's GTK stack: `DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib GI_TYPELIB_PATH=/opt/homebrew/lib/girepository-1.0 ~/mambaforge/bin/python`. Verify Arabic output **visually** — PyMuPDF `get_text()` returns visual order for RTL, so broken and correct look alike.
 - **`review.html` is triage, not the benchmark** — all proposals, worst-first, rejects included. Reading it as the shipped set has caused a false "alignment is broken" alarm **twice** (Baladhuri, then 2026-08-15). Humans review `review_shipping.html` (selected-only, best-first); every source must generate both.
 - **Model tier ∝ blast radius, not text difficulty.** Volume work (OCR cleanup, tagging, dedup) → cheap models in parallel; propagating decisions (rights calls, adjudication verdicts, benchmark verification) → top tier with thinking budget. Nothing below top tier writes a rights determination.
+- **Rhymed PD English can make Opus complete the translation instead of judging.** Two Hariri openings (`m02-a000_001`, `m48-a000_003`) dumped Chenery saj' three times; 16k tokens and a JSON-only nudge did not help; Opus 5 rejects assistant prefill. Unparseable stays out — never default to `aligned`. Do not retry those ids.
 
 ## On pause — resuming from Cursor or any other tool (2026-08-15)
 
@@ -88,6 +90,7 @@ Claude Code usage limits paused mid-sprint; Cursor landed Miskawayh then Hariri.
 - Hariri extractor/driver + 37-passage shipping slice (EXP-20260815-03).
 - MetricX block-level matrix readout (EXP-20260815-04).
 - Usama/Hitti + Biruni/Sachau staged; recon at `~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`. **Do not cut Usama until the memoir-vs-history call; do not pair Biruni `p.N.` to OpenITI PageV.**
+- Opus re-audit of 61 shipping pairs (EXP-20260815-06): **39 survivors**, eval `matched_prompt_eval_120.jsonl`. Do not redo; do not retry the two Hariri saj' dumps.
 
 **Safe anywhere, no credentials (`uv run`):**
 - Spot-check shipping pages; regenerate dashboard (`make -f tools/dashboard.mk dashboard`).
@@ -95,11 +98,10 @@ Claude Code usage limits paused mid-sprint; Cursor landed Miskawayh then Hariri.
 - If Ibn Rushd is retried, embeddings not another length pass.
 
 **Needs credentials (on this Mac, never in the repo):**
-- Bilal's eyes on 10–15 Miskawayh and 10–15 Hariri shipping pairs.
-- Matched-prompt TG12B-vs-27B — `~/.modal.toml`. **Unblocked.** Record the prompt literal. Oversample long/Hariri. Do not wait for 300–500.
+- Matched-prompt TG12B-vs-27B — `~/.modal.toml`. **Unblocked.** Input is `~/versed-translator-data/benchmark-data/v0.1-draft/matched_prompt_eval_120.jsonl`. Record the prompt literal. Oversample long/Hariri. Do not wait for 300–500.
 - `gh`, `ssh nautilus`.
 
-**While on pause, do NOT:** pretend v0.1 is v1.0; write a rights determination without evidence; review from `review.html`; start fine-tuning; use ATHAR as gold; mine more history/adab; another Ibn Rushd length pass; cut Biruni PRIMARY against Sachau `p.N.`; start Usama as silent extra history; delay Modal to hunt kalam.
+**While on pause, do NOT:** pretend v0.1 is v1.0; write a rights determination without evidence; review from `review.html`; start fine-tuning; use ATHAR as gold; mine more history/adab; another Ibn Rushd length pass; cut Biruni PRIMARY against Sachau `p.N.`; start Usama as silent extra history; delay Modal to hunt kalam; treat Sonnet-only Miskawayh as trusted; retry Hariri `m02-a000_001` / `m48-a000_003`.
 
 ## Evidence
 

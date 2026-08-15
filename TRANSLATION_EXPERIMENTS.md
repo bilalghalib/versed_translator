@@ -253,3 +253,22 @@ RESULTS: OpenITI witness is **Fasl + Damima only**; English Kashf (~39k words) u
 CONCLUSION: **Treatise pairing is real; interior length cuts are not, and this does not fill kalam/falsafa.** 9% aligned is below even Miskawayh's 20%. **Do not run another length pass.** Retry only with embeddings, or leave the source and cut Usama/Biruni instead. Kashf stays unpaired until an Arabic witness exists.
 CAVEATS: n=22 is the whole eligible pool, not a sample; human review of 2 pairs is optional and does not make a genre; catalog "partial" OpenITI flag was correct.
 DECISION FED: C1 (kalam still empty; length heuristic limit confirmed), freeze-bar genre coverage (next actionable empty genres: memoir, science).
+
+## EXP-20260815-06 — Blind Opus re-audit of Miskawayh + Hariri shipping pairs
+
+HYPOTHESIS: The Sonnet `aligned` that selected 24 Miskawayh and 37 Hariri pairs will not all survive a different model that never sees that verdict. Survivors join the standing 81 for the matched-prompt bakeoff; partials and failures stay out.
+SETUP: `python -m versed_translator.benchmark.reaudit_shipping`, model `claude-opus-5` (selecting adjudicator was `claude-sonnet-5`). Blind: prompt carries no first verdict. Cache `reaudit_verdicts.json` per source dir; output `reaudit.jsonl`. One Miskawayh empty reply (`ah365-a016_021`, `stop_reason=end_turn`) retried at `max_tokens=16000` → `partial`. Two Hariri JSON dumps (`m02-a000_001`, `m48-a000_003`) retried at 16k and with a JSON-only nudge; both still continued Chenery saj'. Opus 5 rejects assistant-message prefill (`conversation must end with a user message`).
+COST: 61 + 3 retry + 2 failed-prefill + 2 JSON-nudge Opus 5 calls. Replayable from the caches.
+RESULTS:
+
+| source | n | aligned | partial | unparseable | misaligned |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| miskawayh_eclipse | 24 | 7 | 17 | 0 | 0 |
+| hariri_assemblies | 37 | 32 | 3 | 2 | 0 |
+| **total** | **61** | **39** | **20** | **2** | **0** |
+
+Bands among Opus `aligned`: Miskawayh 4 short / 3 long; Hariri 14 short / 18 long. Unparseable ids stay out: `hariri_assemblies:m02-a000_001`, `hariri_assemblies:m48-a000_003`.
+Bakeoff set: standing 81 + 39 survivors = **120**. File `~/versed-translator-data/benchmark-data/v0.1-draft/matched_prompt_eval_120.jsonl` (manifest beside it). Ibn Rushd's 2 selected pairs are not in this eval.
+CONCLUSION: **Hariri mostly holds; Miskawayh mostly does not.** Sonnet's 24 Miskawayh `aligned` collapsed to 7 under Opus — the running-head lag the extractor warned about, now as a second-model finding, not only as a 70% first-pass partial rate. Hariri's maqama anchor survived (86% of parseable pairs aligned). The two saj' dumps are a model-behaviour failure, not a silent default to aligned. **Do not ship Sonnet-only Miskawayh. Do not retry those two Hariri ids. Proceed to matched-prompt on the 120.**
+CAVEATS: not a human audit (Bilal waived shipping-page review; this pass is the substitute); unparseable ≠ misaligned and is not counted as aligned; CONTEXT gained a JSON-only sentence after the first 58 successes (cached, not re-judged); Miskawayh `ah365` used a 16k budget on retry.
+DECISION FED: D2a (bakeoff set is 120, not 81+61), C1 (adab/maqama filled by 32 trusted Hariri; extra Miskawayh history is only +7).

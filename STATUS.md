@@ -43,27 +43,22 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 
 ## Next 3 things
 
-1. **Human-review the two pending shipping pages, then leave those sources.** Miskawayh: `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html` (24 pairs; take is the 9 long-band). Hariri: `~/versed-translator-data/benchmark-alignment/hariri_assemblies/review_shipping.html` (37 pairs; spot-check 10–15). Ibn Rushd's 2 aligned pairs exist at `ibn_rushd_rehman/review_shipping.html` but **do not fill kalam**. **Do not run another Miskawayh, Hariri, or Ibn Rushd length round; skip Suyuti** — history over cap, adab filled, kalam pairing exhausted. Never review from `review.html`.
-2. **Keep filling the freeze bar before the bakeoff.** Standing is **81 trusted + 24 Miskawayh pending + 37 Hariri pending**. Need 300–500 trusted and 6–10 genres. **Do not start Usama until the memoir-vs-التاريخ call below is answered.** Do not cut Biruni PRIMARY against Sachau `p.N.` (wrong edition). Next empty genres that are not history/adab: scripture (Palmer Qur'an, strong sura anchors) or a different kalam witness. Then freeze.
-3. **Matched-prompt TG12B vs TG27B** on exactly the frozen set, then **one real book**. Do not start Modal until freeze.
-
----
+1. **You: shipping reviews (20–30 min).** Miskawayh `review_shipping.html` (spot-check 10–15 of 24; take is the 9 long-band). Hariri `review_shipping.html` (spot-check 10–15 of 37). Never `review.html`. That turns 61 pending into trusted long-band + maqama, which the hadith-only bakeoff never saw.
+2. **Soft-freeze and run matched-prompt TG12B vs TG27B.** Do not wait for 300–500 or for kalam/science. Run on **81 trusted + whatever of those 61 passes review**, same blocks, same prompt (`modal_minimal_v1` or the fidelity prompt — pick one and *record the literal*), same decoding, same hardware. Oversample Hariri verse/saj', Miskawayh 250–600, and the error types QE is blind to. Then **one real book**. Palmer Qur'an (scripture, sura anchors) can land in parallel as a cheap extra genre; it does not gate Modal.
+3. **Fine-tune only after the book, on v1.0.** v0.1 answers “12B or 27B?” and “does the factory path work?” It is not a training set. Do not delay the book to hunt Usama/Biruni/Ibn Rushd walls.
 
 ## 🛑 STOP CONDITION FOR BENCHMARK WORK
 
-**v0.1 is done — freeze immediately and proceed to the matched-prompt comparison — when it has:**
+**Two bars, on purpose:**
 
-- **300–500 trusted passages**
-- **6–10 materially different genres**, and **no single genre >40%** (without this check, "genre-diverse" can still quietly mean "mostly hadith")
-- **meaningful representation of both the 100–250 and 250–600 word bands**
-- enough **rights/provenance metadata** for internal evaluation
-- **contamination-clean references**: every gold pair freshly aligned by us from PD editions (mid-scan passages that mostly don't exist online in aligned form) — never copied from ATHAR/rasaif rows, which are plausibly in TranslateGemma's training soup and would flatter the base model
+- **D2a / Modal gate (now):** contamination-clean PD refs, both length bands, ≥5 materially different registers, honest documented gaps. That is **already true** of the 81 (hadith + history + biography + philosophy + poetry) and becomes strong once Hariri/Miskawayh pass review. **Proceed to matched-prompt.** The original 300–500 / 6–10 / no-genre-40% line is an **accretion ceiling** — stop adding when we hit it, do not wait for it when sources bounce.
+- **v1.0 / fine-tune claims:** 2,000–5,000 items, 10+ genres × 4 bands × 5+ centuries, private holdout, SHA manifest, contamination CI. Required before serious FT claims, not before the bakeoff or the pilot book.
 
-That is the whole bar. It exists to stop v0.1 expanding back into the 2,000-item project by accretion. The publication-grade set (2,000–5,000 items, 10+ genres × 4 bands × 5+ centuries, private holdout, SHA manifest, contamination CI) is **v1.0**, required before serious fine-tuning claims — not before useful experiments.
+v0.1 still needs rights/provenance metadata and **contamination-clean references** (fresh PD alignments, never ATHAR/rasaif). Those do not relax.
 
 ## Human decisions needed
 
-**One standing, not yet a GitHub issue:** treat Usama/Hitti as **memoir** (first-person *I'tibar*, empty catalog genre, structurally ready) despite OpenITI `021.BookSUBJ = التاريخ`, which is already over the 40% cap? Schema forbids inferring genre from the title. A yes also needs a rights *label* for a 1929 US publication (PD in the US since 2025; not pre-1930); nothing below Opus writes `rights_status`. A no means skip Usama and cut a non-history empty genre (Palmer Qur'an / scripture is the ranked next with real anchors).
+**Default no on Usama** unless you explicitly want a small dual-labelled memoir slice. Skip it: OpenITI says التاريخ (over cap) and 1929 is not pre-1930. Palmer or the bakeoff instead.
 
 `gh issue list --label decision` is otherwise empty; all six from 2026-08-14 are answered and closed.
 
@@ -96,17 +91,15 @@ Claude Code usage limits paused mid-sprint; Cursor landed Miskawayh then Hariri.
 
 **Safe anywhere, no credentials (`uv run`):**
 - Spot-check shipping pages; regenerate dashboard (`make -f tools/dashboard.mk dashboard`).
-- If the Usama call is **yes**: extractor with abwāb↔SECTION + `[N]`↔PageV, macron-collapse on names, assemble Arabic long-band, new rights label only after Opus writes it. If **no**: Palmer Qur'an (scripture, sura/verse headers).
+- Palmer Qur'an extractor (scripture, sura/verse headers) — cheap extra genre, does not gate Modal.
 - If Ibn Rushd is retried, embeddings not another length pass.
 
 **Needs credentials (on this Mac, never in the repo):**
-- Bilal's eyes on 10–15 Miskawayh shipping pairs **and** 10–15 Hariri shipping pairs. A proposal is not a passage; an `aligned` verdict is not a human audit.
-- The Usama memoir-vs-التاريخ + 1929 rights-label call (above).
-- Further LLM adjudication (`ANTHROPIC_API_KEY`) — **not for more Miskawayh, Hariri, or Ibn Rushd length cuts**.
-- Modal runs (matched-prompt TG12B-vs-27B) — `~/.modal.toml`. **Do not start until the set is frozen.**
-- `gh` (decisions live as issues), `ssh nautilus` (OpenITI corpus reads).
+- Bilal's eyes on 10–15 Miskawayh and 10–15 Hariri shipping pairs.
+- Matched-prompt TG12B-vs-27B — `~/.modal.toml`. **Unblocked.** Record the prompt literal. Oversample long/Hariri. Do not wait for 300–500.
+- `gh`, `ssh nautilus`.
 
-**While on pause, do NOT:** freeze below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html`; start the bakeoff early; re-derive ledger facts; run another Miskawayh/Hariri `--adjudicate`; start Suyuti (history) or Payne/Tanukhi (more adab); run another Ibn Rushd length pass; cut Biruni PRIMARY against Sachau page numbers; start Usama as silent extra history.
+**While on pause, do NOT:** pretend v0.1 is v1.0; write a rights determination without evidence; review from `review.html`; start fine-tuning; use ATHAR as gold; mine more history/adab; another Ibn Rushd length pass; cut Biruni PRIMARY against Sachau `p.N.`; start Usama as silent extra history; delay Modal to hunt kalam.
 
 ## Evidence
 

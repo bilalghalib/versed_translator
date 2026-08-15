@@ -35,16 +35,16 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 - **Miskawayh year-anchor + mandatory adjudication works, at a 20% aligned yield.** 504 proposals, 120 year-spread judged, 24 selected (15/9 across the two bands). 70% came back `partial` — the running-head page lag, caught. Driver: `python -m versed_translator.benchmark.miskawayh_alignment`. Shipping page exists. History is over the 40% cap; do not mine this source further. EXP-20260815-02.
 - **Hariri maqama-anchor works, at a 50% aligned yield.** 50/50 sequence-paired, 132 proposals, 103 judged, **37 selected** (17 in 100–250, 20 in 250–600, 26 maqamat). 51 aligned / 52 partial / 0 misaligned / 0 errors. Driver: `python -m versed_translator.benchmark.hariri_alignment`. The all-50 scan still carries Chenery/Steingass synopses; the extractor drops them. Adab/maqama is no longer empty. EXP-20260815-03.
 - **Ibn Rushd treatise-anchor does not fill kalam/falsafa.** OpenITI `FaslMaqal` is Fasl+Damima only; Gutenberg Kashf has no Arabic and was left unpaired. 25 proposals, 22 judged, **2 aligned / 20 partial / 0 misaligned**. Interior length cuts smear (Ockley-family). Driver is wired; take is not a genre slice. Do not run another length pass — embeddings if this source is retried, else leave it. EXP-20260815-05.
-- **Sources are not the constraint.** Catalog sweep found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10. Miskawayh and Sachau's Biruni print Arabic page numbers inline. Kalam/falsafa is still empty (this pairing exhausted). Next *actionable* empty genres: **memoir (Usama/Hitti 1929)** and **science/chronology (Biruni/Sachau 1879)**, not more adab or history.
+- **Sources are not the constraint.** Catalog sweep found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10. **Usama/Hitti and Biruni/Sachau are staged** (`~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`). Usama is structurally cuttable (3 abwāb ↔ SECTION I–III, `[N]` ↔ `PageV01PNNN` on the same pagination) but OpenITI `021.BookSUBJ` is **التاريخ** (already over cap) and Hitti is **1929** (US PD via 95-year term as of 2025, not `PD_US_PRE_1930_PUBLICATION`; EU life+70 evidence to 2049 — record only). Biruni science is empty-genre but **not cut-ready**: English `p.N.` is Sachau 1878 Leipzig, PRIMARY Arabic is uncorrected OCR of a 2001 Tehran print. Do not pair those numbers.
 
 ## What is running
 
-- Usama/Biruni staging still running. Ibn Rushd extract+adjudicate finished (sentinel `~/versed-translator-data/benchmark-alignment/ibn_rushd_rehman/done-adjudicate` = 0). MetricX blocks readout is in the ledger (EXP-20260815-04).
+- Nothing. Usama/Biruni recon finished (off-repo note `~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`). Ibn Rushd and MetricX readout are in.
 
 ## Next 3 things
 
 1. **Human-review the two pending shipping pages, then leave those sources.** Miskawayh: `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html` (24 pairs; take is the 9 long-band). Hariri: `~/versed-translator-data/benchmark-alignment/hariri_assemblies/review_shipping.html` (37 pairs; spot-check 10–15). Ibn Rushd's 2 aligned pairs exist at `ibn_rushd_rehman/review_shipping.html` but **do not fill kalam**. **Do not run another Miskawayh, Hariri, or Ibn Rushd length round; skip Suyuti** — history over cap, adab filled, kalam pairing exhausted. Never review from `review.html`.
-2. **Keep filling the freeze bar before the bakeoff.** Standing is **81 trusted + 24 Miskawayh pending + 37 Hariri pending** (Ibn Rushd's 2 do not count as a genre). Need 300–500 trusted and 6–10 genres. Next actionable empty genres: **Usama/Hitti memoir** and **Biruni/Sachau science** (staging in flight). Then freeze.
+2. **Keep filling the freeze bar before the bakeoff.** Standing is **81 trusted + 24 Miskawayh pending + 37 Hariri pending**. Need 300–500 trusted and 6–10 genres. **Do not start Usama until the memoir-vs-التاريخ call below is answered.** Do not cut Biruni PRIMARY against Sachau `p.N.` (wrong edition). Next empty genres that are not history/adab: scripture (Palmer Qur'an, strong sura anchors) or a different kalam witness. Then freeze.
 3. **Matched-prompt TG12B vs TG27B** on exactly the frozen set, then **one real book**. Do not start Modal until freeze.
 
 ---
@@ -63,7 +63,9 @@ That is the whole bar. It exists to stop v0.1 expanding back into the 2,000-item
 
 ## Human decisions needed
 
-**None open.** `gh issue list --label decision` is the live check; all six from 2026-08-14 are answered and closed.
+**One standing, not yet a GitHub issue:** treat Usama/Hitti as **memoir** (first-person *I'tibar*, empty catalog genre, structurally ready) despite OpenITI `021.BookSUBJ = التاريخ`, which is already over the 40% cap? Schema forbids inferring genre from the title. A yes also needs a rights *label* for a 1929 US publication (PD in the US since 2025; not pre-1930); nothing below Opus writes `rights_status`. A no means skip Usama and cut a non-history empty genre (Palmer Qur'an / scripture is the ranked next with real anchors).
+
+`gh issue list --label decision` is otherwise empty; all six from 2026-08-14 are answered and closed.
 
 The one standing ask, when the small benchmark exists: **label passages** "would a competent bilingual editor find a substantive error?"
 
@@ -90,20 +92,21 @@ Claude Code usage limits paused mid-sprint; Cursor landed Miskawayh then Hariri.
 - Miskawayh driver + 24-passage shipping slice (EXP-20260815-02).
 - Hariri extractor/driver + 37-passage shipping slice (EXP-20260815-03).
 - MetricX block-level matrix readout (EXP-20260815-04).
-- Ibn Rushd driver: Fasl+Damima only, Kashf unpaired, **2 aligned / 20 partial** — does not fill kalam (EXP-20260815-05). Do not another length pass.
+- Usama/Hitti + Biruni/Sachau staged; recon at `~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`. **Do not cut Usama until the memoir-vs-history call; do not pair Biruni `p.N.` to OpenITI PageV.**
 
 **Safe anywhere, no credentials (`uv run`):**
 - Spot-check shipping pages; regenerate dashboard (`make -f tools/dashboard.mk dashboard`).
-- After Usama/Biruni recon lands: start **Usama/Hitti memoir** or **Biruni/Sachau science** extractors. Biruni has fused page-number anchors (`p.216.`).
-- If Ibn Rushd is retried, trial embedding candidates (SONAR/LaBSE + vecalign-style DP) — length-only failed here the same way it failed Ockley (7/53). Not a reason to touch working extractors.
+- If the Usama call is **yes**: extractor with abwāb↔SECTION + `[N]`↔PageV, macron-collapse on names, assemble Arabic long-band, new rights label only after Opus writes it. If **no**: Palmer Qur'an (scripture, sura/verse headers).
+- If Ibn Rushd is retried, embeddings not another length pass.
 
 **Needs credentials (on this Mac, never in the repo):**
 - Bilal's eyes on 10–15 Miskawayh shipping pairs **and** 10–15 Hariri shipping pairs. A proposal is not a passage; an `aligned` verdict is not a human audit.
+- The Usama memoir-vs-التاريخ + 1929 rights-label call (above).
 - Further LLM adjudication (`ANTHROPIC_API_KEY`) — **not for more Miskawayh, Hariri, or Ibn Rushd length cuts**.
 - Modal runs (matched-prompt TG12B-vs-27B) — `~/.modal.toml`. **Do not start until the set is frozen.**
 - `gh` (decisions live as issues), `ssh nautilus` (OpenITI corpus reads).
 
-**While on pause, do NOT:** freeze the benchmark below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html` (see traps); start the bakeoff early; re-derive anything already in the ledger; run another Miskawayh/Hariri `--adjudicate` round; start Suyuti (history) or Payne/Tanukhi (more adab); run another Ibn Rushd length pass.
+**While on pause, do NOT:** freeze below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html`; start the bakeoff early; re-derive ledger facts; run another Miskawayh/Hariri `--adjudicate`; start Suyuti (history) or Payne/Tanukhi (more adab); run another Ibn Rushd length pass; cut Biruni PRIMARY against Sachau page numbers; start Usama as silent extra history.
 
 ## Evidence
 

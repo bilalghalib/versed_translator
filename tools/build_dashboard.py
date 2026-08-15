@@ -26,7 +26,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROADMAP_PATH = REPO_ROOT / "VERSED_TRANSLATION_ROADMAP.md"
 EXPERIMENTS_PATH = REPO_ROOT / "TRANSLATION_EXPERIMENTS.md"
-DECISIONS_PATH = REPO_ROOT / "decisions" / "decisions.json"
+STATUS_PATH = REPO_ROOT / "STATUS.md"
 DASHBOARD_DIR = REPO_ROOT / "docs"  # served by GitHub Pages (main:/docs)
 
 ROOT_DOCS = [
@@ -309,29 +309,38 @@ def get_recent_commits(n: int, gaps: list[str]) -> list[dict[str, str]]:
 
 
 def load_decision_briefs(gaps: list[str]) -> list[dict]:
-    """Load decisions/decisions.json — the rich briefs Bilal actually answers from.
+    """Open decisions, read from GitHub issues — the canonical decision record.
 
-    Tolerant like everything else here: a missing or malformed file degrades to
-    an empty brief list plus a gap note, so the dashboard still builds.
+    `decisions/decisions.json` was deleted 2026-08-15: maintaining a second
+    decision store by hand alongside the issues was a synchronization tax with
+    no benefit. Issues are where the decision is actually discussed and
+    answered, so they are the source of truth and this is a read-only view.
+
+    Degrades to an empty list plus a gap note when `gh` is unavailable or
+    offline — the dashboard must still build without network.
     """
     try:
-        raw = json.loads(DECISIONS_PATH.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        gaps.append(f"No decision briefs file at {DECISIONS_PATH} — decision cards omitted.")
+        proc = subprocess.run(
+            ["gh", "issue", "list", "--label", "decision", "--state", "open",
+             "--json", "number,title,url", "--limit", "50"],
+            capture_output=True, text=True, timeout=20, cwd=REPO_ROOT, check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        gaps.append(f"Could not query GitHub issues for decisions: {exc}")
         return []
-    except (OSError, json.JSONDecodeError) as exc:
-        gaps.append(f"Could not parse {DECISIONS_PATH.name}: {exc}")
+    if proc.returncode != 0:
+        gaps.append(f"gh issue list failed: {(proc.stderr or '').strip()[:120]}")
         return []
-
-    briefs = raw.get("decisions", [])
-    if not isinstance(briefs, list):
-        gaps.append("decisions.json: 'decisions' is not a list; decision cards omitted.")
+    try:
+        rows = json.loads(proc.stdout or "[]")
+    except json.JSONDecodeError as exc:
+        gaps.append(f"Could not parse gh issue list output: {exc}")
         return []
-    for b in briefs:
-        missing = [k for k in ("id", "title", "status", "options") if k not in b]
-        if missing:
-            gaps.append(f"decision brief {b.get('id', '?')}: missing keys {missing}")
-    return briefs
+    return [
+        {"id": f"#{r['number']}", "title": r.get("title", ""),
+         "issue": r.get("number"), "url": r.get("url", ""), "status": "open"}
+        for r in rows
+    ]
 
 
 def get_doc_mtimes(gaps: list[str]) -> list[dict[str, str]]:
@@ -445,77 +454,23 @@ def render_component_cards(components: list[dict]) -> str:
 
 
 def render_decision_briefs(briefs: list[dict]) -> str:
-    """Render open decisions as self-contained, answerable cards.
-
-    Each card carries everything needed to decide without opening the roadmap:
-    what is blocked, the measured evidence, the options with their costs, and a
-    recommendation. The answer link goes to the decision's GitHub issue when one
-    exists (issues are the durable channel agents read back).
-    """
-    open_briefs = [b for b in briefs if b.get("status") == "open"]
-    if not open_briefs:
-        return (
-            '<p class="empty-note">No open decisions — nothing is waiting on you. '
-            "Answered decisions are recorded in <code>decisions/decisions.json</code>.</p>"
-        )
-
+    """Open decisions as links to their GitHub issues (the canonical record)."""
+    if not briefs:
+        return ('<p class="empty-note">No open decisions &mdash; nothing is waiting on you. '
+                'Full history: <code>gh issue list --label decision --state all</code>.</p>')
     cards = []
-    for b in open_briefs:
-        evidence = "".join(f"<li>{esc(e)}</li>" for e in b.get("evidence", []))
-        evidence_html = (
-            f'<div class="brief-label">What we measured</div><ul class="brief-evidence">{evidence}</ul>'
-            if evidence else ""
-        )
-
-        opts = []
-        for o in b.get("options", []):
-            rec = o.get("recommended")
-            badge = '<span class="chip chip-green rec-chip">recommended</span>' if rec else ""
-            opts.append(f"""
-          <li class="opt{' opt-rec' if rec else ''}">
-            <div class="opt-head"><span class="opt-key">{esc(o.get('key', '?'))}</span>
-              <span class="opt-label">{esc(o.get('label', ''))}</span>{badge}</div>
-            <div class="opt-detail">{esc(o.get('detail', ''))}</div>
-          </li>""")
-        opts_html = f'<div class="brief-label">Options</div><ul class="brief-opts">{"".join(opts)}</ul>'
-
-        issue = b.get("issue")
-        if issue:
-            answer_html = (
-                f'<a class="answer-btn" href="{esc(REPO_URL)}/issues/{esc(issue)}">'
-                f"Answer this &rarr;</a>"
-                f'<span class="answer-note">Opens issue #{esc(issue)} — reply there and '
-                f"the next session picks it up.</span>"
-            )
-        else:
-            answer_html = (
-                '<span class="answer-note">No issue filed yet — answer here in chat, '
-                "or ask for an issue to be opened.</span>"
-            )
-
-        rec_html = (
-            f'<div class="brief-rec"><span class="brief-label-inline">Recommendation</span> '
-            f'{esc(b.get("recommendation", ""))}</div>'
-            if b.get("recommendation") else ""
-        )
-
+    for b in briefs:
         cards.append(f"""
       <div class="brief">
         <div class="brief-head">
-          <span class="brief-id">{esc(b.get('id', '?'))}</span>
+          <span class="brief-id">{esc(b.get('id', ''))}</span>
           <span class="chip chip-red">needs you</span>
-          <span class="brief-comp">{esc(b.get('component', ''))}</span>
         </div>
         <div class="brief-title">{esc(b.get('title', ''))}</div>
-        <div class="brief-q">{esc(b.get('question', ''))}</div>
-        <div class="brief-blocks"><span class="brief-label-inline">Blocks</span>
-          {esc(b.get('blocks', ''))}</div>
-        <div class="brief-why"><span class="brief-label-inline">Why now</span>
-          {esc(b.get('why_now', ''))}</div>
-        {evidence_html}
-        {opts_html}
-        {rec_html}
-        <div class="brief-answer">{answer_html}</div>
+        <div class="brief-answer">
+          <a class="answer-btn" href="{esc(b.get('url', ''))}">Answer this &rarr;</a>
+          <span class="answer-note">Evidence, options and recommendation are in the issue.</span>
+        </div>
       </div>""")
     return f'<div class="brief-list">{"".join(cards)}</div>'
 

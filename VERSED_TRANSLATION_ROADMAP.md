@@ -1,56 +1,20 @@
 # VERSED_TRANSLATION_ROADMAP.md
 
-**Living document.** Master destination: `VERSED_TRANSLATE_MASTER_PLAN.md`. Current-state grounding: `VERSED_TRANSLATION_ARCHITECTURE.md`. Experiment ledger: `TRANSLATION_EXPERIMENTS.md`.
-**Last updated:** 2026-08-14
+**Component contracts only. This is NOT the handoff and NOT a status board.**
 
----
+→ **Start at `STATUS.md`.** It carries current state, what's running, next steps, and open decisions.
+→ **Numbers live in `TRANSLATION_EXPERIMENTS.md`**, with their caveats attached. Results were being written in both places; the ledger is canonical.
+→ **Decisions are GitHub issues** labelled `decision` (`gh issue list --label decision --state all`). `decisions.json` was deleted 2026-08-15 — maintaining two decision stores by hand was a synchronization tax with no benefit.
 
-# START HERE (fresh session orientation)
+What this file is for: each component C0–C12 has an **END STATE** written to be verifiable — a concrete condition plus a `Verify:` check — so an agent can tell when it is actually done. That is the part worth keeping.
 
-Read this block, then §Component end states for whatever you pick up. Everything below is measured, not planned — treat any number without a date as unverified.
-
-**Bilal does not read this file.** Open decisions live as answerable cards at the top of the dashboard (**https://bilalghalib.github.io/versed_translator/**), backed by `decisions/decisions.json` and one GitHub issue each (label `decision`). Agents: run `gh issue list --label decision` at session start — an answered issue is an instruction. When one is answered, set `status`/`decided` in `decisions/decisions.json`, close the issue, and reflect the outcome here in the same commit. Never invent an answer for an open decision, and never route a new [HUMAN] decision through this doc alone — add a brief so it shows up where he'll see it.
-
-**Where we actually are (2026-08-14).** Master-plan execution steps 0–7 are underway *in the prescribed order*. The machinery works end to end: benchmark assembly → harness → GPU serving → QE study. What is thin is **depth at each step**, not sequence.
-
-**⚠️ The one thing to fix before trusting any result: the benchmark is 99.6% hadith** (1,107 of 1,111 draft_test items are LK Hadith; ATHAR contributes 4; zero tafsir, philosophy, adab, history, poetry). Every headline number below was measured on that single genre. Hadith is unusually formulaic (isnad chains, fixed openings), so **none of these results can be assumed to generalize.**
-
-**⚠️ Correction (2026-08-14 drift review): genre diversification is NOT a sampling fix, and ATHAR cannot supply it as-is.** Two measured facts (recorded in `src/versed_translator/benchmark/assemble.py`): (1) ATHAR's parquet files carry only `(arabic, english)` columns — no per-row work/author/genre metadata exists, so genre stratification over ATHAR is impossible today; (2) ATHAR's median is 18 Arabic words, below the benchmark's own 30-word band floor — that, not a sampler bug, is why only 4 ATHAR rows survived. Genre coverage is therefore a **data-source decision** — see **D1e**, a [HUMAN] fork. Do not start an agent session on "fix genre coverage" before D1e is decided; it will stall or silently balloon into C7.
-
-**Update 2026-08-14: D1e option (d) now has a working first slice — 39 aligned *history* passages from al-Baladhuri / Hitti**, the first non-hadith genre in the benchmark. Method, yield and honest limits in C1 below; a [HUMAN] spot-check page is built and waiting at `~/versed-translator-data/benchmark-alignment/baladhuri_hitti/review.html` (off-repo: it contains corpus text). The measured yield says one work gives ~30 passages in the 100–250 band but only ~9 in 250–600, so **closing the long-band gap needs 3–4 PD works, not one.**
-
-**Second tranche generated 2026-08-14 — 42 additional model-gated candidates across biography, philosophy and poetry; none are human-approved yet.** Ibn Khallikan/de Slane contributes 21 whole biographies (10 short-band, 11 long-band); Blunt's seven odes contribute 14 verse runs (7+7); Ockley's *Hayy* contributes only 7 clean narrative islands (3+4). This brings the machine-gated pool to **81** across four works, while the human-audited count remains **15**. Review pages live off-repo under `~/versed-translator-data/benchmark-alignment/{ibn_khallikan_deslane,blunt_odes,ockley_hayy}/review.html`.
-
-**Measured results so far** (all hadith-only, see caveat above):
-- **C2 bakeoff:** TG27B, TG12B and Claude Sonnet 5 all 139/139 clean — chrF **50.24 / 49.86 / 50.60**. TG27B ran ~36× faster than Claude (0.68s vs 24.5s mean) at ~$0.27; **TG12B reaches 99.24% of 27B's chrF for 2.14× less GPU time at $0.20**, making it the serving-economics favourite. ⚠️ TranslateGemma ran on a *weaker prompt* than Claude (mislabel, see C2) — its near-parity understates it. Qwen-MT / Gemini / DeepSeek never ran (no API keys) → **D2c**.
-- **C4 QE study:** COMETKiwi detects **30.4%** of 1,144 injected errors. Negation deletion 10.9%, terminology 0.8%, agent/patient reversal 9.1%. Clause removal has a **negative** mean delta — it scores truncated text *higher* than complete text. Only fluency artifacts are caught well (duplicate sentence 71.9%). **COMETKiwi is a fluency signal, not a safety gate.** MetricX-QE still untested, so this rests on one model.
-- **C5:** 9 deterministic checks built against those measured blind spots. One documented gap: partial clause removal is undetectable from (source, output) alone on unpunctuated classical Arabic — **now addressed architecturally rather than by threshold tuning: structured blocks shipped 2026-08-14 (D2e), and a dropped block is a counted error.**
-- **D2e/D4c shipped 2026-08-14 (EXP-20260814-06):** structured blocks are the harness default; ID loss is a run-level metric. **MetricX truncation 37.5% → 0.73%** on the same 139 items (0.00% once capped generations are flagged), and the first live structured leg caught a model silently dropping a block (DeepSeek, 1/40). Cost −0.65 chrF on hadith.
-
-**Recommended next actions (updated 2026-08-14 after drift review):**
-1. **[HUMAN] one sitting (~45 min), before more agent work — the loops below all trace to pending human decisions being worked around instead of made:**
-   - Send the OpenITI letter (D6a — drafted since 2026-08-12).
-   - Email the ATHAR author — **one email, two questions**: which license is intended (D1d), and does per-row work/genre provenance exist for the pairs (feeds D1e)?
-   - Decide D2c: provision Gemini/Qwen/DeepSeek keys, or formally descope the bakeoff field (see C2 — D2a is largely forced anyway).
-   - ~~Ratify D2e: structured block translation with ID preservation as the production contract.~~ **Ratified and implemented 2026-08-14** — nothing left to decide here; see EXP-20260814-06 and C2.
-2. **[AGENT] meanwhile, on existing artifacts (no new benchmark needed):** MetricX-QE over the existing TG27B outputs — check its license first; if permissive it is the **only** shippable neural QE candidate (COMETKiwi is NC), which changes C5's feature set, so this must land **before** router design. Then the TG12B Modal leg — the 12B↔27B gap is unmeasured and drives all serving economics.
-3. **After D1e is decided:** rebuild the benchmark **once**, freeze it, run the full measurement suite **once** (bakeoff legs + QE matrix + deterministic checks). **No re-measurement treadmill:** settle all inputs (benchmark composition, keys yes/no, MetricX in) before spending GPU money on a re-run.
-4. C5 router only after MetricX results + the start of the human judgment set (C5 checkpoint 2 — the longest serial [HUMAN] task on the critical path; start labeling early).
-
-**Traps already paid for — do not re-derive:**
-- A full row count, clean exit code, and populated output file are **all compatible with total failure**. A 139-row run was 139 connection errors; the tell was `wall_s: 0.06`. Always check the error field *and* a plausibility signal.
-- `nohup … & disown` does **not** survive session teardown. Use `subprocess.Popen(..., start_new_session=True)` locally and `modal run --detach` for Modal; write a `done-<job>` sentinel with the exit code.
-- vLLM 0.11.0 declares `transformers>=4.55.2` unbounded → pip takes v5, which renamed `rope_scaling`→`rope_parameters`. Pin `transformers<5`. Patching the model's `config.json` does **not** help (three attempts proved it).
-- Sonnet 5 runs adaptive thinking by default and `max_tokens` caps thinking **plus** text; too small a budget returns empty translations with `stop_reason: max_tokens`.
-- Local CPU inference for 12B is ~2 tok/s — unusable. Use Modal.
-- `setsid` does not exist on macOS — a launch wrapped in it silently no-ops. Use `subprocess.Popen(..., start_new_session=True)`.
-- **A metadata label is not evidence.** Both Modal legs recorded `prompt_template_id: "v1"` while sending a different prompt entirely; nothing failed, and the bakeoff's headline comparison was quietly confounded for a day. When a run records *what it did*, verify the field against the code path that actually ran. Fixed structurally 2026-08-14: `run_blocks` builds prompts through `harness.modal_batch`, which returns the prompt and its label from one registry lookup.
-- **`translategemma-*-it`'s chat template is a translation API, not a chat API.** It requires `content` to be a list of one mapping with `source_lang_code`/`target_lang_code` and raises `TemplateError` on a plain string. A general `{"role":"user","content":...}` never reaches the model. Drive it with raw completion prompts, or build the template's own message shape deliberately.
-- **A degenerate generation is real English until it isn't.** 3/522 blocks ran to the token cap in a repetition loop; `n_ok` read 522/522 because the text is fluent up to the point it derails. Treat `finish_reason == "length"` as a named error, exactly like Sonnet 5's `stop_reason == "max_tokens"`.
-- **A circular import can pass the whole test suite and still break the CLI.** `harness.structured` importing `adapters.base` initialised the adapters package → every adapter → back to `harness.structured`; pytest happened to import in a luckier order than `python -m` did. `tests/test_structured_contract.py` now imports each harness module in its own interpreter.
-- `/Volumes/hikma` (SMB) can degrade mid-session to permission-denied at the share root, breaking symlinks, filelock, curl, cp, rsync and dd in that order. Stage large downloads to the session scratchpad; prefer `ssh nautilus`, where the disk is local at `/mnt/hikma`.
-
-**Open [HUMAN] items:** OpenITI letter (D6a, drafted at `OPENITI_LETTER_DRAFT.md`); genre coverage (D1e); C5 threshold profile (D5). ~~ATHAR license (D1d)~~, ~~provider keys (D2c)~~, ~~structured blocks (D2e) + token window (D4c)~~ resolved 2026-08-14 — D2e/D4c are now **implemented and measured**, not just ratified.
+**Standing rules (violations are bugs):**
+- The frozen benchmark never enters training data, synthetic-generation pools, or retrieval indexes.
+- Translator and evaluator are always separate systems.
+- Every artifact carries provenance + rights fields from birth.
+- Prompts, thresholds, and model IDs are versioned; any change bumps a version.
+- Estimates are placeholders until measured; never present them as measurements.
+- In the `versed` repo, obey `CURRENT_PIPELINE_CONTRACT.md`.
 
 ---
 
@@ -128,45 +92,6 @@ Checkpoints:
 
 **D1e DECIDED 2026-08-14 → option (d): targeted passage alignment from the PD list, benchmark-scale only.** Not waiting for C7 — a benchmark needs a few hundred aligned passages, not whole aligned books.
 
-**Arabic side VERIFIED 2026-08-14 (via `ssh nautilus`, where the disk is local at `/mnt/hikma`).** All nine candidate works exist in OpenITI with real text — every OpenITI URI *guessed* in `PD_TRANSLATIONS.md` resolved:
-
-| OpenITI text | d. | genre (`021.BookSUBJ`) | `### |` sections |
-| --- | ---: | --- | ---: |
-| `0279Baladhuri.FutuhBuldan` | 279 | التاريخ (history) | 90 |
-| `0681IbnKhallikan.WafayatAcyan` | 681 | التراجم والطبقات (biography) | 33 |
-| `0516IbnCaliHariri.Maqamat` | 516 | عيون الشعر العربي (poetry/adab) | **0** |
-| `0581IbnTufayl.HayyIbnYaqzan` | 581 | علوم أخرى (philosophy) | 3 |
-| `0139IbnMuqaffac.KalilaWaDimna` | — | *(none)* | 30 |
-| `0779IbnBattuta.Rihla` | 779 | البلدان والجغرافيا والرحلات (travel) | 527 |
-| `0346Mascudi.MurujDhahab` | 346 | كتب متنوعة (misc/history) | 1750 |
-| `0486IbnAhmadZuzani.SharhMucallaqat` | 486 | الأدب والبلاغة (adab/rhetoric) | 653 |
-| `0505Ghazali.KimiyaSacada` | 505 | الرقاق والآداب (devotional/ethics) | 24 |
-
-**Two findings that change C1's shape:**
-1. **OpenITI metadata carries per-work genre (`021.BookSUBJ`) and death date (`011.AuthorDIED`) — the exact metadata ATHAR lacks.** Genre labels and century banding come free from the source, with no inference and no author email. The nine works above span **9 distinct centuries** (139–779 AH), which alone satisfies the "≥5 centuries" coverage minimum.
-2. **Section structure is per-work, not uniform — segmentation is a per-work task, not one parser.** Hariri's *Maqamat* has **zero** `### |` markers despite being the most naturally segmented work in the list (50 discrete maqamat), so its anchors must come from in-text maqama numbering. Ibn Khallikan shows only 33 sections across 6.2MB, so those are volume divisions, not the per-biography entries that make it attractive as an alignment target. Mas'udi's 1,750 sections are finer than passage-sized. Budget per-work anchor logic.
-
-**English side VERIFIED 2026-08-14** (all 16 PD URLs fetched; see the verification block at the top of `corpus/PD_TRANSLATIONS.md`, which is authoritative over that doc's original table). The compilation pass had never fetched a single URL, and it showed:
-
-- **Two entries are NOT public domain and are dropped.** #13 *Mishkat al-Masabih* is not Matthews' 1809 text but Durrani's revised edition — "(All Rights Reserved)", modernist editorial matter woven into the body, and a part-issue fragment. #14 Rehatsek's *Sira* is the **1964 Folio Society Edwardes abridgement** (URAA risk, glosses inseparable from the prose). **There is no public-domain English Sira translation in existence** — Rehatsek's was the first and was not printed until 1964. Both would have put copyrighted text into a benchmark intended for public release; this is exactly the failure the rights-from-birth rule exists to prevent.
-- **Six entries pointed at the wrong edition**, including two traps the doc had itself warned about: #8 Ibn Tufayl linked the 1929 Fulton revision the doc's own note said to avoid (the clean 1708 Ockley is on **Gutenberg**, human-proofread, zero OCR noise), and #15's secondary Qur'an URL was *Sacred Laws of the Aryas* — a different book. #1 Baladhuri returned **HTTP 401** (access-restricted 1968 reprint); #7 Hariri was vol II only, and a complete notes-free all-50 stream was found instead.
-- **Ranked for alignment:** Hariri *Assemblies* (all 50, discrete units, no apparatus) → Ibn Khallikan (per-entry gold standard, cleanest long text) → Ockley's *Hayy* (flawless clean control) → Baladhuri → Blunt's odes → Knatchbull → Palmer → Hamilton.
-- ⚠️ **The list contains zero tafsir.** Option (d) **cannot** close the tafsir hole; that genre needs its own sourcing decision.
-
-⚠️ **MEASURED 2026-08-14 — PD reference translations abridge, and it points at the project's own worst failure mode.** Reviewing the shipped Baladhuri/Hitti pairs, Bilal caught that Hitti drops the opening `قال`. Quantified across all 39: **Hitti renders only 40% of the Arabic narrator markers** (102 English reporting verbs vs 257 Arabic `قال/حدثنا/حدثني/أخبر../يقول`), with **24 of 39** passages losing some. This is a deliberate translation policy — Hitti says in his own footnote that he abridges isnads to first + last authority — not an alignment defect. The alignment itself is good: the pairs track report-for-report.
-
-**Why this matters more here than it would elsewhere.** C4 established that omission is the highest-severity failure and that *neither* COMETKiwi nor MetricX detects it; C5's fidelity rules say "Translate every clause. Do not summarize, compress, or silently drop material." So:
-1. **chrF against an abridging reference penalises a model that faithfully translates `قال`** — the benchmark would quietly reward the exact behaviour the project has decided is dangerous.
-2. **These pairs must not teach isnad handling in C8.** Training on them would teach scaffolding-dropping directly against the fidelity rules.
-
-**Decision: ship report-level alignment, but never let these references define "good".** Demanding sentence-perfect references would discard nearly the whole PD corpus — abridgement is typical of the 1880–1930 translations the entire D1e option (d) plan rests on. Instead every item now carries `reference_fidelity: "report_level_abridged"`, `scaffolding_ar`, `scaffolding_en`, `scaffolding_retained`, and a `narrator_scaffolding_dropped:N` flag where applicable. **Open follow-ons:** exclude these from any C8 isnad training signal; when scoring, either exclude scaffolding tokens or report isnad fidelity separately from chrF; and check the same ratio for every new PD work, since it is translator-specific (this is D1a's `register:archaic` question generalised from register to *fidelity policy*).
-
-**Format notes** (`######OpenITI#` mARkdown): `#META# key :: value` header block terminated by `#META#Header#End#`; `### |` section headings; `PageV##P###` page markers (444 in Baladhuri). The factory has a fuller parser at `versed_core/ingestion/openiti_ingest.py`, but it is coupled to Supabase and writes the v2 graph — the lab needs read-only passage extraction, so a light local reader is the right call rather than importing the factory's stack.
-
-⚠️ **Access:** read OpenITI via `ssh nautilus` (`/mnt/hikma/OpenITI`), **not** the local SMB mount. `/Volumes/hikma/OpenITI/meta` listed 8,738 files and then returned "No such file or directory" seconds later in the same session — the documented SMB degradation. `books/` is genuinely empty on both; the content is in `texts/` (8,748) and `meta/` (8,738).
-3. [HUMAN] ~100-item spot audit for alignment/reference quality. **First tranche done 2026-08-14: 15/15 aligned** on the Baladhuri/Hitti shipping set (Bilal, LLM-assisted, report-level criterion). Crucially, the audit targeted the failure mode that matters — **no hidden one-report shift was found in any of the 15**, which is the defect that looks plausible row-by-row and that word-ratio checks miss. Sample covered 15 distinct chapters (Kumm/Kashan/Isbahan, Banu al-Nadir, Khaibar ×2, Makka ×2, al-Bahrain ×2, Kinnasrin, al-Jarajimah, Banu Taghlib ×2, Armenia, Barkah/Zawilah ×2). The reviewer independently confirmed the **alignment vs. reference-fidelity distinction**: several pairs are correctly aligned *and* suppress narrator scaffolding — two different properties, now recorded as two different fields. **Ready for the second human tranche:** 42 model-gated candidates from Ibn Khallikan/de Slane, Blunt and Ockley. The human-audited count is still 15 until those review pages are checked; do not report 57 or 81 as human-approved.
-4. [AGENT] Freeze: tag, manifest, stats report, held-out split sealed.
-
 Decisions:
 - **D1a** [HUMAN ratifies] Archaic PD translations stay in as references with a `register:archaic` flag (recommended — QE analysis needs them) vs. excluded.
 - **D1b** [AGENT proposes] Small experimental poetry subset in v0.1 (recommended) vs. defer.
@@ -215,38 +140,6 @@ Three more works are now extracted end to end. Full text and review pages remain
 **END STATE:** `versed-harness run --model <id> --benchmark v0.1` emits standardized JSONL (master-plan run schema: model, version, quantization, prompt template id, tokens, latency, cost, translation) for **every** candidate: TranslateGemma 27B, TranslateGemma 12B, Qwen-MT, Gemini Flash tier, DeepSeek V4, one frontier ceiling, plus the current-versed Claude few-shot-Ormsby configuration as continuity baseline. ID-preserving structured block output (`[{"id":"AR_001","english":...}]`) is tested, and ID-loss counts as an error metric. A comparison report by genre × length × error category exists, and the baseline-translator DECISION is recorded.
 **Verify:** all candidate rows present in `harness/reports/bakeoff-v1.md`; every run JSONL validates; D2a filled in.
 
-**MEASURED SO FAR (2026-08-13/14, dev_bakeoff 139 items):**
-
-| Leg | Result |
-| --- | --- |
-| **Claude Sonnet 5** (ceiling) | ✅ **139/139 clean.** Mean latency 24.5s, p95 73.4s. ID preservation 100%. 3 items (2.2%) flagged for untranslated Arabic — the model appending scholarly commentary that quotes the Arabic back, not a fidelity failure. |
-| **TranslateGemma 12B** (local Ollama) | ❌ Abandoned as a local leg. Measured **~2 output tok/s** on this Mac (100s wall for a 149-token short-band item; 74s pure generation) → full run is multi-hour and the machine thrashes. Moved to Modal GPU. |
-| **TranslateGemma 27B** (Modal H100) | ✅ **139/139 clean.** chrF **50.24**. Mean latency 0.68s, wall 249s, **$0.2732**. |
-| **TranslateGemma 12B** (Modal H100) | ✅ **139/139 clean.** chrF **49.857** — 99.24% of 27B's score (gap 0.38, 0.76% relative) for **2.14× less GPU time** and **$0.1989**. Mean latency 0.317s. **Zero** rows containing untranslated Arabic (27B had 2, Claude 3). |
-
-⚠️ **PROMPT MISLABEL (found 2026-08-14, corrected).** Both Modal legs recorded `prompt_template_id: "v1"`; **that label is wrong.** `serve_translategemma.run_batch` hardcodes a three-sentence instruction and never touches `harness/prompts.py`. Harness `v1` carries the six fidelity rules — including *"Translate every clause. Do not summarize, compress, or silently drop material"*, the rule aimed at the omission failure C5 cannot detect. So **TranslateGemma-vs-Claude is a prompt comparison as much as a model comparison, and TranslateGemma ran on the weaker prompt** — its near-parity understates it, which strengthens D2a rather than weakening it. The 27B-vs-12B comparison is unaffected (identical template both sides). Fixed so it cannot recur: registered as `modal_minimal_v1`, `ingest-modal` requires an explicit `--template`, and `tests/test_prompts_modal_parity.py` pins the literal to the registry. **A matched-prompt bakeoff has never been run — fold it into the single post-D1e measurement suite, don't spend a separate run.**
-
-**STRUCTURED BLOCKS ARE NOW THE DEFAULT (2026-08-14, D2e — EXP-20260814-06).** `versed-harness run` defaults to `structured_blocks_v1`; `--template v1` still gets free text. The end-state bullet's two requirements are met:
-
-- **ID-preserving structured block output is tested** — unit-tested per failure mode and exercised live against `deepseek-chat` over 40 blocks, which **silently dropped one (2.5%)**; the harness named it rather than returning a shorter passage.
-- **ID-loss counts as an error metric** — `run_meta.json` carries `id_loss_count`, `id_unexpected_count`, `id_preservation_rate` and a per-name `id_error_rows` tally. Four distinct contract violations have distinct names (`id_missing_…`, `id_unexpected_…`, `id_duplicated_…`, `structured_empty_translation`), because "the model invented a key" and "the model dropped a key" are different diagnoses. An unparseable response degrades to one error row per item in that batch and the run continues — finished chunks are never discarded.
-
-New surface: `versed-harness blocks` (segment items → `<id>#bNNNN`, guaranteeing `" ".join(blocks) == " ".join(source.split())`) and `versed-harness reassemble` (join back per item; an item missing any block is an **error row**, never a shorter translation). Modal gains `run_blocks`, which builds prompts through `harness.modal_batch` — one registry lookup returns the prompt *and* its label, so the EXP-20260814-03 mislabel cannot recur; `ingest-modal` now takes the template id from the run's own record and treats a conflicting `--template` as an error.
-
-**Block-level leg measured (139 items → 522 blocks, TG12B, $0.1753):** 522/522 clean, chrF **48.82** vs 49.86 free-form — of which only **−0.65 is the blocking itself** (−1.3% relative, context lost across boundaries); the rest is three generations that derailed into repetition loops. That −0.65 is the price of the contract on hadith and must be re-checked per genre.
-
-**Reproducibility gap closed (2026-08-14):** the 27B leg's raw→harness-schema conversion had been done by an ad-hoc script that was not in the repo. Now `versed-harness ingest-modal`, validated by re-deriving the 27B run and diffing against the known-good output: `run_meta.json` matches on every field, `results.jsonl` on 13 of 14 — the exception being `output_tokens`, which the lost script wrote as `null` and the tool now carries through from the raw data (a strict superset, pinned by a regression test). Fields it cannot honestly derive stay null with documented reasons (`source_tokens`, `batch_size`, per-row `cost_estimate`).
-
-**Bugs found and fixed while getting here** (all committed; each was a false-success or silent-failure class the factory phase must not inherit):
-1. **Sonnet 5 token-budget trap** — adaptive thinking is ON by default and shares `max_tokens` with response text; at 4096 the longest passages spent the whole budget thinking and returned empty text (23/139). Default raised to 16k; `stop_reason == "max_tokens"` now reported as a named error, never an empty string.
-2. **Runner lost whole runs** — one invalid row raised and discarded all 139 buffered results. Now demotes to an error row and writes incrementally.
-3. **Cost never recorded** — adapters computed `cost_estimate` but the runner hardcoded `None`. Threaded end-to-end.
-4. **chrF always null** — the score CLI never loaded `reference_english`, so reference-based scoring silently reported "no references". Now loaded from `run_meta.items_path`.
-5. **Ollama adapter timeout** — 180s default vs. real ~2 tok/s produced an apparent 20-minute hang instead of a clean per-item timeout. Raised to 900s.
-6. **vLLM `rope_scaling` crash (root cause)** — vllm 0.11.0 declares `transformers>=4.55.2` with **no upper bound**; pip installed transformers 5.x, which renamed `rope_scaling` → `rope_parameters`, so vLLM's `patch_rope_scaling()` saw a rope dict with no `rope_type` and raised. **Patching the model's `config.json` does not help** (the mismatch is in transformers' parsing, not the file) — three attempts proved that. Fix: pin `transformers<5` in the Modal image.
-
-**Verification lesson (applies to every later phase):** a full row count, a clean exit code, and a populated output file are all compatible with total failure. A 139-row TG12B run was 139 connection errors; the tell was `wall_s: 0.06`. Always check the error field plus a plausibility signal (wall time, token counts), never row count alone.
-
 Checkpoints:
 1. [AGENT] Harness core + versioned prompt registry (seed prompts from `local_translation/prompts.py` fidelity rules + few-shot-Ormsby finding).
 2. [AGENT] API adapters. **Keys provisioned 2026-08-14 (D2c): DeepSeek + Qwen/DashScope, both smoke-verified live.** Gemini/OpenAI still absent → those legs stay descoped. Keys live in gitignored `.env` (mode 600) — **never commit them; this repo is public.** Verified working config, so the bakeoff need not rediscover it:
@@ -288,40 +181,6 @@ Decisions:
 
 Model access (verified 2026-08-13): **COMETKiwi** (`Unbabel/wmt22-cometkiwi-da`) gated access granted, downloads fine — but it is **CC-BY-NC-SA-4.0**. Internal evaluation and threshold calibration are fine; it must **not** be embedded in, or required by, anything Versed ships commercially. MetricX-QE licensing to be checked at implementation.
 
-**RESULT (2026-08-14, COMETKiwi over 1,144 corrupted pairs from the TG27B run, 13/15 error types exercised):**
-
-**Overall detection rate 30.4% at delta>=0.02.** The failures cluster precisely on the highest-severity fidelity errors:
-
-| Corruption | Severity | n | mean delta | detection |
-| --- | --- | ---: | ---: | ---: |
-| mistranslate_term | major | 120 | 0.0003 | **0.8%** |
-| reverse_agent_patient | critical | 11 | 0.0063 | **9.1%** |
-| delete_negation | critical | 92 | 0.0076 | **10.9%** |
-| remove_isnad_narrator | critical | 127 | 0.0103 | 22.8% |
-| remove_clause | critical | 105 | **−0.0041** | 22.9% |
-| omit_quotation | critical | 131 | 0.0090 | 27.5% |
-| duplicate_sentence | moderate | 139 | 0.0612 | 71.9% |
-
-Three findings that shape C5:
-1. **Deleting a negation is invisible (10.9%, mean delta 0.008).** Inverting a claim — the single most consequential corruption for doctrinal text — barely moves the score.
-2. **Removing a clause has a NEGATIVE mean delta (−0.0041):** COMETKiwi scores the *truncated* text slightly **higher** than the complete translation. A fluency-weighted metric rewards silent omission, which is exactly backwards for a corpus where omission is the classic failure.
-3. **Detection tracks fluency, not fidelity.** The only well-detected corruption is `duplicate_sentence` (71.9%) — a fluency artifact. Every semantic corruption sits at or below ~30%.
-
-**Conclusion: COMETKiwi cannot be the primary safety gate for this corpus.** It is a usable fluency/adequacy signal, nothing more. Note this does **not** yet justify training a neural QE model — every one of its blind spots is cheaply detectable with deterministic checks (negation-count parity, sentence-count/length ratio, entity + isnad coverage, quotation-span coverage, terminology-glossary match). That is the C5 ensemble, and it is also the NC-free path (D4b), since the blind spots live in the NC-licensed model.
-
-Artifacts (outside repo, rights): `~/versed-translator-data/qe/tg27b-full/{detection_matrix.json,detection_matrix.md,scored_pairs.jsonl}`.
-Caveats: single QE model (MetricX-QE still untested); hadith-dominated slice; `alter_citation` and `collapse_paragraphs` not exercised (this slice has no verse citations or paragraph breaks); `alter_date`/`change_number` had n=1 each, so their 0% is directional only.
-
-**MetricX-24 RESULT (2026-08-14, smoke: 20 items / 324 segments; full 1,144-pair run in flight):**
-
-- **License: `google/metricx-24-hybrid-large-v2p6` is apache-2.0 and ungated** (verified against the HF API). This is the D4b unblock — the **first reference-free QE model in this project that shipping code may require.** Caveat: `metricx24` has no PyPI release, so the one needed model class is vendored at `src/versed_translator/qe/metricx_model.py` under its Apache-2.0 notice with deviations documented.
-- **MetricX shares COMETKiwi's critical blind spots exactly:** `delete_negation` **0.0**, `mistranslate_term` **0.0**, `reverse_agent_patient` **0.0**. It is better on omission/untranslated-Arabic/hallucination (`remove_clause` 0.53 vs 0.23, `omit_person` 0.65 vs 0.30).
-- **Two independent neural QE systems failing on the same three highest-severity fidelity errors is much stronger evidence for the deterministic ensemble than one was.** C5's checks are load-bearing, not a stopgap.
-- ⚠️ **39% of inputs hit MetricX's 1536-token cap** (126/324). Truncation ~doubles apparent error (median 17.51 vs 8.88) and eats the *end* of the input — the candidate being judged — so length-increasing injectors are biased toward zero delta. The `duplicate_sentence` row is an artifact of the cap, not a fact about MetricX. This hits the 250–600-word band hardest, i.e. exactly where omission matters most. Instrumented (`truncated_inputs`/`truncated_fraction` in the summary), not fixed → **D4c**.
-- Polarity trap handled: MetricX emits error on [0,25] (**lower is better**); the scorer negates internally so the engine's higher-is-better contract holds, with a regression test asserting that un-negated scores would produce 0% detection.
-- Full run: log `~/versed-translator-data/logs/metricx-full.log`, sentinel `~/versed-translator-data/logs/done-metricx-full` (absent = running, `0` = success). **Verify `score_min`/`score_max`/`distinct_scores`/`truncated_fraction` before trusting any rate.**
-- Serving note: 6.2 s/segment on CPU ≈ 3.8h for 1,144 pairs. Acceptable once; **any QE run over a genre-diverse (larger) benchmark should go to Modal**, per the standing "inference happens on Modal" rule.
-
 Decisions:
 - **D4c** ~~[HUMAN ratifies] Token-window handling for QE.~~ **SETTLED AND IMPLEMENTED 2026-08-14 via D2e (EXP-20260814-06).** Blocks were taken, and they dissolve it: **`truncated_fraction` 0.3754 → 0.0073** on the same 139 items, with median QE input 1,085 → 394 tokens. The residual 47 truncated segments come from exactly 3 of 522 blocks that ran to the generation cap in a repetition loop; those are now reported as `max_new_tokens_truncated` errors, which takes the figure to **0.0000**. Neither chunk-and-aggregate nor a longer-context QE model was needed. The measurement reproduces the published 0.3754 baseline exactly through the same `metricx_encode` code path before being applied to blocks, so the two numbers are comparable.
 - **D4** [HUMAN ratifies] Do existing QE systems suffice as the core signal? → **Evidence says NO as a primary gate.** Recommendation: ensemble COMETKiwi (fluency) + deterministic fidelity checks; defer any custom neural QE until the ensemble is measured against human judgments.
@@ -345,14 +204,6 @@ Decisions:
 
 **END STATE:** Installable `versed_qe` package: `(arabic, english, metadata) → {ACCEPT | REPAIR | HUMAN_REVIEW}` + calibrated `p_substantive_error` + `reasons[]`. Features: QE ensemble + deterministic checks (length ratio, entity/number/date coverage, Qur'anic-quotation match, isnad preservation, untranslated Arabic, repetition, terminology consistency — seeded from the `local_translation` fidelity rules). Interpretable model (logistic/GBT) calibrated on held-out judgments; reliability diagram published; precision/recall measured at three named threshold profiles (conservative/balanced/aggressive). No neural QE training unless D4 showed material gaps.
 **Verify:** `uv run pytest qe/` green including a calibration bound test; report with reliability diagram; import-contract test proving the versed VPS worker can call it.
-
-**PROGRESS (2026-08-14):** `versed_translator.qe.checks` implements 9 deterministic checks, each targeting a measured COMETKiwi blind spot: `negation_parity` (Arabic particle vs English marker counts — covers the 10.9% blind spot), `number_coverage` (Arabic-Indic digits normalized), `length_ratio_flag`, `sentence_ratio_flag`, `untranslated_arabic`, `repetition_flag`, `quotation_coverage`, `entity_coverage` (diacritic-folded, so `Mughīrah` == `Mughirah`), `terminology_violations` (glossary-conditioned). 25 tests, including an integration test that feeds the C4 injectors' own output through the checks.
-
-⚠️ **KNOWN GAP — partial clause removal is not deterministically detectable** from (source, output) alone when the Arabic source lacks sentence punctuation, which is common in classical texts: `sentence_ratio_flag` can't run (source parses as one sentence) and a truncated output can still land inside the normal Arabic→English expansion band. COMETKiwi also misses it (22.9%, negative mean delta), so **neither signal covers the single highest-severity omission failure.** Asserted in `tests/test_checks.py::test_known_gap_clause_removal_on_unpunctuated_source` so it cannot regress silently.
-
-**GAP NARROWED, NOT CLOSED (2026-08-14, D2e shipped — EXP-20260814-06).** Structured blocks make the *block-granular* case observable: a block the model drops is now a counted error (`id_loss_count`), and this caught DeepSeek dropping 1 of 40 blocks on its first live use. So the failure "an entire span vanished" no longer depends on detection at all. **What remains open is omission strictly inside a returned block** — a clause dropped from a 60-word block that comes back with its id intact is still invisible to both QE systems and to the deterministic checks. Blocks shrink the window in which that can hide (60 words rather than up to 596) but do not eliminate it. The C5 known-gap test should be re-scoped accordingly: it now describes intra-block omission, not omission in general. **Do not delete it on the strength of D2e.**
-
-**Design rule enforced throughout:** a check that cannot run returns `applicable=False`, never a passing verdict — an unrun check reading as "clean" is how a safety gate silently stops being one.
 
 Checkpoints:
 1. [AGENT] ~~Deterministic checkers + unit tests~~ **done 2026-08-14** (9 checks, 25 tests; one known gap documented above).

@@ -30,15 +30,18 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 - **Structured blocks work.** Truncation 0.3754 → 0.0073; ID loss is now a run-level metric and caught a live 2.5% omission on first use. Cost: −0.65 chrF. Blocks also make QE ~1.6–2.0× *more expensive* (sub-linear CPU scaling) — the argument for QE on Modal.
 - **PD references abridge.** Hitti retains only 40% of Arabic narrator markers. Alignment quality and reference fidelity are different properties, tracked as different fields. Never train isnad handling on these.
 - **Alignment from PD translations works.** 39 Baladhuri/Hitti history passages, human-audited **15/15 aligned**, no one-report shift.
+- **The whole selected set survived an independent blind re-audit (2026-08-15).** All 81 passages re-verified: **73 aligned / 8 partial / 0 misaligned**; 24/24 sampled rejects genuinely bad, zero over-rejection. The 8 partials are edge jitter only (Ockley ±1 sentence, Blunt half-verse smear, 2 Baladhuri trailing reports) — fix or trim at freeze. EXP-20260815-01.
+- **ATHAR's English side is verbatim in-copyright translations** — Rosenthal 1958 and Faris 1952 word-for-word, ~3/4 of pairs with no PD English source in existence; the HF CC labels are legally ineffective (rasaif owned nothing to license) and re-scraping rasaif changes nothing. ATHAR stays `eval_internal` forever; PD alignment is the only rights-clean public reference side. EXP-20260815-01.
 - **Sources are not the constraint.** Catalog sweep (complete Gutenberg + archive.org) found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10, Ibn Rushd at the best text quality measured. Miskawayh and Sachau's Biruni print Arabic page numbers inline — free hard anchors.
 
 ## What is running
 
-- Block-level MetricX detection matrix — ~6,470 segments, detached. Sentinel `~/versed-translator-data/logs/done-metricx-blocks`. Tells us whether short blocks move *detection* rates; nothing above depends on it.
+- Nothing. The block-level MetricX detection matrix **finished** (sentinel `done-metricx-blocks` = 0; outputs in `~/versed-translator-data/qe/tg12b-blocks-metricx/`). Its read-out — do short blocks move *detection* rates? — is not yet in the ledger; nothing above depends on it.
 
 ## Next 3 things
 
 1. **Finish v0.1 diversification — a short sprint, not a campaign.** Start with Miskawayh and Suyuti (long band, inline Arabic page-number anchors, isnad name density), but **do not become attached to those works**. The goal is coverage, not completing alignments. If a work doesn't yield clean passages quickly, drop it and take the next one. Then **freeze — no "one more source."**
+   Miskawayh smoke-tested 2026-08-15: `miskawayh.extract()` runs — 69 shared year-blocks, **504 proposals (250 in 100–250, 254 in 250–600)** — but has **no driver yet** (no adjudicate→select→write CLI; mirror `pd_alignment.py`). Sample proposals show within-year offset; adjudication is mandatory, expect ~25–40% selection like the other sources. If a future candidate lacks structural anchors, trial embedding candidates (SONAR/LaBSE + vecalign-style DP) before another length heuristic — length-only ran 3–5× worse than anchors (Ockley 7/53). Every source generates `review_shipping.html`; Bilal reviews only shipping views.
 2. **Matched-prompt TG12B vs TG27B** on exactly that frozen set: same blocks, same prompt, same decoding, same hardware assumptions. Then **read ~50 outputs by hand, blind to model where possible**, oversampling long passages and the errors chrF and QE are measurably bad at — omission, negation, agent/patient reversal, terminology, quotations, narrator chains. Record **D2a**.
 3. **Then stop benchmarking and run a real book.** One substantial work through the full path. Do not let "we should first improve QE" or "maybe one more genre" interpose unless step 2 revealed a genuinely blocking failure.
 
@@ -52,6 +55,7 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 - **6–10 materially different genres**, and **no single genre >40%** (without this check, "genre-diverse" can still quietly mean "mostly hadith")
 - **meaningful representation of both the 100–250 and 250–600 word bands**
 - enough **rights/provenance metadata** for internal evaluation
+- **contamination-clean references**: every gold pair freshly aligned by us from PD editions (mid-scan passages that mostly don't exist online in aligned form) — never copied from ATHAR/rasaif rows, which are plausibly in TranslateGemma's training soup and would flatter the base model
 
 That is the whole bar. It exists to stop v0.1 expanding back into the 2,000-item project by accretion. The publication-grade set (2,000–5,000 items, 10+ genres × 4 bands × 5+ centuries, private holdout, SHA manifest, contamination CI) is **v1.0**, required before serious fine-tuning claims — not before useful experiments.
 
@@ -73,6 +77,23 @@ The one standing ask, when the small benchmark exists: **label passages** "would
 - Local CPU inference for a 12B is ~2 tok/s. Inference happens on Modal.
 - `/Volumes/hikma` (SMB) degrades mid-session to permission-denied at the share root. Read the corpus via `ssh nautilus` (`/mnt/hikma`).
 - PDF rendering needs Homebrew's GTK stack: `DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib GI_TYPELIB_PATH=/opt/homebrew/lib/girepository-1.0 ~/mambaforge/bin/python`. Verify Arabic output **visually** — PyMuPDF `get_text()` returns visual order for RTL, so broken and correct look alike.
+- **`review.html` is triage, not the benchmark** — all proposals, worst-first, rejects included. Reading it as the shipped set has caused a false "alignment is broken" alarm **twice** (Baladhuri, then 2026-08-15). Humans review `review_shipping.html` (selected-only, best-first); every source must generate both.
+- **Model tier ∝ blast radius, not text difficulty.** Volume work (OCR cleanup, tagging, dedup) → cheap models in parallel; propagating decisions (rights calls, adjudication verdicts, benchmark verification) → top tier with thinking budget. Nothing below top tier writes a rights determination.
+
+## On pause — resuming from Cursor or any other tool (2026-08-15)
+
+Claude Code usage limits may pause work mid-sprint. Whoever resumes (human or agent, any environment) — read this file top to bottom first, then:
+
+**Safe anywhere, no credentials (local Python via `uv run`):**
+- Wire the Miskawayh driver: `sources/miskawayh.py:extract()` works (smoke-tested, 504 proposals) but needs the extract→adjudicate→select→write CLI, mirroring `benchmark/pd_alignment.py` (Baladhuri's driver) — same outputs: `passages.jsonl`, `passages_all.jsonl`, both review pages, manifest. Inputs already staged: `~/versed-translator-data/openiti/0421Miskawayh.Tajarib.txt` + `~/versed-translator-data/pd-english/eclipse_0{4,5}ameduoft_djvu.txt`.
+- Tests (`uv run pytest`), review-page generation, stats, dashboard rebuild (`make -f tools/dashboard.mk dashboard`).
+
+**Needs credentials (on this Mac, never in the repo):**
+- LLM adjudication of proposals — `ANTHROPIC_API_KEY` in env. **A proposal is not a passage**; nothing ships unadjudicated.
+- Modal runs (the matched-prompt TG12B-vs-27B bakeoff) — `~/.modal.toml` profiles. **Do not start until the set is frozen.**
+- `gh` (decisions live as issues), `ssh nautilus` (OpenITI corpus reads).
+
+**While on pause, do NOT:** freeze the benchmark below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html` (see traps); start the bakeoff early; re-derive anything already in the ledger.
 
 ## Evidence
 

@@ -183,3 +183,22 @@ RESULTS: 71 Arabic years / 73 English years → 69 shared → 59 used / 10 rejec
 CONCLUSION: **The year anchor works as a coarse unit; the within-year cut does not, and the adjudicator says so honestly.** 20% aligned is below the 25–40% seen on name-bracketed sources, and the 70% partial mass is exactly the running-head lag the extractor documented. Nothing unadjudicated shipped. History (`التاريخ`) is already over the v0.1 40% cap, so **do not run another Miskawayh round and skip Suyuti for now** — the take is the 9 long-band passages pending human shipping review. Next source must be a new genre (Hariri / maqama).
 CAVEATS: 120/340 judged, not all proposals; human shipping review not yet done (standing 10–15 spot-check); `reference_fidelity` is `pending_human_audit`; Margoliouth abridgement not measured the way Hitti's 40% narrator drop was.
 DECISION FED: C1 diversification (long band +24 pending review), freeze-bar genre cap (stop mining history), review-surface rule (`render_shipping_page` now shared; every driver emits both pages).
+
+## EXP-20260815-03 — Hariri / Chenery–Steingass maqama-anchored driver (C1)
+
+HYPOTHESIS: The fifty maqamat are a real bilateral unit (Arabic headings; English `THE NTH ASSEMBLY`), so sequence pairing is an anchor, but interior cuts have no second bracket and Chenery/Steingass may abridge, gloss, or prepend a synopsis — adjudication will be mandatory and yield should beat Miskawayh's 20% because the unit is discrete rather than a year-block with page-lag.
+SETUP: OpenITI `0516IbnCaliHariri.Maqamat` (PRIMARY_VERSION JK009202) against archive.org `the-assembly-of-al-hariri-all-50` (`The_Assembly_of_Al_Hariri_All_50_djvu.txt`). Pair by document sequence 1–50, never by printed Arabic numerals (dirty in this witness). Extractor drops running heads and the Chenery/Steingass synopsis that sits between the heading and `Al Harith, son of Hammam, related` (assembly 33 has no formula and falls back to dropping `In this Assembly…`). Driver `benchmark/hariri_alignment.py`. Seed `20260815`. Adjudicator `claude-sonnet-5`, all 103 eligible (bands 100–600, ratio 0.75–3.2). Selection requires `aligned`, spreads across maqama numbers, target 40. Rights `PD_US_PRE_1930_PUBLICATION` (Chenery 1867 / Steingass 1898). Sentinel `~/versed-translator-data/benchmark-alignment/hariri_assemblies/done-adjudicate` = 0.
+COST: 103 Sonnet 5 calls (~9 min); cache at `llm_verdicts.json` (replayable). 0 errors.
+RESULTS: 50 Arabic maqamat / 50 English assemblies → 50 paired → 47 used / 3 rejected on ratio (21, 26, 44) → **132 proposals** (103 eligible). Adjudication of 103:
+
+| verdict | n | share |
+| --- | ---: | ---: |
+| aligned | 51 | 50% |
+| partial | 52 | 50% |
+| misaligned | 0 | 0% |
+| error | 0 | 0% |
+
+**37 selected** (17 in 100–250, 20 in 250–600, 26 maqamat, method `llm_proposed`, confidence 0.675–0.825). Short band only had 17 aligned, so the 40-target undershot honestly. Shipping page: `~/versed-translator-data/benchmark-alignment/hariri_assemblies/review_shipping.html`. Manifest: `benchmark/alignment/hariri_assemblies/`.
+CONCLUSION: **The maqama is a working bilateral anchor, and dropping the English synopsis was load-bearing.** 50% aligned is in the name-bracketed 25–40%+ band and twice Miskawayh; zero misaligned among 103 is the tell that sequence pairing held. The 50% partial mass is interior-cut jitter (verse islands, remaining running-head OCR), caught rather than shipped. Adab/maqama is filled. **Do not run another Hariri round.** Next empty high-value genre is kalam/falsafa (Ibn Rushd), not more adab.
+CAVEATS: human shipping review not yet done (standing 10–15 spot-check); `reference_fidelity` is `pending_human_audit`; PD_TRANSLATIONS called the all-50 scan "notes-free" — true of footnotes, false of the per-maqama synopses, which the extractor now strips; 3 maqamat dropped on ratio rather than forced; printed Arabic numerals remain untrusted.
+DECISION FED: C1 diversification (adab/maqama +37 pending review), freeze-bar genre coverage (history still over cap until these ship; do not mine more adab next).

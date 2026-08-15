@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-15T02:54:20.933217+00:00",
+  "generated_at": "2026-08-15T12:37:51.653953+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -216,52 +216,52 @@
   ],
   "recent_commits": [
     {
+      "subject": "Collapse eight project-state surfaces into four",
+      "relative_date": "10 hours ago"
+    },
+    {
       "subject": "Quote the MetricX cost as a range, and say why",
-      "relative_date": "8 hours ago"
+      "relative_date": "17 hours ago"
     },
     {
       "subject": "Settle the MetricX cost figure on the gross rate",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "Code review fixes: reassemble could hide a missing block entirely",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "Correct the MetricX cost figure with a second data point",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "Record the MetricX cost fact blocks did NOT improve",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "Roadmap: drop the stale \"ratify D2e\" action item",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "Modal run_blocks: id_loss_count could only ever report 0",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "D2e/D4c implemented: structured blocks, ID loss as a metric, truncation 37.5% -> 0.7%",
-      "relative_date": "8 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "Catalog sweep: Gutenberg complete + archive.org; long-band problem solved",
-      "relative_date": "9 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "C1: record second PD alignment tranche",
-      "relative_date": "9 hours ago"
+      "relative_date": "18 hours ago"
     },
     {
       "subject": "C4 settled: MetricX full matrix \u2014 two QE systems, same blind spots",
-      "relative_date": "9 hours ago"
-    },
-    {
-      "subject": "C1: human spot audit 15/15 aligned; EXP-20260814-04 recorded",
-      "relative_date": "11 hours ago"
+      "relative_date": "19 hours ago"
     }
   ],
   "doc_mtimes": [

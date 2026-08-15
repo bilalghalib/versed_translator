@@ -38,15 +38,30 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 
 ## Next 3 things
 
-1. **A small genre-diverse benchmark — ~300–500 passages, 6–10 genres.** Enough that hadith stops dominating. Not the publication-grade set. Start with Miskawayh and Suyuti (long band + inline page anchors + isnad name density).
-2. **Re-run TG12B vs TG27B on exactly that set with exactly the same structured prompt**, then **human-read 50–100 strategically chosen comparisons** — omissions, negations, technical vocabulary, long passages. chrF alone cannot decide this. Then choose 12B or 27B and record it.
-3. **Pilot book.** One substantial work through the full path.
+1. **Finish v0.1 diversification — a short sprint, not a campaign.** Start with Miskawayh and Suyuti (long band, inline Arabic page-number anchors, isnad name density), but **do not become attached to those works**. The goal is coverage, not completing alignments. If a work doesn't yield clean passages quickly, drop it and take the next one. Then **freeze — no "one more source."**
+2. **Matched-prompt TG12B vs TG27B** on exactly that frozen set: same blocks, same prompt, same decoding, same hardware assumptions. Then **read ~50 outputs by hand, blind to model where possible**, oversampling long passages and the errors chrF and QE are measurably bad at — omission, negation, agent/patient reversal, terminology, quotations, narrator chains. Record **D2a**.
+3. **Then stop benchmarking and run a real book.** One substantial work through the full path. Do not let "we should first improve QE" or "maybe one more genre" interpose unless step 2 revealed a genuinely blocking failure.
+
+---
+
+## 🛑 STOP CONDITION FOR BENCHMARK WORK
+
+**v0.1 is done — freeze immediately and proceed to the matched-prompt comparison — when it has:**
+
+- **300–500 trusted passages**
+- **6–10 materially different genres**, and **no single genre >40%** (without this check, "genre-diverse" can still quietly mean "mostly hadith")
+- **meaningful representation of both the 100–250 and 250–600 word bands**
+- enough **rights/provenance metadata** for internal evaluation
+
+That is the whole bar. It exists to stop v0.1 expanding back into the 2,000-item project by accretion. The publication-grade set (2,000–5,000 items, 10+ genres × 4 bands × 5+ centuries, private holdout, SHA manifest, contamination CI) is **v1.0**, required before serious fine-tuning claims — not before useful experiments.
 
 ## Human decisions needed
 
 **None open.** `gh issue list --label decision` is the live check; all six from 2026-08-14 are answered and closed.
 
-The one standing ask, when the small benchmark exists: **label ~150–300 passages** "would a competent bilingual editor find a substantive error?" ⚠️ **Split it** — thresholds fitted on the same passages that report the router's accuracy is leakage. Calibration slice and eval slice must be disjoint.
+The one standing ask, when the small benchmark exists: **label passages** "would a competent bilingual editor find a substantive error?"
+
+⚠️ The invariant to protect is narrow: **no threshold fitting on the samples used to claim router performance.** Designate a disjoint calibration subset *when Versed-QE is actually calibrated*, keeping an untouched evaluation slice. v0.1's primary job is model and architecture selection — do **not** pre-split it into two frozen halves now.
 
 ## Known traps — do not re-derive
 

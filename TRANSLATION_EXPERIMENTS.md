@@ -202,3 +202,54 @@ RESULTS: 50 Arabic maqamat / 50 English assemblies → 50 paired → 47 used / 3
 CONCLUSION: **The maqama is a working bilateral anchor, and dropping the English synopsis was load-bearing.** 50% aligned is in the name-bracketed 25–40%+ band and twice Miskawayh; zero misaligned among 103 is the tell that sequence pairing held. The 50% partial mass is interior-cut jitter (verse islands, remaining running-head OCR), caught rather than shipped. Adab/maqama is filled. **Do not run another Hariri round.** Next empty high-value genre is kalam/falsafa (Ibn Rushd), not more adab.
 CAVEATS: human shipping review not yet done (standing 10–15 spot-check); `reference_fidelity` is `pending_human_audit`; PD_TRANSLATIONS called the all-50 scan "notes-free" — true of footnotes, false of the per-maqama synopses, which the extractor now strips; 3 maqamat dropped on ratio rather than forced; printed Arabic numerals remain untrusted.
 DECISION FED: C1 diversification (adab/maqama +37 pending review), freeze-bar genre coverage (history still over cap until these ship; do not mine more adab next).
+
+## EXP-20260815-04 — MetricX-24 block-level detection matrix (C4) — completes EXP-20260814-06's in-flight QE rerun
+
+HYPOTHESIS: Scoring MetricX on ID-bearing blocks (truncation retired) raises detection of omission/addition relative to the item-level matrix, without making neural QE a safety gate for terminology, negation, or agent/patient reversal.
+SETUP: `google/metricx-24-hybrid-large-v2p6` + `google/mt5-large` tokenizer, reference-free, CPU, same negated-error contract and threshold 0.5 as EXP-20260814-02/05. Input run `20260814T183238Z-modal-translategemma_12b-blocks` (522 blocks from the 139 `dev_bakeoff` items; the 522-block file of record, not today's 496-block segmenter). Sentinel `~/versed-translator-data/logs/done-metricx-blocks` = 0.
+COST: CPU, local. EXP-20260814-06's in-flight bound was 7.4–9.2 h at 4.1–5.1 s/segment → actual **`scoring_seconds`: 19,449.2 (5.40 h, 3.01 s/segment over 6,470 segments)**. Item-level MetricX was 16,574 s / 7.24 s/segment; net wall is 1.17× that study (the 1.6–2.0× figure was a busy-machine upper bound). Sub-linear scaling holds: 2.83× more segments, 2.4× less time each.
+RESULTS: `~/versed-translator-data/qe/tg12b-blocks-metricx/{detection_matrix.json,detection_matrix.md,scored_pairs.jsonl}`. **Full block run, not smoke** — 3,235 pairs (jsonl line count matches), 14/15 injectors (`collapse_paragraphs` now fires, n=35; only `alter_citation` unexercised). Plausibility: score range [−25.0, −0.746] over **3,955 distinct values** (floor hit is the three repetition-loop blocks from EXP-20260814-06; not a constant-score failure). `truncated_inputs` 47 / `truncated_fraction` **0.0073** — identical to the EXP-20260814-06 token-count preview.
+
+n is this run; item-level columns are EXP-20260814-01/05 rates (1,144 pairs, 13/15 injectors).
+
+| injector | severity | n | COMETKiwi item | MetricX item | **MetricX blocks** |
+| --- | --- | ---: | ---: | ---: | ---: |
+| mistranslate_term | major | 246 | 0.008 | 0.008 | **0.077** |
+| delete_negation | critical | 172 | 0.109 | 0.098 | **0.326** |
+| reverse_agent_patient | critical | 10 | 0.091 | 0.000 | **0.400** |
+| collapse_paragraphs | moderate | 35 | — | — | **0.000** |
+| certainty_inflation | major | 7 | 0.000 | 0.200 | **0.000** |
+| duplicate_sentence | moderate | 522 | 0.719 | 0.065 | 0.375 |
+| remove_clause | critical | 356 | 0.229 | 0.333 | **0.587** |
+| remove_isnad_narrator | critical | 164 | 0.228 | 0.252 | **0.677** |
+| omit_quotation | critical | 444 | 0.275 | 0.405 | **0.754** |
+| leave_arabic_untranslated | major | 522 | 0.353 | 0.532 | **0.812** |
+| omit_person | major | 233 | 0.299 | 0.500 | **0.867** |
+| hallucinate_prose | major | 522 | 0.417 | 0.504 | **0.944** |
+| **OVERALL** | | **3235** | **0.304** | **0.307** | **0.634** |
+
+Omission/addition detection rises with the shorter unit: `remove_clause` 0.333→0.587, `omit_quotation` 0.405→0.754, `omit_person` 0.500→0.867, `leave_arabic_untranslated` 0.532→0.812, `hallucinate_prose` 0.504→0.944, `remove_isnad_narrator` 0.252→0.677. A dropped or added span is a larger fraction of a ~43-word block than of a whole item, and length-changing injectors are no longer eaten by the 1536-token cap.
+⚠️ Truncation **no longer confounds** this matrix. Residual 0.73% is the three `max_new_tokens_truncated` generations already named in EXP-20260814-06; excluding them is 0.0000. `duplicate_sentence` still has a **negative** mean delta (−0.93) at 37.5% detection — with the cap gone, that row is a MetricX fluency bias, not a truncation artifact. The item-level 0.065 / −1.36 figure stays retracted.
+⚠️ `collapse_paragraphs` is **0% with mean/median/min/max delta all 0.0** (n=35): MetricX is invariant to paragraph breaks. That is a C5 structure-check finding, not a QE miss to wait out.
+CONCLUSION: **Blocks roughly double MetricX's overall detection (30.7% → 63.4%) by making omission and addition visible, but neural QE is still not the safety gate** — terminology 7.7%, negation 32.6%, agent/patient reversal 40% (n=10) remain weak, and `collapse_paragraphs` is a hard zero.
+CAVEATS: hadith-only; comparison is 12B-blocks vs 27B-item (no 12B item-level MetricX matrix exists, so blocking and model are not fully isolated — the 12B↔27B chrF gap was 0.38, so the 2× detection lift is not that gap); `reverse_agent_patient` n=10 and `alter_date`/`change_number` n=1 are directional; thresholds still uncalibrated against human labels.
+DECISION FED: C4 (block-level matrix complete), C5 (deterministic checks remain load-bearing: terminology, negation, agent/patient, and paragraph structure), D4 (existing QE still cannot be the primary gate), D4c (truncation confound retired in the scored matrix, not only the token preview).
+
+## EXP-20260815-05 — Ibn Rushd / Jamil-ur-Rehman treatise-anchored driver (C1)
+
+HYPOTHESIS: Fasl al-Maqal + Damima + Kashf against Jamil-ur-Rehman 1921 (Gutenberg #65708) can fill the empty kalam/falsafa genre via treatise-level pairing, with interior cuts as proposals.
+SETUP: OpenITI `0595IbnRushdHafid.FaslMaqal` PRIMARY_VERSION `JK010686` against Gutenberg #65708 (`pg65708_philosophy_theology_averroes.txt`). Driver `benchmark/ibn_rushd_alignment.py`. Seed `20260815`. Adjudicator `claude-sonnet-5`, all 22 eligible. Selection requires `aligned`. Rights `PD_US_PRE_1930_PUBLICATION` (Baroda 1-1-1921 title page). Sentinel `~/versed-translator-data/benchmark-alignment/ibn_rushd_rehman/done-adjudicate` = 0.
+COST: 22 Sonnet 5 calls; cache at `llm_verdicts.json`. 0 errors.
+RESULTS: OpenITI witness is **Fasl + Damima only**; English Kashf (~39k words) unpaired, not cut. 2 Arabic / 3 English treatises → 2 paired → 25 proposals (22 eligible). Adjudication of 22:
+
+| verdict | n | share |
+| --- | ---: | ---: |
+| aligned | 2 | 9% |
+| partial | 20 | 91% |
+| misaligned | 0 | 0% |
+| error | 0 | 0% |
+
+**2 selected** (1 in 100–250, 1 in 250–600). Damima opener aligned; almost every interior cut is extra English at the start plus omitted Arabic at the end — Ockley-family smear. Shipping page: `~/versed-translator-data/benchmark-alignment/ibn_rushd_rehman/review_shipping.html`. Manifest: `benchmark/alignment/ibn_rushd_rehman/`.
+CONCLUSION: **Treatise pairing is real; interior length cuts are not, and this does not fill kalam/falsafa.** 9% aligned is below even Miskawayh's 20%. **Do not run another length pass.** Retry only with embeddings, or leave the source and cut Usama/Biruni instead. Kashf stays unpaired until an Arabic witness exists.
+CAVEATS: n=22 is the whole eligible pool, not a sample; human review of 2 pairs is optional and does not make a genre; catalog "partial" OpenITI flag was correct.
+DECISION FED: C1 (kalam still empty; length heuristic limit confirmed), freeze-bar genre coverage (next actionable empty genres: memoir, science).

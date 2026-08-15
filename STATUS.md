@@ -25,7 +25,7 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 ## What we know (all measured; details in the ledger)
 
 - **TranslateGemma 12B is the working choice.** 99.24% of 27B's chrF for 2.14× less GPU time, 2.1× lower latency, $0.20/139 items, and zero untranslated-Arabic rows (27B had 2, Claude 3). *Hadith-only, and TranslateGemma ran on a weaker prompt than Claude, so it is understated.*
-- **Neural QE cannot be the safety gate.** COMETKiwi 30.4% and MetricX 30.7% — two independent systems agreeing within 0.3 points **and blind to the same three critical errors**: agent/patient reversal 0%, terminology ~1%, negation deletion ~10%. Not one model's quirk; a property of reference-free QE. The deterministic checks are the gate.
+- **Neural QE cannot be the safety gate.** COMETKiwi 30.4% and item-level MetricX 30.7%. The **block-level MetricX matrix doubled overall detection to 63.4%** by making omission/addition visible (truncation confound retired, 0.73%). It is still blind where it matters: terminology 7.7%, negation 32.6%, agent/patient 40% (n=10), `collapse_paragraphs` a hard 0%. Deterministic checks remain the gate. EXP-20260815-04.
 - **MetricX is the only shippable neural signal** (Apache-2.0). COMETKiwi is CC-BY-NC — research mode only, never required by shipping code.
 - **Structured blocks work.** Truncation 0.3754 → 0.0073; ID loss is now a run-level metric and caught a live 2.5% omission on first use. Cost: −0.65 chrF. Blocks also make QE ~1.6–2.0× *more expensive* (sub-linear CPU scaling) — the argument for QE on Modal.
 - **PD references abridge.** Hitti retains only 40% of Arabic narrator markers. Alignment quality and reference fidelity are different properties, tracked as different fields. Never train isnad handling on these.
@@ -34,17 +34,18 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 - **ATHAR's English side is verbatim in-copyright translations** — Rosenthal 1958 and Faris 1952 word-for-word, ~3/4 of pairs with no PD English source in existence; the HF CC labels are legally ineffective (rasaif owned nothing to license) and re-scraping rasaif changes nothing. ATHAR stays `eval_internal` forever; PD alignment is the only rights-clean public reference side. EXP-20260815-01.
 - **Miskawayh year-anchor + mandatory adjudication works, at a 20% aligned yield.** 504 proposals, 120 year-spread judged, 24 selected (15/9 across the two bands). 70% came back `partial` — the running-head page lag, caught. Driver: `python -m versed_translator.benchmark.miskawayh_alignment`. Shipping page exists. History is over the 40% cap; do not mine this source further. EXP-20260815-02.
 - **Hariri maqama-anchor works, at a 50% aligned yield.** 50/50 sequence-paired, 132 proposals, 103 judged, **37 selected** (17 in 100–250, 20 in 250–600, 26 maqamat). 51 aligned / 52 partial / 0 misaligned / 0 errors. Driver: `python -m versed_translator.benchmark.hariri_alignment`. The all-50 scan still carries Chenery/Steingass synopses; the extractor drops them. Adab/maqama is no longer empty. EXP-20260815-03.
-- **Sources are not the constraint.** Catalog sweep (complete Gutenberg + archive.org) found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10, Ibn Rushd at the best text quality measured. Miskawayh and Sachau's Biruni print Arabic page numbers inline — free hard anchors. Highest-value *empty* genre is now **kalam/falsafa** (Ibn Rushd / Jamil-ur-Rehman 1921), not more adab.
+- **Ibn Rushd treatise-anchor does not fill kalam/falsafa.** OpenITI `FaslMaqal` is Fasl+Damima only; Gutenberg Kashf has no Arabic and was left unpaired. 25 proposals, 22 judged, **2 aligned / 20 partial / 0 misaligned**. Interior length cuts smear (Ockley-family). Driver is wired; take is not a genre slice. Do not run another length pass — embeddings if this source is retried, else leave it. EXP-20260815-05.
+- **Sources are not the constraint.** Catalog sweep found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10. Miskawayh and Sachau's Biruni print Arabic page numbers inline. Kalam/falsafa is still empty (this pairing exhausted). Next *actionable* empty genres: **memoir (Usama/Hitti 1929)** and **science/chronology (Biruni/Sachau 1879)**, not more adab or history.
 
 ## What is running
 
-- Nothing. Hariri adjudication finished (sentinel `~/versed-translator-data/benchmark-alignment/hariri_assemblies/done-adjudicate` = 0). Miskawayh likewise. The block-level MetricX detection matrix also finished earlier (sentinel `done-metricx-blocks` = 0; outputs in `~/versed-translator-data/qe/tg12b-blocks-metricx/`); its read-out is still not in the ledger.
+- Usama/Biruni staging still running. Ibn Rushd extract+adjudicate finished (sentinel `~/versed-translator-data/benchmark-alignment/ibn_rushd_rehman/done-adjudicate` = 0). MetricX blocks readout is in the ledger (EXP-20260815-04).
 
 ## Next 3 things
 
-1. **Human-review the two pending shipping pages, then leave those sources.** Miskawayh: `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html` (24 pairs; take is the 9 long-band). Hariri: `~/versed-translator-data/benchmark-alignment/hariri_assemblies/review_shipping.html` (37 pairs; spot-check 10–15). **Do not run another Miskawayh or Hariri round, and skip Suyuti** — history is over the 40% cap, and Hariri already filled adab/maqama. Never review from `review.html`.
-2. **Keep filling the freeze bar before the bakeoff.** Standing is **81 trusted + 24 Miskawayh pending + 37 Hariri pending**. Need 300–500 trusted and 6–10 genres. Next empty high-value genre is **kalam/falsafa: Ibn Rushd / Jamil-ur-Rehman 1921** (Gutenberg #65708, dict 0.900), not Payne's *Nights* or Tanukhi (more adab). Then freeze.
-3. **Matched-prompt TG12B vs TG27B** on exactly the frozen set, then **one real book**. Do not start Modal until freeze. Do not let "we should first improve QE" interpose unless the bakeoff revealed a genuinely blocking failure.
+1. **Human-review the two pending shipping pages, then leave those sources.** Miskawayh: `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html` (24 pairs; take is the 9 long-band). Hariri: `~/versed-translator-data/benchmark-alignment/hariri_assemblies/review_shipping.html` (37 pairs; spot-check 10–15). Ibn Rushd's 2 aligned pairs exist at `ibn_rushd_rehman/review_shipping.html` but **do not fill kalam**. **Do not run another Miskawayh, Hariri, or Ibn Rushd length round; skip Suyuti** — history over cap, adab filled, kalam pairing exhausted. Never review from `review.html`.
+2. **Keep filling the freeze bar before the bakeoff.** Standing is **81 trusted + 24 Miskawayh pending + 37 Hariri pending** (Ibn Rushd's 2 do not count as a genre). Need 300–500 trusted and 6–10 genres. Next actionable empty genres: **Usama/Hitti memoir** and **Biruni/Sachau science** (staging in flight). Then freeze.
+3. **Matched-prompt TG12B vs TG27B** on exactly the frozen set, then **one real book**. Do not start Modal until freeze.
 
 ---
 
@@ -87,21 +88,22 @@ Claude Code usage limits paused mid-sprint; Cursor landed Miskawayh then Hariri.
 
 **Done in this Cursor session (do not redo):**
 - Miskawayh driver + 24-passage shipping slice (EXP-20260815-02).
-- Hariri extractor/driver (`sources/hariri.py`, `hariri_alignment.py`), tests, both review pages, incremental verdict cache. Sequence-pairs the fifty maqamat; drops Chenery/Steingass synopses; interior cuts are `llm_required`.
-- First Hariri adjudication finished: 103 of 103 eligible, **37 selected**, shipping page at `~/versed-translator-data/benchmark-alignment/hariri_assemblies/review_shipping.html`.
+- Hariri extractor/driver + 37-passage shipping slice (EXP-20260815-03).
+- MetricX block-level matrix readout (EXP-20260815-04).
+- Ibn Rushd driver: Fasl+Damima only, Kashf unpaired, **2 aligned / 20 partial** — does not fill kalam (EXP-20260815-05). Do not another length pass.
 
 **Safe anywhere, no credentials (`uv run`):**
-- Spot-check both shipping pages are well-formed; regenerate dashboard (`make -f tools/dashboard.mk dashboard`).
-- Start the **Ibn Rushd / Jamil-ur-Rehman** extractor — kalam/falsafa, empty genre, Gutenberg #65708. Mirror `hariri_alignment.py`. Tests, both review pages. OpenITI `0595IbnRushdHafid.FaslMaqal` is marked partial in the catalog — verify coverage before cutting.
-- If a future candidate lacks structural anchors, trial embedding candidates (SONAR/LaBSE + vecalign-style DP) before another length heuristic — length-only ran 3–5× worse than anchors (Ockley 7/53). Not a reason to touch working extractors.
+- Spot-check shipping pages; regenerate dashboard (`make -f tools/dashboard.mk dashboard`).
+- After Usama/Biruni recon lands: start **Usama/Hitti memoir** or **Biruni/Sachau science** extractors. Biruni has fused page-number anchors (`p.216.`).
+- If Ibn Rushd is retried, trial embedding candidates (SONAR/LaBSE + vecalign-style DP) — length-only failed here the same way it failed Ockley (7/53). Not a reason to touch working extractors.
 
 **Needs credentials (on this Mac, never in the repo):**
 - Bilal's eyes on 10–15 Miskawayh shipping pairs **and** 10–15 Hariri shipping pairs. A proposal is not a passage; an `aligned` verdict is not a human audit.
-- Further LLM adjudication (`ANTHROPIC_API_KEY`) — **not for more Miskawayh or Hariri**.
+- Further LLM adjudication (`ANTHROPIC_API_KEY`) — **not for more Miskawayh, Hariri, or Ibn Rushd length cuts**.
 - Modal runs (matched-prompt TG12B-vs-27B) — `~/.modal.toml`. **Do not start until the set is frozen.**
 - `gh` (decisions live as issues), `ssh nautilus` (OpenITI corpus reads).
 
-**While on pause, do NOT:** freeze the benchmark below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html` (see traps); start the bakeoff early; re-derive anything already in the ledger; run another Miskawayh or Hariri `--adjudicate` round or start Suyuti (history) or Payne/Tanukhi (more adab).
+**While on pause, do NOT:** freeze the benchmark below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html` (see traps); start the bakeoff early; re-derive anything already in the ledger; run another Miskawayh/Hariri `--adjudicate` round; start Suyuti (history) or Payne/Tanukhi (more adab); run another Ibn Rushd length pass.
 
 ## Evidence
 

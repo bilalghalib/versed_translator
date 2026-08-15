@@ -1,0 +1,102 @@
+{
+  "slice": "ibn_rushd_rehman",
+  "work_id": "0595IbnRushdHafid.FaslMaqal",
+  "translator": "Mohammad Jamil-ur-Rehman",
+  "english_source": "The Philosophy and Theology of Averroes, trans. Mohammad Jamil-ur-Rehman (Baroda: Gaekwad Studies in Religion and Philosophy XI, 1 January 1921); Project Gutenberg ebook 65708",
+  "rights_status": "PD_US_PRE_1930_PUBLICATION",
+  "rights_evidence": "English: Gutenberg #65708 title page reads Printed by Manibhai Mathurbhai Gupta at the Arya Sudharak Printing Press, Raopura, Baroda, and Published by A. G. Widgery, the College, Baroda, 1-1-1921; translator Mohammad Jamil-ur-Rehman. Published 1921, so US public domain by publication date. Arabic: pre-modern text (author d. 595 AH) OpenITI PRIMARY_VERSION JK010686, cleaned of paratext. Neither claim is cleared legal advice; D6b still gates commercial use.",
+  "genre_openiti_021_booksubj": "كتب متنوعة",
+  "author_died_ah": 595,
+  "seed": 20260815,
+  "counts": {
+    "proposed": 25,
+    "eligible_for_adjudication": 22,
+    "selected": 2,
+    "by_band": {
+      "250-600": 1,
+      "100-250": 1
+    },
+    "by_method": {
+      "llm_proposed": 2
+    },
+    "by_treatise": {
+      "fasl": 1,
+      "damima": 1
+    },
+    "unpaired_english": [
+      "kashf"
+    ]
+  },
+  "items": [
+    {
+      "id": "ibn_rushd_rehman:fasl-a074_079",
+      "source": "ibn_rushd_rehman",
+      "source_native_id": "fasl-a074_079",
+      "work_id": "0595IbnRushdHafid.FaslMaqal",
+      "date_or_century": "595 AH",
+      "sha256_arabic": "86ed1499c18fa6dd44b6197f93d3f5426b4b09f2a411e838a621ce78fe4c295b",
+      "sha256_english": "8b708fd68d791385063b42273017e3b8266ff36dbd0105594f1bf6b969c9066e",
+      "band": "250-600",
+      "arabic_word_count": 429,
+      "english_word_count": 854,
+      "word_ratio": 1.991,
+      "method": "llm_proposed",
+      "confidence": 0.675,
+      "structural_confidence": 0.6,
+      "n_anchor_names_open": 1,
+      "n_anchor_names_close": 1,
+      "section_index": 1,
+      "chapter_label": "treatise fasl",
+      "arabic_range": [
+        74,
+        79
+      ],
+      "english_range": [
+        139,
+        153
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.75,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION",
+      "treatise_id": "fasl",
+      "treatise_complete": false
+    },
+    {
+      "id": "ibn_rushd_rehman:damima-a000_002",
+      "source": "ibn_rushd_rehman",
+      "source_native_id": "damima-a000_002",
+      "work_id": "0595IbnRushdHafid.FaslMaqal",
+      "date_or_century": "595 AH",
+      "sha256_arabic": "e3db23aeef4c0feeab6793047258eaf1b4526c80134a813e2437556759092f3f",
+      "sha256_english": "8586c6cbfe24efe9df80f21076bf6a8442b5629f76b67822e476ea3c21619436",
+      "band": "100-250",
+      "arabic_word_count": 197,
+      "english_word_count": 287,
+      "word_ratio": 1.457,
+      "method": "llm_proposed",
+      "confidence": 0.8,
+      "structural_confidence": 0.7,
+      "n_anchor_names_open": 1,
+      "n_anchor_names_close": 1,
+      "section_index": 2,
+      "chapter_label": "treatise damima",
+      "arabic_range": [
+        0,
+        2
+      ],
+      "english_range": [
+        0,
+        5
+      ],
+      "flags": [],
+      "llm_verdict": "aligned",
+      "llm_confidence": 0.9,
+      "reference_fidelity": "pending_human_audit",
+      "rights_status": "PD_US_PRE_1930_PUBLICATION",
+      "treatise_id": "damima",
+      "treatise_complete": false
+    }
+  ]
+}

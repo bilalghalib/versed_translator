@@ -32,17 +32,17 @@ Not a 5,000-item benchmark. Not a fine-tune. Not a calibrated QE ensemble. Those
 - **Alignment from PD translations works.** 39 Baladhuri/Hitti history passages, human-audited **15/15 aligned**, no one-report shift.
 - **The whole selected set survived an independent blind re-audit (2026-08-15).** All 81 passages re-verified: **73 aligned / 8 partial / 0 misaligned**; 24/24 sampled rejects genuinely bad, zero over-rejection. The 8 partials are edge jitter only (Ockley ±1 sentence, Blunt half-verse smear, 2 Baladhuri trailing reports) — fix or trim at freeze. EXP-20260815-01.
 - **ATHAR's English side is verbatim in-copyright translations** — Rosenthal 1958 and Faris 1952 word-for-word, ~3/4 of pairs with no PD English source in existence; the HF CC labels are legally ineffective (rasaif owned nothing to license) and re-scraping rasaif changes nothing. ATHAR stays `eval_internal` forever; PD alignment is the only rights-clean public reference side. EXP-20260815-01.
-- **Sources are not the constraint.** Catalog sweep (complete Gutenberg + archive.org) found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10, Ibn Rushd at the best text quality measured. Miskawayh and Sachau's Biruni print Arabic page numbers inline — free hard anchors.
+- **Miskawayh year-anchor + mandatory adjudication works, at a 20% aligned yield.** 504 proposals, 120 year-spread judged, 24 selected (15/9 across the two bands). 70% came back `partial` — the running-head page lag, caught. Driver: `python -m versed_translator.benchmark.miskawayh_alignment`. Shipping page exists. History is over the 40% cap; do not mine this source further. EXP-20260815-02.
+- **Sources are not the constraint.** Catalog sweep (complete Gutenberg + archive.org) found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10, Ibn Rushd at the best text quality measured. Miskawayh and Sachau's Biruni print Arabic page numbers inline — free hard anchors. Next empty high-value genre is Hariri's *Assemblies* (adab/maqama).
 
 ## What is running
 
-- Nothing. The block-level MetricX detection matrix **finished** (sentinel `done-metricx-blocks` = 0; outputs in `~/versed-translator-data/qe/tg12b-blocks-metricx/`). Its read-out — do short blocks move *detection* rates? — is not yet in the ledger; nothing above depends on it.
+- Nothing. Miskawayh adjudication finished (sentinel `done-adjudicate` = 0). The block-level MetricX detection matrix also finished earlier (sentinel `done-metricx-blocks` = 0; outputs in `~/versed-translator-data/qe/tg12b-blocks-metricx/`); its read-out is still not in the ledger.
 
 ## Next 3 things
 
-1. **Finish v0.1 diversification — a short sprint, not a campaign.** Start with Miskawayh and Suyuti (long band, inline Arabic page-number anchors, isnad name density), but **do not become attached to those works**. The goal is coverage, not completing alignments. If a work doesn't yield clean passages quickly, drop it and take the next one. Then **freeze — no "one more source."**
-   Miskawayh smoke-tested 2026-08-15: `miskawayh.extract()` runs — 69 shared year-blocks, **504 proposals (250 in 100–250, 254 in 250–600)** — but has **no driver yet** (no adjudicate→select→write CLI; mirror `pd_alignment.py`). Sample proposals show within-year offset; adjudication is mandatory, expect ~25–40% selection like the other sources. If a future candidate lacks structural anchors, trial embedding candidates (SONAR/LaBSE + vecalign-style DP) before another length heuristic — length-only ran 3–5× worse than anchors (Ockley 7/53). Every source generates `review_shipping.html`; Bilal reviews only shipping views.
-2. **Matched-prompt TG12B vs TG27B** on exactly that frozen set: same blocks, same prompt, same decoding, same hardware assumptions. Then **read ~50 outputs by hand, blind to model where possible**, oversampling long passages and the errors chrF and QE are measurably bad at — omission, negation, agent/patient reversal, terminology, quotations, narrator chains. Record **D2a**.
+1. **Human-review the Miskawayh shipping page, then leave this source.** Driver is wired and ran: 504 proposals → 340 eligible → 120 year-spread adjudicated → **24 aligned selected** (15 in 100–250, 9 in 250–600, 22 years). Yield was **20% aligned / 70% partial / 10% misaligned** — the within-year running-head lag the extractor warned about, caught rather than shipped. Review only `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html` (spot-check 10–15). **Do not run another Miskawayh round and skip Suyuti for now** — both are `التاريخ`, and history is already over the 40% cap. The take from this source is the 9 long-band passages. Next diversification work is **al-Hariri / Chenery–Steingass *Assemblies*** (adab/maqama, catalog-ranked #1, empty genre).
+2. **Matched-prompt TG12B vs TG27B** on exactly the frozen set: same blocks, same prompt, same decoding, same hardware assumptions. Then **read ~50 outputs by hand, blind to model where possible**, oversampling long passages and the errors chrF and QE are measurably bad at — omission, negation, agent/patient reversal, terminology, quotations, narrator chains. Record **D2a**.
 3. **Then stop benchmarking and run a real book.** One substantial work through the full path. Do not let "we should first improve QE" or "maybe one more genre" interpose unless step 2 revealed a genuinely blocking failure.
 
 ---
@@ -82,18 +82,25 @@ The one standing ask, when the small benchmark exists: **label passages** "would
 
 ## On pause — resuming from Cursor or any other tool (2026-08-15)
 
-Claude Code usage limits may pause work mid-sprint. Whoever resumes (human or agent, any environment) — read this file top to bottom first, then:
+Claude Code usage limits paused mid-sprint; Cursor continued and landed the Miskawayh driver. Whoever resumes — read this file top to bottom first, then:
 
-**Safe anywhere, no credentials (local Python via `uv run`):**
-- Wire the Miskawayh driver: `sources/miskawayh.py:extract()` works (smoke-tested, 504 proposals) but needs the extract→adjudicate→select→write CLI, mirroring `benchmark/pd_alignment.py` (Baladhuri's driver) — same outputs: `passages.jsonl`, `passages_all.jsonl`, both review pages, manifest. Inputs already staged: `~/versed-translator-data/openiti/0421Miskawayh.Tajarib.txt` + `~/versed-translator-data/pd-english/eclipse_0{4,5}ameduoft_djvu.txt`.
-- Tests (`uv run pytest`), review-page generation, stats, dashboard rebuild (`make -f tools/dashboard.mk dashboard`).
+**Done in this Cursor session (do not redo):**
+- `miskawayh_alignment.py` extract→adjudicate→select→write CLI, tests, both review pages, incremental verdict cache, cache-replay so a second `--adjudicate` round skips paid-for items.
+- First adjudication run finished: 120 of 340 eligible, **24 selected**, shipping page at `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html`.
+- `render_shipping_page` now lives in `alignment_review.py`; Baladhuri / Ibn Khallikan / Ockley / Blunt drivers also emit `review_shipping.html` on the next run (existing Baladhuri shipping page was a one-off HTML file).
+
+**Safe anywhere, no credentials (`uv run`):**
+- Spot-check the Miskawayh shipping page is well-formed (it is); regenerate dashboard (`make -f tools/dashboard.mk dashboard`).
+- Start the **Hariri** extractor/driver — adab/maqama, catalog-ranked #1, empty genre, notes-free `The Assembly of Al Hariri All 50_djvu.txt`. Mirror `sequence_alignment.py` or `miskawayh_alignment.py` (maqama units are discrete; likely closer to Blunt/Ibn Khallikan than to year-blocks). Tests, review pages.
+- If a future candidate lacks structural anchors, trial embedding candidates (SONAR/LaBSE + vecalign-style DP) before another length heuristic — length-only ran 3–5× worse than anchors (Ockley 7/53). Not a reason to touch working extractors.
 
 **Needs credentials (on this Mac, never in the repo):**
-- LLM adjudication of proposals — `ANTHROPIC_API_KEY` in env. **A proposal is not a passage**; nothing ships unadjudicated.
-- Modal runs (the matched-prompt TG12B-vs-27B bakeoff) — `~/.modal.toml` profiles. **Do not start until the set is frozen.**
+- Bilal's eyes on 10–15 Miskawayh shipping pairs. A proposal is not a passage; an `aligned` verdict is not a human audit.
+- Further LLM adjudication (`ANTHROPIC_API_KEY`) — **not for more Miskawayh**. History is over cap.
+- Modal runs (matched-prompt TG12B-vs-27B) — `~/.modal.toml`. **Do not start until the set is frozen.**
 - `gh` (decisions live as issues), `ssh nautilus` (OpenITI corpus reads).
 
-**While on pause, do NOT:** freeze the benchmark below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html` (see traps); start the bakeoff early; re-derive anything already in the ledger.
+**While on pause, do NOT:** freeze the benchmark below the stop-condition bar; write a rights determination without an evidence URL; review from `review.html` (see traps); start the bakeoff early; re-derive anything already in the ledger; run another Miskawayh `--adjudicate` round or start Suyuti (both history).
 
 ## Evidence
 

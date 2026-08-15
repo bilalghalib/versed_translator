@@ -260,7 +260,7 @@ def _render_pair(record: dict) -> str:
         f'<span class="chip gray">{_esc(record.get("band"))}</span>',
         (
             f'<span class="chip gray">ar {record.get("arabic_word_count")}w '
-            f'/ en {record.get("english_word_count")}w</span>'
+            f"/ en {record.get('english_word_count')}w</span>"
         ),
     ]
     for flag in flags:
@@ -268,24 +268,32 @@ def _render_pair(record: dict) -> str:
     if verdict.get("verdict"):
         chips.append(
             f'<span class="chip amber">LLM: {_esc(verdict["verdict"])} '
-            f'{float(verdict.get("confidence", 0.0)):.2f}</span>'
+            f"{float(verdict.get('confidence', 0.0)):.2f}</span>"
         )
 
     meta_bits = [
-        f'anchors open <code>{_esc("/".join(record.get("anchors_open") or []) or "-")}</code>',
-        f'close <code>{_esc("/".join(record.get("anchors_close") or []) or "-")}</code>',
-        f'ratio <code>{float(record.get("word_ratio", 0.0)):.2f}</code>',
-        f'arabic paras <code>{_esc(record.get("arabic_range"))}</code>',
-        f'english paras <code>{_esc(record.get("english_range"))}</code>',
+        f"anchors open <code>{_esc('/'.join(record.get('anchors_open') or []) or '-')}</code>",
+        f"close <code>{_esc('/'.join(record.get('anchors_close') or []) or '-')}</code>",
+        f"ratio <code>{float(record.get('word_ratio', 0.0)):.2f}</code>",
+        f"arabic paras <code>{_esc(record.get('arabic_range'))}</code>",
+        f"english paras <code>{_esc(record.get('english_range'))}</code>",
     ]
     if verdict.get("note"):
-        meta_bits.append(f'LLM note: {_esc(verdict["note"])}')
+        meta_bits.append(f"LLM note: {_esc(verdict['note'])}")
     if record.get("headings_stripped"):
         meta_bits.append(
-            "run-in headings removed: "
-            + _esc("; ".join(record["headings_stripped"]))
+            "run-in headings removed: " + _esc("; ".join(record["headings_stripped"]))
         )
 
+    shipping = record.get("_shipping_index")
+    if shipping:
+        chips.insert(
+            0,
+            f'<span class="chip blue">{int(shipping)} / '
+            f"{int(record.get('_shipping_total', 0))}</span>",
+        )
+
+    translator = record.get("translator") or "English"
     pid = _esc(record.get("id"))
     return f"""
 <article class="pair {_conf_class(confidence)}" data-id="{pid}"
@@ -299,7 +307,7 @@ def _render_pair(record: dict) -> str:
   </div>
   <div class="meta">{" &nbsp;&middot;&nbsp; ".join(meta_bits)}</div>
   <div class="cols">
-    <div class="col en"><h4>English &mdash; Hitti 1916</h4>{_paragraphs(record.get("english", ""))}</div>
+    <div class="col en"><h4>English &mdash; {_esc(translator)}</h4>{_paragraphs(record.get("english", ""))}</div>
     <div class="col ar"><h4>العربية &mdash; OpenITI</h4>{_paragraphs(record.get("arabic", ""))}</div>
   </div>
   <div class="verdict">
@@ -326,8 +334,12 @@ def render_page(records: list[dict], summary: dict) -> str:
     )
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    band_options = "".join(f'<option value="{_esc(b)}">{_esc(b)}</option>' for b in bands)
-    method_options = "".join(f'<option value="{_esc(m)}">{_esc(m)}</option>' for m in methods)
+    band_options = "".join(
+        f'<option value="{_esc(b)}">{_esc(b)}</option>' for b in bands
+    )
+    method_options = "".join(
+        f'<option value="{_esc(m)}">{_esc(m)}</option>' for m in methods
+    )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -388,6 +400,101 @@ def render_page(records: list[dict], summary: dict) -> str:
   <p>Alignment method and thresholds:
      <code>src/versed_translator/benchmark/sources/baladhuri.py</code>.
      Provenance for every pair is carried in the sibling JSONL.</p>
+</footer>
+</div>
+<script>{SCRIPT}</script>
+</body>
+</html>
+"""
+
+
+def render_shipping_page(records: list[dict], summary: dict) -> str:
+    """Selected-only review page, highest confidence first.
+
+    `review.html` is triage: every proposal, rejects included, worst first.
+    Humans review this page. Reading the triage page as the shipped set has
+    caused a false "alignment is broken" alarm twice.
+    """
+    ordered = sorted(
+        records,
+        key=lambda r: (-float(r.get("confidence", 0.0)), str(r.get("id"))),
+    )
+    tagged = [
+        {**record, "_shipping_index": index, "_shipping_total": len(ordered)}
+        for index, record in enumerate(ordered, 1)
+    ]
+    bands = sorted({str(r.get("band")) for r in tagged})
+    methods = sorted({str(r.get("method")) for r in tagged})
+
+    stats = "".join(
+        f'<div class="stat"><div class="n">{_esc(v)}</div><div class="k">{_esc(k)}</div></div>'
+        for k, v in summary.get("stats", {}).items()
+    )
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    band_options = "".join(
+        f'<option value="{_esc(b)}">{_esc(b)}</option>' for b in bands
+    )
+    method_options = "".join(
+        f'<option value="{_esc(m)}">{_esc(m)}</option>' for m in methods
+    )
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipping review &mdash; {_esc(summary.get("work_title", ""))}</title>
+<style>{CSS}</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <h1>Shipping review &mdash; {_esc(summary.get("work_title", ""))}</h1>
+  <p class="sub">{_esc(summary.get("subtitle", ""))} &middot; generated {generated}</p>
+</header>
+
+<div class="notice">
+  <strong>This is the selected set, best first.</strong>
+  Sibling <code>review.html</code> is triage (all proposals, worst first, rejects
+  included) &mdash; do not review from there. Contains corpus text; keep it
+  outside the repository and out of <code>docs/</code>.
+  Rights: {_esc(summary.get("rights", ""))}
+</div>
+
+<div class="summary">{stats}</div>
+
+<div class="howto">
+  <p><strong>What to check.</strong> Not "is the English good" &mdash; is it a
+  translation of <em>this</em> Arabic, the same events in the same order.
+  A systematic one-report shift looks plausible pair by pair.</p>
+  <p><strong>Highest confidence sorts first.</strong> Mark verdicts below each
+  pair, then <em>Copy verdicts</em>. Spot-checking 10&ndash;15 is enough to
+  tell whether the method holds.</p>
+</div>
+
+<div class="controls">
+  <label for="f-method">method</label>
+  <select id="f-method"><option value="*">all</option>{method_options}</select>
+  <label for="f-band">band</label>
+  <select id="f-band"><option value="*">all</option>{band_options}</select>
+  <label for="f-conf">confidence at most</label>
+  <select id="f-conf">
+    <option value="">any</option>
+    <option value="0.6">0.60</option>
+    <option value="0.8">0.80</option>
+    <option value="0.9">0.90</option>
+  </select>
+  <span class="spacer"></span>
+  <span id="tally"></span>
+  <button id="copy" class="primary">Copy verdicts</button>
+</div>
+
+{"".join(_render_pair(r) for r in tagged)}
+
+<footer>
+  <p>Arabic: OpenITI <code>{_esc(summary.get("work_id", ""))}</code>.
+     English: {_esc(summary.get("english_source", ""))}.</p>
+  <p>Humans review this page, not <code>review.html</code>.</p>
 </footer>
 </div>
 <script>{SCRIPT}</script>

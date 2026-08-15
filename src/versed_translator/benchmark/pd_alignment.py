@@ -515,6 +515,10 @@ def main(argv: list[str] | None = None) -> int:
     }
     review_path = data_out / "review.html"
     review_path.write_text(alignment_review.render_page(all_records, summary), encoding="utf-8")
+    shipping_path = data_out / "review_shipping.html"
+    shipping_path.write_text(
+        alignment_review.render_shipping_page(selected_records, summary), encoding="utf-8"
+    )
 
     repo_out = args.repo_out.expanduser().resolve()
     repo_out.mkdir(parents=True, exist_ok=True)
@@ -555,7 +559,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"passages (with text) -> {passages_path}", file=sys.stderr)
     print(f"all passages         -> {all_path}", file=sys.stderr)
-    print(f"review page          -> {review_path}", file=sys.stderr)
+    print(f"review (triage)      -> {review_path}", file=sys.stderr)
+    print(f"review (shipping)    -> {shipping_path}", file=sys.stderr)
     print(f"manifest + report    -> {repo_out}", file=sys.stderr)
     return 0
 

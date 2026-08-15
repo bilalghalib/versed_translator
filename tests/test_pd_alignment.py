@@ -65,7 +65,9 @@ def test_arabic_script_in_a_repo_bound_record_is_refused():
 
 
 def test_a_long_latin_run_in_a_repo_bound_record_is_refused():
-    prose = "The Prophet went out to the city and stayed there for many days on end indeed"
+    prose = (
+        "The Prophet went out to the city and stayed there for many days on end indeed"
+    )
     with pytest.raises(SystemExit) as excinfo:
         pd_alignment._assert_textfree([{"id": "x", "english": prose}], "manifest")
     assert "long Latin text run" in str(excinfo.value)
@@ -133,7 +135,9 @@ def test_select_keeps_ratio_flagged_passages_because_confidence_already_prices_t
 
 def test_select_spreads_across_chapters_rather_than_draining_the_biggest():
     passages = [_passage(i, 150, 0.9, chapter="PART I / CHAPTER I") for i in range(10)]
-    passages += [_passage(100 + i, 150, 0.9, chapter="PART I / CHAPTER II") for i in range(10)]
+    passages += [
+        _passage(100 + i, 150, 0.9, chapter="PART I / CHAPTER II") for i in range(10)
+    ]
     chosen = pd_alignment.select(passages, target=8)
     chapters = {p.chapter_label for p in chosen}
     assert chapters == {"PART I / CHAPTER I", "PART I / CHAPTER II"}
@@ -153,7 +157,8 @@ def test_select_is_deterministic_for_a_fixed_seed():
 
 def test_parse_verdict_reads_a_well_formed_reply():
     verdict = llm_adjudicator.parse_verdict(
-        'Sure: {"verdict": "partial", "confidence": 0.8, "note": "one side has more"}', "m"
+        'Sure: {"verdict": "partial", "confidence": 0.8, "note": "one side has more"}',
+        "m",
     )
     assert verdict.ok
     assert verdict.verdict == "partial"
@@ -226,7 +231,9 @@ def test_review_page_sorts_lowest_confidence_first():
 
 
 def test_review_page_is_rtl_theme_aware_and_warns_about_corpus_text():
-    html = alignment_review.render_page([_review_record("a", 0.9)], {"work_title": "T", "stats": {}})
+    html = alignment_review.render_page(
+        [_review_record("a", 0.9)], {"work_title": "T", "stats": {}}
+    )
     assert 'class="col ar"' in html
     assert "direction: rtl" in html
     assert "prefers-color-scheme" in html
@@ -244,7 +251,16 @@ def test_review_page_escapes_markup_in_the_text():
 
 def test_review_page_shows_method_and_confidence_on_every_pair():
     html = alignment_review.render_page(
-        [_review_record("a", 0.42, method="llm_proposed")], {"work_title": "T", "stats": {}}
+        [_review_record("a", 0.42, method="llm_proposed")],
+        {"work_title": "T", "stats": {}},
     )
     assert "confidence 0.42" in html
     assert "llm_proposed" in html
+
+
+def test_review_page_uses_the_translator_not_a_hardcoded_hitti_label():
+    record = _review_record("a", 0.9)
+    record["translator"] = "Simon Ockley"
+    html = alignment_review.render_page([record], {"work_title": "T", "stats": {}})
+    assert "Simon Ockley" in html
+    assert "Hitti 1916" not in html

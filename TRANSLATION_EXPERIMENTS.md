@@ -165,3 +165,21 @@ The alarm's cause: `review.html` shows all proposals **worst-first including rej
 CONCLUSION: **The aligner and its filter both hold.** Zero misaligned passages shipped; zero over-rejection observed; the defect budget is 8 edge-jitter partials traceable to two mechanical causes, fixable or trimmable at freeze. The false alarm was a review-surface problem, now a standing trap + rule (humans review shipping views only). ATHAR is confirmed **eval_internal forever**; the PD-alignment path is not compliance overhead — it is the only way a public benchmark with English references can exist, which makes the benchmark itself a novel, publishable artifact.
 CAVEATS: auditors were LLM agents (blinded, evidence-cited) — corroborated by, not a substitute for, the 15/15 human audit on Baladhuri; the standing ask to spot-check ~10–15 pairs per new source on shipping pages stands. ATHAR verbatim matches were sampled per work, not exhaustive row-by-row; renewal-record checks (Faris 1952, Khadduri 1961) not run.
 DECISION FED: review-surface rule (traps), contamination-clean clause added to the v0.1 stop condition, blast-radius model-routing rule (traps), C8 A/B/C experiment parked as a GitHub issue, "Isnād Corpus" recorded as a D12a naming candidate. Source: 2026-08-15 session; full agent returns in that session's scratchpad `audit.json`.
+
+## EXP-20260815-02 — Miskawayh / Margoliouth year-anchored driver (C1)
+
+HYPOTHESIS: Hijri-year headings are a real bilateral anchor for *Tajarib al-Umam* / *Eclipse of the 'Abbasid Caliphate*, but within-year cuts are proposals (English running head lags a page) and will not survive content adjudication at the 25–40% rate seen on name-bracketed sources unless adjudication is mandatory.
+SETUP: OpenITI `0421Miskawayh.Tajarib` against Margoliouth & Amedroz 1921 vols IV–V (`eclipse_04ameduoft`, `eclipse_05ameduoft`). Extractor `sources/miskawayh.py` (year blocks + name-refined proportional cuts); new driver `benchmark/miskawayh_alignment.py`. Seed `20260815`. Adjudicator `claude-sonnet-5`, `--adjudicate-limit 120` year-spread of 340 eligible (bands 100–600, ratio 0.75–3.2, no `page_markers_nonmonotone`). Selection requires `aligned` verdict, spreads across years, target 40. Sentinel `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/done-adjudicate` = 0.
+COST: 120 Sonnet 5 calls; cache at `llm_verdicts.json` (replayable).
+RESULTS: 71 Arabic years / 73 English years → 69 shared → 59 used / 10 rejected on ratio → **504 proposals** (340 eligible). Adjudication of 120:
+
+| verdict | n | share |
+| --- | ---: | ---: |
+| aligned | 24 | 20% |
+| partial | 84 | 70% |
+| misaligned | 12 | 10% |
+
+**24 selected** (15 in 100–250, 9 in 250–600, 22 years, method `llm_proposed`, confidence 0.71–0.825). Shipping page: `~/versed-translator-data/benchmark-alignment/miskawayh_eclipse/review_shipping.html`. Manifest: `benchmark/alignment/miskawayh_eclipse/`.
+CONCLUSION: **The year anchor works as a coarse unit; the within-year cut does not, and the adjudicator says so honestly.** 20% aligned is below the 25–40% seen on name-bracketed sources, and the 70% partial mass is exactly the running-head lag the extractor documented. Nothing unadjudicated shipped. History (`التاريخ`) is already over the v0.1 40% cap, so **do not run another Miskawayh round and skip Suyuti for now** — the take is the 9 long-band passages pending human shipping review. Next source must be a new genre (Hariri / maqama).
+CAVEATS: 120/340 judged, not all proposals; human shipping review not yet done (standing 10–15 spot-check); `reference_fidelity` is `pending_human_audit`; Margoliouth abridgement not measured the way Hitti's 40% narrator drop was.
+DECISION FED: C1 diversification (long band +24 pending review), freeze-bar genre cap (stop mining history), review-surface rule (`render_shipping_page` now shared; every driver emits both pages).

@@ -259,6 +259,10 @@ def main(argv: list[str] | None = None) -> int:
     (data_out / "review.html").write_text(
         alignment_review.render_page(all_records, summary), encoding="utf-8"
     )
+    (data_out / "review_shipping.html").write_text(
+        alignment_review.render_shipping_page(selected_records, summary),
+        encoding="utf-8",
+    )
 
     repo_out = args.repo_out.expanduser().resolve()
     repo_out.mkdir(parents=True, exist_ok=True)
@@ -287,7 +291,8 @@ def main(argv: list[str] | None = None) -> int:
     (repo_out / "report.md").write_text(
         build_report(report, selected_records), encoding="utf-8"
     )
-    print(f"review page -> {data_out / 'review.html'}", file=sys.stderr)
+    print(f"review (triage)   -> {data_out / 'review.html'}", file=sys.stderr)
+    print(f"review (shipping) -> {data_out / 'review_shipping.html'}", file=sys.stderr)
     print(f"manifest + report -> {repo_out}", file=sys.stderr)
     return 0
 

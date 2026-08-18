@@ -300,6 +300,19 @@
       "keep_rate_pct": 0.0,
       "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
       "notes": "Divine Wisdom (0560AbuMansurTabarsi.Ihtijaj partial): preface confirms Ihtijaj translation (Imam Reza Foundation, Fizza Hyderi) but page states copying/printing illegal; no printpdf nid found (HTML-only). Not catalogued — partial + no fetch path. Saduq ManLaYahduruhu (0381IbnBabawayhSaduq.ManLaYahduruhuFaqih): Thaqalayn/Tawhid journal cites only, no full English book. Uyun/Kamal already in open_access from pass 5. Zero keepers."
+    },
+    {
+      "id": 23,
+      "date": "2026-08-18",
+      "source": "live-slug search: Radi al-Yasin Sulh al-Hasan",
+      "method": "web search → book page → printpdf verify → fetch",
+      "candidates_looked": 2,
+      "kept_public": 0,
+      "kept_train_editions": 1,
+      "files": 1,
+      "keep_rate_pct": 50.0,
+      "after": {"public_wuquf": 54, "train_ok": 65, "local_files": 152},
+      "notes": "Inventory URI: 1371RadiAlYasin.SulhHasan (no prior English row). al-islam.org/sulh-al-hasan-shaykh-radi-aal-yasin — full book (Jasim al-Rasheed / Ansariyan). printpdf/book/export/html/28139 returns application/pdf (verified). Catalogued open_access + train_english; fetched to ~/versed-translator-data/train-english/sulh_hasan_alislam.pdf. train_ok only."
     }
   ],
   "do_next": [
@@ -322,6 +335,7 @@
     "Do not re-search Tusi Tibyan — no public full English found (pass 19). IA 'Tibyan' English hits are Urdu/At-Tibyan false friends.",
     "Do not re-search Ibn Shahrashub Manaqib/Ma'alim — no public full English found (pass 20). Person page is reference-only.",
     "Do not re-verify Ihtijaj/Makarim/Sulaym/Irshad walls (pass 21). Divine Wisdom is partial Ihtijaj only — not a full book until printpdf verified.",
-    "Do not catalog divine-wisdom-prophet-muhammad (pass 22): HTML-only, anti-distribution notice, partial Ihtijaj."
+    "Do not catalog divine-wisdom-prophet-muhammad (pass 22): HTML-only, anti-distribution notice, partial Ihtijaj.",
+    "Do not re-search Sulh al-Hasan — catalogued pass 23 (1371RadiAlYasin.SulhHasan, printpdf 28139)."
   ]
 }

@@ -960,6 +960,18 @@
       "needles": ["endobj"],
       "reject": [],
       "notes": "Ayoub/Clarke / WOFIS 1986. Partial I'lam al-Wara. train_ok."
+    },
+    {
+      "id": "sulh_hasan_alislam",
+      "source": "open_access",
+      "openiti_uri": "1371RadiAlYasin.SulhHasan",
+      "match_title": "Sulh al-Hasan",
+      "kind": "http",
+      "url": "https://al-islam.org/printpdf/book/export/html/28139",
+      "local_name": "sulh_hasan_alislam.pdf",
+      "needles": ["endobj"],
+      "reject": [],
+      "notes": "Jasim al-Rasheed / Ansariyan. printpdf 28139. train_ok."
     }
   ]
 }

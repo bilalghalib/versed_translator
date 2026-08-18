@@ -62,14 +62,14 @@ Generated on: 2026-08-18
 
 ## Translations (English editions)
 
-- Rows: 3180
+- Rows: 3181
 - Public (wuquf-eligible): 54
-- Train-only (online, not dataset-publish): 64
-- Joined to an OpenITI URI: 3140
+- Train-only (online, not dataset-publish): 65
+- Joined to an OpenITI URI: 3141
 - Distinct OpenITI works with an English row (excl. quarantine): 52
 - Alias candidates still unverified: 897
 - Catalog dupes of PD seed: 895
-- Local English files recorded: 151 (151 title-page ok)
+- Local English files recorded: 152 (152 title-page ok)
 - Public editions with a local file: 0/54
-- By policy: {'dropped': 3, 'eval_internal': 18, 'quarantine': 2108, 'redistribute_ok': 54, 'train_ok': 64, 'unknown': 933}
-- By source: {'archive_org': 252, 'athar': 18, 'gutenberg': 100, 'hathitrust': 2555, 'open_access': 64, 'otf': 79, 'pd_seed': 64, 'rasaif_biblio': 29, 'wikisource': 19}
+- By policy: {'dropped': 3, 'eval_internal': 18, 'quarantine': 2108, 'redistribute_ok': 54, 'train_ok': 65, 'unknown': 933}
+- By source: {'archive_org': 252, 'athar': 18, 'gutenberg': 100, 'hathitrust': 2555, 'open_access': 65, 'otf': 79, 'pd_seed': 64, 'rasaif_biblio': 29, 'wikisource': 19}

@@ -1093,6 +1093,23 @@
       "confidence": "high",
       "genre": "sira / imamate (partial)",
       "notes": "Partial English of I'lam al-Wara (Prophet + Fatimah only; not the four-part Arabic). Align to OpenITI IclamWara. Mishkat on the same person page already catalogued. Train-only."
+    },
+    {
+      "edition_key": "sulh_hasan_alislam",
+      "work_arabic_title": "Sulh al-Hasan (صُلحُ الحَسَن)",
+      "work_english_title": "Sulh al-Hasan (The Peace Treaty of Imam al-Hasan)",
+      "author": "Radi al-Yasin (Shaykh Radi Aal-Yasin, d. 1371/1953)",
+      "openiti_uri_guess": "1371RadiAlYasin.SulhHasan",
+      "translator": "Jasim al-Rasheed",
+      "publication_year": "Ansariyan (Qum)",
+      "source_url": "https://al-islam.org/sulh-al-hasan-shaykh-radi-aal-yasin",
+      "digital_form": "public PDF GET printpdf/book/export/html/28139",
+      "reuse_class": "train",
+      "rights_status": "IN_COPYRIGHT",
+      "rights_evidence": "Ansariyan English. al-islam.org free PDF GET is not a sublicense. train_ok.",
+      "confidence": "high",
+      "genre": "history / imamate (analytic)",
+      "notes": "Book-length English of Radi al-Yasin's Sulh al-Hasan. DILP notice on landing page flags translation quality edits only. printpdf 28139 verified 2026-08-18. Train-only."
     }
   ]
 }

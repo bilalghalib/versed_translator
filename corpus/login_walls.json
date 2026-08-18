@@ -1,0 +1,325 @@
+{
+  "schema_note": "English editions we want for training or alignment but cannot public-GET without a login, borrow, or storefront. Every wall has a url to open later. Drop files into ~/versed-translator-data/train-english/ (in-copyright) or pd-english/ (US PD). Do not add Scribd/libgen/Hathi downloaders. Hosting a scan is not a sublicense.",
+  "compiled_date": "2026-08-17",
+  "fields": {
+    "url": "Primary page to open when you have login, borrow, or purchase access.",
+    "urls": "Optional extra pages (IA borrow copies, other volumes, reprints to reject).",
+    "status": "blocked | fetched | partial. fetched = we got a public GET elsewhere; keep the wall so the storefront is not re-scraped. partial = excerpt on disk, full book still walled.",
+    "bucket": "train-english (in-copyright) or pd-english (US PD / CC0/BY/BY-SA)."
+  },
+  "walls": [
+    {
+      "id": "lal_english_nyu_press",
+      "what": "Library of Arabic Literature English volumes",
+      "openiti": "per title; Arabic PDFs are already free on the LAL site",
+      "url": "https://www.libraryofarabicliterature.org/books/",
+      "urls": [
+        "https://nyupress.org/series/library-of-arabic-literature/"
+      ],
+      "wall": "NYU Press storefront. Site posts Arabic PDFs only.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "facing-page LAL editions are paragraph-alignable to the free Arabic PDF, and to OpenITI if the LAL Arabic matches the OpenITI witness",
+      "drop": "~/versed-translator-data/train-english/lal_english_drop.pdf"
+    },
+    {
+      "id": "scribd_and_libgen",
+      "what": "Whatever is only on Scribd or libgen (Arberry Seven Odes was one)",
+      "url": "https://www.scribd.com/",
+      "urls": [
+        "https://libgen.is/"
+      ],
+      "wall": "login/paywall. Not a public GET. Do not scrape. Arberry 1957 Seven Odes is already on disk from muslimphilosophy.com.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "depends on the book"
+    },
+    {
+      "id": "ia_controlled_lending",
+      "what": "IA borrow-only scans (encrypted.pdf / LCP epub). Example: sevenodesfirstch0000ajar",
+      "url": "https://archive.org/details/sevenodesfirstch0000ajar",
+      "urls": [
+        "https://archive.org/details/fihristofalnadim0000ibna",
+        "https://archive.org/details/bookofmisersalbu0000jahi",
+        "https://archive.org/details/treatiseoncanono0000avic",
+        "https://archive.org/details/ringofdovetreati0000ibnh",
+        "https://archive.org/details/muqaddimahintrod0000ibnk",
+        "https://archive.org/details/bwb_S0-AVO-331",
+        "https://archive.org/details/bwb_C0-ABV-991",
+        "https://archive.org/details/historyofaltabar0001abar",
+        "https://archive.org/details/arabsyriangentle0000usma",
+        "https://archive.org/details/isbn_2900231121254",
+        "https://archive.org/details/memoirsofarabsyr0000tran"
+      ],
+      "wall": "IA library login + 14-day loan. djvu.txt 403s. 1970+ reprints here are train-only even after a loan; Kelley/Gryphon Gruner reprints are not the 1930 Luzac PD drop.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "same as a purchased scan"
+    },
+    {
+      "id": "hathitrust_pdf",
+      "what": "HathiTrust full-view PD books whose PDF download wants a partner login. Prendergast mdp.39015004171925 (we have a DLI OCR instead). Gairdner 1924 Mishkat HT PDF still walls; HTML transcription is now on disk.",
+      "openiti": "0505Ghazali.MishkatAnwar / 0398BadicZamanHamadhani.Maqamat",
+      "url": "https://babel.hathitrust.org/cgi/pt?id=mdp.39015004171925",
+      "urls": [
+        "https://catalog.hathitrust.org/Record/001229726"
+      ],
+      "wall": "HT full view is often readable; PDF/OCR dump may need university login. Do not dump the 2,555 Hathi catalog rows.",
+      "status": "partial",
+      "bucket": "pd-english",
+      "align_if_dropped": "Gairdner 1924 RAS is in pd-english from ghazali.org HTML. IA 1952 reprint and Buchman 1998 remain traps."
+    },
+    {
+      "id": "hathi_gruner_canon_1930",
+      "what": "O. Cameron Gruner, A Treatise on the Canon of Medicine of Avicenna (Luzac, London, 1930) — Book 1 only",
+      "openiti": "0428IbnSina.QanunFiTibb",
+      "url": "https://wellcomecollection.org/works/anze6zjs",
+      "urls": [
+        "https://find.library.upenn.edu/catalog/9977571065903681",
+        "https://archive.org/details/treatiseoncanono0000avic",
+        "https://babel.hathitrust.org/cgi/pt?id=mdp.39015059983588",
+        "https://babel.hathitrust.org/cgi/pt?id=mdp.39015029949115"
+      ],
+      "wall": "US PD as of 1 Jan 2026 (95-year term). Hathi dump has no 1930 Luzac row — only 1984 Classics of Medicine Library reprints (mdp.39015059983588 / mdp.39015029949115, rights_date 1984, deny/ic). Reject those. Reject IA 1970 Kelley borrow (treatiseoncanono0000avic) and the AMS 1973 stream. Wellcome has the 1930 physical. Penn Arcadian Library Online is a site-license of the 1930 sheets. Partner PDF of the 1930 Luzac original is the drop we want.",
+      "status": "blocked",
+      "bucket": "pd-english",
+      "align_if_dropped": "Book 1 of the Qanun; medicine is an empty genre. Drop as ~/versed-translator-data/pd-english/gruner_canon_1930.pdf (or djvu.txt). Reject 1970 Kelley and 1984 Gryphon/Classics of Medicine reprints.",
+      "drop": "~/versed-translator-data/pd-english/gruner_canon_1930.pdf"
+    },
+    {
+      "id": "pickthall_1930_wikisource_export",
+      "what": "Pickthall, The Meaning of the Glorious Koran (1930). US PD as of 1 Jan 2026.",
+      "openiti": "0001Quran.Mushaf",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/73/The_Meaning_of_the_Glorious_Koran_%281930%29.pdf",
+      "urls": [
+        "https://en.wikisource.org/wiki/The_Meaning_of_the_Glorious_Koran_(1930)"
+      ],
+      "wall": "fetched. Wikimedia Commons 1930 Knopf scan is a public PDF GET. Wikisource HTML is incomplete. Gutenberg 16955 mixes Pickthall with Yusuf Ali 1934 — do not fetch that bundle.",
+      "status": "fetched",
+      "bucket": "pd-english",
+      "align_if_dropped": "sura/ayah, canonical order, modern English. Better MT target than Palmer/Rodwell."
+    },
+    {
+      "id": "gibb_ibn_battuta",
+      "what": "H.A.R. Gibb, Travels of Ibn Battuta, Hakluyt Society (1958–)",
+      "openiti": "0779IbnBattuta.Rihla",
+      "url": "https://www.routledge.com/The-Travels-of-Ibn-Battuta-AD-1325-1354-Volume-I/Gibb/p/book/9781409414766",
+      "urls": [
+        "https://doi.org/10.4324/9781315552019"
+      ],
+      "wall": "in copyright. Hakluyt / Routledge / T&F storefront. Lee 1829 on disk is an abridgement — poor page match to full OpenITI Rihla.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "best page-level pair for the Rihla; train_ok only"
+    },
+    {
+      "id": "suny_tabari",
+      "what": "SUNY 40-volume History of al-Tabari",
+      "openiti": "0310Tabari.Tarikh",
+      "url": "https://sunypress.edu/Books/S/Set-History-of-al-abari",
+      "urls": [
+        "https://sunypress.edu/Books/T/The-History-of-al-abari",
+        "https://archive.org/details/historyofaltabar0001abar"
+      ],
+      "wall": "in copyright. No public GET of the SUNY volumes. IA vol. 1 (historyofaltabar0001abar, 1988) is borrow-only. There is no PD English of the History either — that only blocks redistribute_ok, not training.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "volume/year spine is excellent"
+    },
+    {
+      "id": "rosenthal_muqaddimah",
+      "what": "Franz Rosenthal, The Muqaddimah (1958, renewed)",
+      "openiti": "0808IbnKhaldun.Tarikh (no separate Muqaddimah URI)",
+      "url": "https://press.princeton.edu/books/hardcover/9780691281902/the-muqaddimah",
+      "urls": [
+        "https://press.princeton.edu/books/paperback/9780691166285/the-muqaddimah",
+        "https://traditionalhikma.com/wp-content/uploads/2015/08/The-Muqaddimah-by-Ibn-Khaldun-Translated-by-Franz-Rosenthal.pdf",
+        "https://archive.org/details/muqaddimahintrod0000ibnk"
+      ],
+      "wall": "in copyright. Princeton/Bollingen storefront. Traditional Hikma public PDF GET is already in train-english (eval_internal, do not ship). IA 2005 abridgement is borrow-only. ATHAR English is this edition verbatim.",
+      "status": "partial",
+      "bucket": "train-english",
+      "align_if_dropped": "chapter/section numbers; Arabic is the preface of Tarikh",
+      "drop": "~/versed-translator-data/train-english/rosenthal_muqaddimah_hikma.pdf"
+    },
+    {
+      "id": "guillaume_sira",
+      "what": "A. Guillaume, The Life of Muhammad (1955)",
+      "openiti": "0151IbnIshaq.Sira",
+      "url": "https://oup.com.pk/academic-generalbooks/biographies-memoirs/the-life-of-muhammad.html",
+      "urls": [
+        "https://archive.org/details/bwb_S0-AVO-331"
+      ],
+      "wall": "in copyright. OUP storefront. IA bwb_S0-AVO-331 is a 1968 borrow. Unrestricted IA uploads of this title look like unauthorized copies — do not treat them as a public GET. Edwardes 1964 is an abridgement trap.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "Wüstenfeld page numbers printed in Guillaume"
+    },
+    {
+      "id": "arberry_ring_of_the_dove",
+      "what": "Arberry, The Ring of the Dove (Ibn Hazm Tawq al-Hamama)",
+      "openiti": "0456IbnHazm.TawqHamama",
+      "url": "https://www.muslimphilosophy.com/hazm/dove/ringdove.html",
+      "urls": [
+        "https://www.muslimphilosophy.com/hazm/dove/",
+        "https://archive.org/details/ringofdovetreati0000ibnh"
+      ],
+      "wall": "fetched. Public HTML GET of the Luzac Arberry translation at muslimphilosophy.com. In copyright — train-english only. IA 1994 Luzac reprint is borrow-only.",
+      "status": "fetched",
+      "bucket": "train-english",
+      "align_if_dropped": "chapter titles (30 chapters on love)",
+      "drop": "~/versed-translator-data/train-english/arberry_ring_of_the_dove.html"
+    },
+    {
+      "id": "serjeant_jahiz_bukhala",
+      "what": "Serjeant English of al-Jahiz Kitab al-Bukhala (Garnet 1997)",
+      "openiti": "0255Jahiz.Bukhala",
+      "url": "https://www.garnetpublishing.co.uk/product/the-book-of-misers-al-bukhala/",
+      "urls": [
+        "https://archive.org/details/bookofmisersalbu0000jahi"
+      ],
+      "wall": "in copyright. Garnet / Center for Muslim Contribution to Civilization. IA 2000 reprint is borrow-only. No PD English found.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "anecdote/chapter heads"
+    },
+    {
+      "id": "faris_book_of_idols_1952",
+      "what": "Nabih Amin Faris, The Book of Idols (Princeton 1952)",
+      "openiti": "0204IbnKalbi.Asnam",
+      "url": "https://www.ai-deutschland.de/Books/Al-Kalbi/",
+      "wall": "fetched. Public HTML GET at ai-deutschland.de/Books/Al-Kalbi/ (27 chapter pages). In copyright — train-english only, never pd-english.",
+      "status": "fetched",
+      "bucket": "train-english",
+      "align_if_dropped": "named idol chapters (Allat, Uzza, Manah…). Short book. train_ok only. ATHAR English is this edition.",
+      "drop": "~/versed-translator-data/train-english/faris_book_of_idols_1952.txt"
+    },
+    {
+      "id": "sacred_texts_cloudflare",
+      "what": "sacred-texts.com HTML (Prendergast Hamadhani, hanged poems)",
+      "url": "https://sacred-texts.com/isl/",
+      "wall": "Cloudflare bot check. We fetched Hamadhani from IA instead.",
+      "status": "partial",
+      "bucket": "pd-english",
+      "align_if_dropped": "n/a"
+    },
+    {
+      "id": "publisher_platforms",
+      "what": "Brill, Cambridge Core, JSTOR, Project MUSE, De Gruyter ebooks",
+      "url": "https://brill.com/",
+      "urls": [
+        "https://www.cambridge.org/core",
+        "https://www.jstor.org/",
+        "https://muse.jhu.edu/",
+        "https://www.degruyter.com/"
+      ],
+      "wall": "institutional login. Includes Faris 1952 PDF at De Gruyter (we have the HTML GET instead).",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "train_ok unless the license is CC0/BY/BY-SA"
+    },
+    {
+      "id": "dodge_fihrist_1970",
+      "what": "Bayard Dodge, The Fihrist of al-Nadim (Columbia, 1970), 2 vols",
+      "openiti": "0385IbnNadim.Fihrist",
+      "url": "https://cup.columbia.edu/book/the-fihrist-of-al-nadim/9780231029254",
+      "urls": [
+        "https://archive.org/details/fihristofalnadim0000ibna",
+        "https://www.muslimphilosophy.com/books/nad-phil.pdf"
+      ],
+      "wall": "in copyright. Columbia storefront. IA fihristofalnadim0000ibna is a 1970 borrow. muslimphilosophy nad-phil.pdf is a philosophy-chapter extract already in train-english — not the whole catalogue.",
+      "status": "partial",
+      "bucket": "train-english",
+      "align_if_dropped": "ten discourses / chapter heads of the Fihrist",
+      "drop": "~/versed-translator-data/train-english/nadim_fihrist_philosophy.pdf"
+    },
+    {
+      "id": "broadhurst_ibn_jubayr_1952",
+      "what": "R.J.C. Broadhurst, The Travels of Ibn Jubayr (Jonathan Cape 1952; I.B. Tauris reprint)",
+      "openiti": "0614IbnJubayr.Rihla",
+      "url": "https://www.bloomsbury.com/us/travels-of-ibn-jubayr-9781788318228/",
+      "wall": "in copyright. 1952 Cape / 2019 I.B. Tauris. IA 1907 Wright items are the Arabic edition, not this English. No public GET of Broadhurst found.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "itinerary / city heads; train_ok only"
+    },
+    {
+      "id": "goodman_hayy",
+      "what": "Lenn E. Goodman, Ibn Tufayl's Hayy Ibn Yaqzan (Twayne 1972 / Chicago reprint)",
+      "openiti": "0581IbnTufayl.HayyIbnYaqzan",
+      "url": "https://press.uchicago.edu/ucp/books/book/chicago/I/bo25938805.html",
+      "wall": "in copyright. Chicago storefront. We already have Ockley 1708 (pd-english) and Fulton 1929 (train-english). Goodman is the modern literary register if you buy or borrow it.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "seven-age / section heads of Hayy"
+    },
+    {
+      "id": "khadduri_shafii_risala",
+      "what": "Majid Khadduri, Al-Shafi'i's Risala (Johns Hopkins 1961; Islamic Texts Society reprint)",
+      "openiti": "0204Shafici.Risala",
+      "url": "https://its.org.uk/catalogue/al-shafiis-risala-treatise-on-the-foundation-of-islamic-jurisprudence-hardback/",
+      "urls": [
+        "https://archive.org/details/bwb_C0-ABV-991"
+      ],
+      "wall": "in copyright. ITS storefront. IA bwb_C0-ABV-991 (1961) is borrow-only. LAL also has a Lowry Epistle on Legal Theory — that English is the LAL NYU Press wall, not this one.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "Risala section heads; train_ok only"
+    },
+    {
+      "id": "beeston_jahiz_qiyan",
+      "what": "A.F.L. Beeston, The Epistle on Singing-Girls of Jahiz (Aris & Phillips 1980)",
+      "openiti": "0255Jahiz.Qiyan",
+      "url": "https://obnb.uk/p11181459-the-epistle-on-singing-girls-of-jahiz",
+      "wall": "in copyright. Warminster Aris & Phillips 1980 (later Liverpool UP). Short facing edition. No public GET found.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "short risala; paragraph-alignable"
+    },
+    {
+      "id": "howard_kitab_al_irshad",
+      "what": "I.K.A. Howard, Kitab al-Irshad (Muhammadi Trust 1981)",
+      "openiti": "0413ShaykhMufid.Irshad",
+      "url": "https://www.al-islam.org/search/site/kitab%20al-irshad%20howard",
+      "wall": "in copyright. Muhammadi Trust / Tahrike Tarsile. al-islam.org does not host the full Howard book (intros/articles only; printpdf 404). No public GET of the complete English.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "twelve-Imam chapter spine"
+    },
+    {
+      "id": "pellat_jahiz_life_works",
+      "what": "Charles Pellat / D.M. Hawke, The Life and Works of Jahiz (Routledge 1969) — selected texts, not Bukhala complete",
+      "openiti": "0255Jahiz.Bukhala",
+      "url": "https://doi.org/10.1017/s0035869x00129284",
+      "wall": "in copyright. Routledge & Kegan Paul 1969. Anthology via French, not a full Bukhala. Serjeant 1997 is the complete misers translation (separate wall).",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "selected extracts only"
+    },
+    {
+      "id": "nykl_dove_1931",
+      "what": "A.R. Nykl, A Book Containing the Risala Known as The Dove's Neck-Ring (Oriental Institute, 1931)",
+      "openiti": "0456IbnHazm.TawqHamama",
+      "url": "https://oi.uchicago.edu/",
+      "wall": "1931 is still in US copyright until 1 Jan 2027 (95-year term). No public GET found. Arberry Luzac HTML is already in train-english and is the better modern English.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "same 30-chapter spine as Arberry; wait for PD in 2027 if you want a redistribute_ok Dove"
+    },
+    {
+      "id": "hitti_usama_reprints",
+      "what": "Later reprints of Hitti's 1929 Usama (Princeton 1964/1987/2000). The 1929 original is already in pd-english.",
+      "openiti": "0584UsamaIbnMunqidh.Ictibar",
+      "url": "https://archive.org/details/arabsyriangentle0000usma",
+      "urls": [
+        "https://archive.org/details/isbn_2900231121254",
+        "https://archive.org/details/memoirsofarabsyr0000tran",
+        "https://archive.org/details/arabsyriangentle0000usam"
+      ],
+      "wall": "IA borrow-only reprints. Do not replace the 1929 PD file with a 1987/2000 scan.",
+      "status": "blocked",
+      "bucket": "train-english",
+      "align_if_dropped": "n/a — 1929 Hitti is already public_wuquf"
+    }
+  ]
+}

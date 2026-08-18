@@ -1,0 +1,152 @@
+{
+  "schema_note": "ATHAR's 18 source works, listed in arXiv 2407.19835 §3.1. The HF parquet has no per-row work column (authors deleted it). These rows are a private work-level index only: English is eval_internal forever (EXP-20260815-01). openiti_uri_guess is a catalog match, not an alignment claim.",
+  "compiled_from": "https://arxiv.org/abs/2407.19835",
+  "usage_policy": "eval_internal",
+  "visibility": "private_eval",
+  "entries": [
+    {
+      "work_arabic_title": "تاريخ الطبري",
+      "work_english_title": "History of al-Tabari",
+      "author": "Muhammad ibn Jarir al-Tabari",
+      "openiti_uri_guess": "0310Tabari.TarikhRusulMuluk",
+      "known_english": "SUNY 40-vol series (in copyright); no pre-1930 English of the History",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "تحفة النظار - الرحلة",
+      "work_english_title": "The Travels of Ibn Battuta",
+      "author": "Ibn Battuta",
+      "openiti_uri_guess": "0779IbnBattuta.Rihla",
+      "known_english": "Lee 1829 abridgement is PD; Gibb Hakluyt 1958+ is in copyright",
+      "pd_english_known": true
+    },
+    {
+      "work_arabic_title": "مقدمة ابن خلدون",
+      "work_english_title": "The Muqaddimah",
+      "author": "Ibn Khaldun",
+      "openiti_uri_guess": "0808IbnKhaldun.Muqaddima",
+      "known_english": "Rosenthal 1958, renewed 1986, in print — ATHAR English matches verbatim",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "الاموال",
+      "work_english_title": "The Book of Revenue",
+      "author": "Abu Ubayd al-Qasim ibn Sallam",
+      "openiti_uri_guess": "0224AbuUbaydQasimSalam.Amwal",
+      "known_english": "Ben Shemesh / later English; no PD English in existence per EXP-20260815-01",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "العقد الفريد",
+      "work_english_title": "The Unique Necklace",
+      "author": "Ibn Abd Rabbih",
+      "openiti_uri_guess": "0328IbnAbdRabbih.IqdFarid",
+      "known_english": "no PD English in existence per EXP-20260815-01",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "المناظر",
+      "work_english_title": "The Optics",
+      "author": "Ibn al-Haytham",
+      "openiti_uri_guess": "0430IbnHaytham.Manazir",
+      "known_english": "no PD English in existence per EXP-20260815-01",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "النوادر السلطانية و المحاسن اليوسفية",
+      "work_english_title": "The Sultan's Anecdotes and Yusuf's Merits",
+      "author": "Ibn Shaddad",
+      "openiti_uri_guess": "0632IbnShaddad.NawadirSultaniyya",
+      "known_english": "modern biographies of Saladin; not treated as PD here",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "التصريف لمن عجز عن التأليف",
+      "work_english_title": "The Method of Healing (al-Tasrif)",
+      "author": "al-Zahrawi",
+      "openiti_uri_guess": "0404Zahrawi.Tasrif",
+      "known_english": "partial early modern Latin/English; not a cleared PD pair",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "نشوار المحاضرة و أخبار المذاكرة",
+      "work_english_title": "Anecdotes of the Session (Nishwar al-Muhadara)",
+      "author": "al-Tanukhi",
+      "openiti_uri_guess": "0384MuhassinTanukhi.NishwarMuhadara",
+      "known_english": "Margoliouth 1922 — plausibly US-PD, contingent on edition check",
+      "pd_english_known": true
+    },
+    {
+      "work_arabic_title": "القانون في الطب",
+      "work_english_title": "The Canon of Medicine",
+      "author": "Ibn Sina",
+      "openiti_uri_guess": "0428IbnSina.Qanun",
+      "known_english": "Gruner 1930 — contingent; not pre-1930",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "الاعتبار",
+      "work_english_title": "The Book of Reflection (Kitab al-I'tibar)",
+      "author": "Usama ibn Munqidh",
+      "openiti_uri_guess": "0584IbnMunqidhShayzari.Ictibar",
+      "known_english": "Hitti 1929 — US PD via 95-year term as of 2025, not PD_US_PRE_1930; EU life+70 to 2049",
+      "pd_english_known": true
+    },
+    {
+      "work_arabic_title": "الرسالة",
+      "work_english_title": "The Epistle (al-Risala)",
+      "author": "al-Shafi'i",
+      "openiti_uri_guess": "0204Shafici.Risala",
+      "known_english": "modern translations; not treated as PD here",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "البخلاء",
+      "work_english_title": "The Book of Misers",
+      "author": "al-Jahiz",
+      "openiti_uri_guess": "0255Jahiz.Bukhala",
+      "known_english": "modern translations (Serjeant etc.); not treated as PD here",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "نهج البلاغة",
+      "work_english_title": "The Path of Eloquence (Nahj al-Balagha)",
+      "author": "attributed to Ali ibn Abi Talib; compiled by al-Sharif al-Radi",
+      "openiti_uri_guess": "0406SharifRadi.NahjBalagha",
+      "known_english": "many modern translations; not treated as PD here",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "فتوح الشام",
+      "work_english_title": "Futuh al-Sham",
+      "author": "al-Waqidi (attributed)",
+      "openiti_uri_guess": "0207Waqidi.FutuhSham",
+      "known_english": "no cleared PD English pair",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "الأخلاق والسير",
+      "work_english_title": "Ethics and Conduct",
+      "author": "Ibn Miskawayh",
+      "openiti_uri_guess": "0421Miskawayh.TahdhibAkhlaq",
+      "known_english": "modern translations; not the Eclipse history pair",
+      "pd_english_known": false
+    },
+    {
+      "work_arabic_title": "حي بن يقظان",
+      "work_english_title": "Hayy ibn Yaqzan",
+      "author": "Ibn Tufayl",
+      "openiti_uri_guess": "0581IbnTufayl.HayyIbnYaqzan",
+      "known_english": "Ockley 1708 is PD (separate pd_seed row); ATHAR English may not be that edition",
+      "pd_english_known": true
+    },
+    {
+      "work_arabic_title": "الاصنام",
+      "work_english_title": "The Book of Idols",
+      "author": "Hisham ibn al-Kalbi",
+      "openiti_uri_guess": "0204IbnKalbi.Asnam",
+      "known_english": "Faris 1952 — ATHAR English matches verbatim; in copyright",
+      "pd_english_known": false
+    }
+  ]
+}

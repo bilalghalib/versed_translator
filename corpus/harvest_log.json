@@ -261,10 +261,22 @@
       "keep_rate_pct": 0.0,
       "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
       "notes": "Inventory URI: 0460ShaykhTusi.Tibyan. Live-slug search only — did not re-scrape Tusi person page (Ghayba/Tenets already catalogued). al-islam: Thaqalayn article cites Tibyan academically, no full book. IA: Arabic-only tafsir-tebyan; English 'Tibyan' hits are Urdu/At-Tibyan-publications false friends. Wikishia/alkarbala: Arabic scans only. No English translation row in inventory. Zero keepers — no_public_full_text."
+    },
+    {
+      "id": 20,
+      "date": "2026-08-18",
+      "source": "live-slug search: Ibn Shahrashub Manaqib / Ma'alim",
+      "method": "web search (al-islam, IA, wikishia); no person page re-scrape",
+      "candidates_looked": 4,
+      "kept_public": 0,
+      "kept_train_editions": 0,
+      "files": 0,
+      "keep_rate_pct": 0.0,
+      "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
+      "notes": "Inventory URIs: 0588IbnShahrAshub.ManaqibAlAbiTalib, .MacalimCulama. Live-slug search — did not re-walk person page (reference-only per prior pass). al-islam: Thaqalayn article on Mutashabih (44101), Wudhu article cites Manaqib (162444), History of Shi'ism lessons cite Ma'alim — no full English book pages. IA: zero English by Shahrashub. Wikishia: Arabic editions only. Confirms do_next note: person page is reference-only, not a harvest source. Zero keepers — no_public_full_text."
     }
   ],
   "do_next": [
-    "Ibn Shahrashub person page is reference-only, not a full English book.",
     "Haydar Amuli Inner Secrets has no OpenITI URI; do not invent one.",
     "Tabarsi Ihtijaj / Makarim, Kitab Sulaym, Mufid Irshad: still no public full English book (Howard stays a wall).",
     "Log every pass here. Reload inventory after catalog edits."
@@ -282,6 +294,7 @@
     "Do not invent URIs for Nafasul Mahmum, House of Sorrows, or Manazil al-Akhirah.",
     "Do not guess Ali b. Ibrahim al-Qummi or Ayyashi person slugs. Neither tafsir has a full English book on al-islam.",
     "Do not re-search Rawandi Qisas/Kharaij/Dacawat — no public full English found (pass 18). Tha'labi/Kisa'i Qisas are false friends.",
-    "Do not re-search Tusi Tibyan — no public full English found (pass 19). IA 'Tibyan' English hits are Urdu/At-Tibyan false friends."
+    "Do not re-search Tusi Tibyan — no public full English found (pass 19). IA 'Tibyan' English hits are Urdu/At-Tibyan false friends.",
+    "Do not re-search Ibn Shahrashub Manaqib/Ma'alim — no public full English found (pass 20). Person page is reference-only."
   ]
 }

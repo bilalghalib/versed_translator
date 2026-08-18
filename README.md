@@ -13,5 +13,13 @@ Four documents, four jobs:
 
 `VERSED_TRANSLATION_ROADMAP.md` holds component END STATEs and their `Verify:` checks — contracts, not status. Decisions are GitHub issues labelled `decision`. The dashboard is generated and authoritative for nothing.
 
----
+The reusable Arabic-English zipper is documented in
+[`docs/ALIGNMENT_BUNDLES.md`](docs/ALIGNMENT_BUNDLES.md). It emits deterministic
+structural + paragraph + sentence alignment archives through `versed-align`;
+it does not mutate Versed editions.
 
+The reviewed algorithm, real Hamadhani results, and reproducible random
+alignment examples are in
+[`docs/ALIGNMENT_ALGORITHM_REVIEW.md`](docs/ALIGNMENT_ALGORITHM_REVIEW.md).
+
+---

@@ -27,6 +27,7 @@ dependencies = [
 versed-benchmark = "versed_translator.cli:benchmark_main"
 versed-harness = "versed_translator.cli:harness_main"
 versed-corpus = "versed_translator.cli:corpus_main"
+versed-align = "versed_translator.align.__main__:main"
 
 [dependency-groups]
 dev = [

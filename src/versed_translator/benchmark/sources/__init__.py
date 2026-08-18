@@ -26,7 +26,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from versed_translator.benchmark.sources import athar, hadith_json, lk_hadith
 from versed_translator.benchmark.sources.schema import (
     PAIR_FIELDS,
     arabic_word_count,
@@ -44,11 +43,31 @@ DEFAULT_CORPUS_DIRS: dict[str, Path] = {
     "hadith_json": SCRATCH_DIR / "corpus-cache" / "hadith-json",
 }
 
-SOURCE_MODULES = {
-    "athar": athar,
-    "lk_hadith": lk_hadith,
-    "hadith_json": hadith_json,
-}
+
+def __getattr__(name: str):
+    """Load pandas-backed corpus readers only when asked.
+
+    Importing this package for PD alignment (translit, OpenITI, Hayy)
+    must not pull numpy/pandas. Those readers segfault in some macOS
+    test environments during numpy's self-check.
+    """
+    if name == "SOURCE_MODULES":
+        from versed_translator.benchmark.sources import athar, hadith_json, lk_hadith
+
+        modules = {
+            "athar": athar,
+            "lk_hadith": lk_hadith,
+            "hadith_json": hadith_json,
+        }
+        globals()["SOURCE_MODULES"] = modules
+        return modules
+    if name in {"athar", "hadith_json", "lk_hadith"}:
+        import importlib
+
+        module = importlib.import_module(f"versed_translator.benchmark.sources.{name}")
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     "DEFAULT_CORPUS_DIRS",

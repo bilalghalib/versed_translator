@@ -235,6 +235,22 @@ def parse(text: str, uri: str = "") -> OpenITIText:
 
         continuation_match = _CONTINUATION_RE.match(stripped)
         if continuation_match:
+            # Some editions put the opening prose in a level-1 ``# |``
+            # heading and continue it with ``~~`` lines. Preserve that prose
+            # as a paragraph instead of silently discarding the continuation.
+            if (
+                current_paragraph is None
+                and current_section is not None
+                and current_section.level == 1
+            ):
+                current_paragraph = Paragraph(
+                    index=para_index,
+                    section_index=current_section.index,
+                    line_no=current_section.line_no,
+                    text="",
+                )
+                para_index += 1
+                pending = [current_section.title]
             if current_paragraph is not None:
                 pending.append(continuation_match.group("text"))
             continue

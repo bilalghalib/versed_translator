@@ -88,6 +88,16 @@ def test_parse_survives_input_with_no_header():
     assert text.sections[0].paragraphs[0].text == "lone paragraph"
 
 
+def test_level_one_heading_continuations_are_not_silently_lost():
+    text = openiti_markdown.parse(
+        "### | CHAPTER\n# | opening words\n~~continued words\n# next paragraph\n"
+    )
+    assert [paragraph.text for paragraph in text.all_paragraphs] == [
+        "opening words continued words",
+        "next paragraph",
+    ]
+
+
 # --------------------------------------------------------------------------
 # translit
 # --------------------------------------------------------------------------

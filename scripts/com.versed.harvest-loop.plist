@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.versed.harvest-loop</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/bilalghalib/Projects/scripts/versed_translator/scripts/harvest_loop.sh</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/bilalghalib/versed-translator-data/harvest_loop.out</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/bilalghalib/versed-translator-data/harvest_loop.err</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HARVEST_LOOP_INTERVAL</key>
+    <string>900</string>
+    <key>HARVEST_LOOP_HEARTBEAT</key>
+    <string>300</string>
+  </dict>
+</dict>
+</plist>

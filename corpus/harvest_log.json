@@ -248,10 +248,22 @@
       "keep_rate_pct": 0.0,
       "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
       "notes": "Inventory URIs: 0573IbnHibatAllahQutbDinRawandi.QisasAnbiya, .Kharaij (+ spot-check .Dacawat, .FiqhQuran, Lubb al-lubab / Minhaj al-bara'ah). No full English book on al-islam — only footnote citations (Historiography in Thaqalayn, Prescriptions, al-Mizan appendix D, Maqtal al-Husayn). Person slug probes (qutb-al-din-rawandi et al.) return 403 bot wall; not re-walked. IA: Arabic-only Kharaij (in.ernet.dli.2015.324201); English Qisas hits are Tha'labi/Kisa'i false friends. SalwatHazin IA rows remain quarantine false friends (Life of Sheikh Agha). Wikishia: Kharaij has Persian translation only; Qisas published Arabic (Irfaniyan, Mashhad 1409) with no English edition cited. Zero keepers — no_public_full_text."
+    },
+    {
+      "id": 19,
+      "date": "2026-08-18",
+      "source": "live-slug search: Shaykh Tusi al-Tibyan",
+      "method": "web search (al-islam, IA, wikishia); no Tusi person page re-scrape",
+      "candidates_looked": 5,
+      "kept_public": 0,
+      "kept_train_editions": 0,
+      "files": 0,
+      "keep_rate_pct": 0.0,
+      "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
+      "notes": "Inventory URI: 0460ShaykhTusi.Tibyan. Live-slug search only — did not re-scrape Tusi person page (Ghayba/Tenets already catalogued). al-islam: Thaqalayn article cites Tibyan academically, no full book. IA: Arabic-only tafsir-tebyan; English 'Tibyan' hits are Urdu/At-Tibyan-publications false friends. Wikishia/alkarbala: Arabic scans only. No English translation row in inventory. Zero keepers — no_public_full_text."
     }
   ],
   "do_next": [
-    "Tusi Tibyan is not on the Tusi person page already walked — do not re-scrape Tusi.",
     "Ibn Shahrashub person page is reference-only, not a full English book.",
     "Haydar Amuli Inner Secrets has no OpenITI URI; do not invent one.",
     "Tabarsi Ihtijaj / Makarim, Kitab Sulaym, Mufid Irshad: still no public full English book (Howard stays a wall).",
@@ -269,6 +281,7 @@
     "Do not join Fawaid al-Samadiyyah to 1031BahaDinCamili.HadiqaHilaliyya.",
     "Do not invent URIs for Nafasul Mahmum, House of Sorrows, or Manazil al-Akhirah.",
     "Do not guess Ali b. Ibrahim al-Qummi or Ayyashi person slugs. Neither tafsir has a full English book on al-islam.",
-    "Do not re-search Rawandi Qisas/Kharaij/Dacawat — no public full English found (pass 18). Tha'labi/Kisa'i Qisas are false friends."
+    "Do not re-search Rawandi Qisas/Kharaij/Dacawat — no public full English found (pass 18). Tha'labi/Kisa'i Qisas are false friends.",
+    "Do not re-search Tusi Tibyan — no public full English found (pass 19). IA 'Tibyan' English hits are Urdu/At-Tibyan false friends."
   ]
 }

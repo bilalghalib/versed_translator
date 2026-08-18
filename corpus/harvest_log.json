@@ -274,11 +274,22 @@
       "keep_rate_pct": 0.0,
       "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
       "notes": "Inventory URIs: 0588IbnShahrAshub.ManaqibAlAbiTalib, .MacalimCulama. Live-slug search — did not re-walk person page (reference-only per prior pass). al-islam: Thaqalayn article on Mutashabih (44101), Wudhu article cites Manaqib (162444), History of Shi'ism lessons cite Ma'alim — no full English book pages. IA: zero English by Shahrashub. Wikishia: Arabic editions only. Confirms do_next note: person page is reference-only, not a harvest source. Zero keepers — no_public_full_text."
+    },
+    {
+      "id": 21,
+      "date": "2026-08-18",
+      "source": "live-slug search: Tabarsi Ihtijaj/Makarim, Kitab Sulaym, Mufid Irshad",
+      "method": "web search + login_walls.json; no person page re-scrapes",
+      "candidates_looked": 5,
+      "kept_public": 0,
+      "kept_train_editions": 0,
+      "files": 0,
+      "keep_rate_pct": 0.0,
+      "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
+      "notes": "Wall re-verify. URIs: 0560AbuMansurTabarsi.Ihtijaj, 0548IbnHasanTabarsi.MakarimAkhlaq, 0085SulaymIbnQaysHilali.KitabSulaym, 0413ShaykhMufid.Irshad. Ihtijaj: live slug divine-wisdom-prophet-muhammad is PARTIAL (Prophet debates only; rights reserved Heydari/Veritas) — not full Ihtijaj, printpdf nid not verified, no fetch. Makarim: citations only; Mishkat already catalogued (0700AbuFadlCaliTabarsi.MishkatAnwar), not Makarim. Sulaym: journal/Q&A cites only, no book page. Irshad: Howard wall stands (login_walls howard_kitab_al_irshad); Jafari intro is false friend. Zero keepers — wall_confirmed."
     }
   ],
   "do_next": [
-    "Haydar Amuli Inner Secrets has no OpenITI URI; do not invent one.",
-    "Tabarsi Ihtijaj / Makarim, Kitab Sulaym, Mufid Irshad: still no public full English book (Howard stays a wall).",
     "Log every pass here. Reload inventory after catalog edits."
   ],
   "do_not": [
@@ -295,6 +306,7 @@
     "Do not guess Ali b. Ibrahim al-Qummi or Ayyashi person slugs. Neither tafsir has a full English book on al-islam.",
     "Do not re-search Rawandi Qisas/Kharaij/Dacawat — no public full English found (pass 18). Tha'labi/Kisa'i Qisas are false friends.",
     "Do not re-search Tusi Tibyan — no public full English found (pass 19). IA 'Tibyan' English hits are Urdu/At-Tibyan false friends.",
-    "Do not re-search Ibn Shahrashub Manaqib/Ma'alim — no public full English found (pass 20). Person page is reference-only."
+    "Do not re-search Ibn Shahrashub Manaqib/Ma'alim — no public full English found (pass 20). Person page is reference-only.",
+    "Do not re-verify Ihtijaj/Makarim/Sulaym/Irshad walls (pass 21). Divine Wisdom is partial Ihtijaj only — not a full book until printpdf verified."
   ]
 }

@@ -287,11 +287,22 @@
       "keep_rate_pct": 0.0,
       "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
       "notes": "Wall re-verify. URIs: 0560AbuMansurTabarsi.Ihtijaj, 0548IbnHasanTabarsi.MakarimAkhlaq, 0085SulaymIbnQaysHilali.KitabSulaym, 0413ShaykhMufid.Irshad. Ihtijaj: live slug divine-wisdom-prophet-muhammad is PARTIAL (Prophet debates only; rights reserved Heydari/Veritas) — not full Ihtijaj, printpdf nid not verified, no fetch. Makarim: citations only; Mishkat already catalogued (0700AbuFadlCaliTabarsi.MishkatAnwar), not Makarim. Sulaym: journal/Q&A cites only, no book page. Irshad: Howard wall stands (login_walls howard_kitab_al_irshad); Jafari intro is false friend. Zero keepers — wall_confirmed."
+    },
+    {
+      "id": 22,
+      "date": "2026-08-18",
+      "source": "live-slug search: Divine Wisdom partial Ihtijaj + Saduq Man La Yahduruhu",
+      "method": "web search; verify printpdf; skip already-catalogued Uyun/Kamal",
+      "candidates_looked": 4,
+      "kept_public": 0,
+      "kept_train_editions": 0,
+      "files": 0,
+      "keep_rate_pct": 0.0,
+      "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
+      "notes": "Divine Wisdom (0560AbuMansurTabarsi.Ihtijaj partial): preface confirms Ihtijaj translation (Imam Reza Foundation, Fizza Hyderi) but page states copying/printing illegal; no printpdf nid found (HTML-only). Not catalogued — partial + no fetch path. Saduq ManLaYahduruhu (0381IbnBabawayhSaduq.ManLaYahduruhuFaqih): Thaqalayn/Tawhid journal cites only, no full English book. Uyun/Kamal already in open_access from pass 5. Zero keepers."
     }
   ],
   "do_next": [
-    "Haydar Amuli Inner Secrets has no OpenITI URI; do not invent one.",
-    "Optional: divine-wisdom-prophet-muhammad partial Ihtijaj — verify printpdf nid + fetch before cataloguing.",
     "Pick next OpenITI work in inventory with no English row; live-slug search first.",
     "Log every pass here. Reload inventory after catalog edits."
   ],
@@ -310,6 +321,7 @@
     "Do not re-search Rawandi Qisas/Kharaij/Dacawat — no public full English found (pass 18). Tha'labi/Kisa'i Qisas are false friends.",
     "Do not re-search Tusi Tibyan — no public full English found (pass 19). IA 'Tibyan' English hits are Urdu/At-Tibyan false friends.",
     "Do not re-search Ibn Shahrashub Manaqib/Ma'alim — no public full English found (pass 20). Person page is reference-only.",
-    "Do not re-verify Ihtijaj/Makarim/Sulaym/Irshad walls (pass 21). Divine Wisdom is partial Ihtijaj only — not a full book until printpdf verified."
+    "Do not re-verify Ihtijaj/Makarim/Sulaym/Irshad walls (pass 21). Divine Wisdom is partial Ihtijaj only — not a full book until printpdf verified.",
+    "Do not catalog divine-wisdom-prophet-muhammad (pass 22): HTML-only, anti-distribution notice, partial Ihtijaj."
   ]
 }

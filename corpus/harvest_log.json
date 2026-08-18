@@ -235,10 +235,22 @@
       "keep_rate_pct": 50.0,
       "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
       "notes": "Kept Beacons of Light (Ayoub/Clarke / WOFIS 1986, nid 38075 → 0548IbnHasanTabarsi.IclamWara). Partial English (Prophet + Fatimah only). Mishkat on the same person page already catalogued. Majma al-Bayan still has no full English on the site."
+    },
+    {
+      "id": 18,
+      "date": "2026-08-18",
+      "source": "live-slug search: Qutb al-Din Rawandi Qisas al-Anbiya + Kharaij",
+      "method": "web search (al-islam, IA, wikishia); inventory URI match; no guessed person slugs",
+      "candidates_looked": 7,
+      "kept_public": 0,
+      "kept_train_editions": 0,
+      "files": 0,
+      "keep_rate_pct": 0.0,
+      "after": {"public_wuquf": 54, "train_ok": 64, "local_files": 151},
+      "notes": "Inventory URIs: 0573IbnHibatAllahQutbDinRawandi.QisasAnbiya, .Kharaij (+ spot-check .Dacawat, .FiqhQuran, Lubb al-lubab / Minhaj al-bara'ah). No full English book on al-islam — only footnote citations (Historiography in Thaqalayn, Prescriptions, al-Mizan appendix D, Maqtal al-Husayn). Person slug probes (qutb-al-din-rawandi et al.) return 403 bot wall; not re-walked. IA: Arabic-only Kharaij (in.ernet.dli.2015.324201); English Qisas hits are Tha'labi/Kisa'i false friends. SalwatHazin IA rows remain quarantine false friends (Life of Sheikh Agha). Wikishia: Kharaij has Persian translation only; Qisas published Arabic (Irfaniyan, Mashhad 1409) with no English edition cited. Zero keepers — no_public_full_text."
     }
   ],
   "do_next": [
-    "Live slug for Qutb al-Din Rawandi Qisas al-Anbiya or Kharaij (0573IbnHibatAllahQutbDinRawandi.*). Search first; do not guess 404s.",
     "Tusi Tibyan is not on the Tusi person page already walked — do not re-scrape Tusi.",
     "Ibn Shahrashub person page is reference-only, not a full English book.",
     "Haydar Amuli Inner Secrets has no OpenITI URI; do not invent one.",
@@ -256,6 +268,7 @@
     "Re-scrape Hurr al-Amili, Shahid Thani, Baha al-Din al-Amili, Abbas Qummi, Tusi, or Fadl Tabarsi person pages. Do not fetch Wasail from a page that lists no books.",
     "Do not join Fawaid al-Samadiyyah to 1031BahaDinCamili.HadiqaHilaliyya.",
     "Do not invent URIs for Nafasul Mahmum, House of Sorrows, or Manazil al-Akhirah.",
-    "Do not guess Ali b. Ibrahim al-Qummi or Ayyashi person slugs. Neither tafsir has a full English book on al-islam."
+    "Do not guess Ali b. Ibrahim al-Qummi or Ayyashi person slugs. Neither tafsir has a full English book on al-islam.",
+    "Do not re-search Rawandi Qisas/Kharaij/Dacawat — no public full English found (pass 18). Tha'labi/Kisa'i Qisas are false friends."
   ]
 }

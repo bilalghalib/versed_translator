@@ -87,6 +87,8 @@ PASSTHROUGH_SUMMARY_KEYS: tuple[str, ...] = (
     "chat_template_errors",
     "probe_prompt_modes",
     "probe_chat_template_errors",
+    "prompt_mode",
+    "official_lang",
 )
 
 

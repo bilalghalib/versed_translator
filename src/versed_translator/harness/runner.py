@@ -37,6 +37,7 @@ from pathlib import Path
 from versed_translator.harness.adapters import get_adapter
 from versed_translator.harness.adapters.base import AdapterError
 from versed_translator.harness.prompts import get_template, load_exemplar
+from versed_translator.harness.prompts import QWEN_MT_SOURCE_LANG, QWEN_MT_TARGET_LANG
 from versed_translator.harness.schema import make_row, validate_row
 from versed_translator.harness.structured import (
     ERR_ID_DUPLICATE,
@@ -181,6 +182,15 @@ def run(
     items = load_items(items_path)
     exemplar = load_exemplar() if use_exemplar else None
 
+    if template_id == "qwen_mt_v1" and "extra_body" not in adapter_cfg:
+        adapter_cfg["extra_body"] = {
+            "translation_options": {
+                "source_lang": QWEN_MT_SOURCE_LANG,
+                "target_lang": QWEN_MT_TARGET_LANG,
+            }
+        }
+        adapter_cfg.setdefault("max_tokens", None)
+
     if batch_size is None:
         batch_size = DEFAULT_STRUCTURED_BATCH_SIZE if template.structured else 1
 
@@ -188,29 +198,48 @@ def run(
     run_dir = out_root / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    # Free-text templates are handed the whole list in one call (the adapters
-    # loop internally and already trap per-item failures); structured
-    # templates are chunked, because there the batch really is one API call.
-    chunk_size = batch_size if template.structured else max(len(items), 1)
+    # Free-text: one item per runner chunk so a killed 663-call API run keeps
+    # finished rows. Structured templates still batch (one HTTP call = one chunk).
+    chunk_size = batch_size if template.structured else 1
 
     started = time.monotonic()
     results: list = []
     batch_failures = 0
-    for chunk in _chunks(items, chunk_size):
-        try:
-            results.extend(
-                adapter.translate_batch(chunk, template, model=model, exemplar=exemplar, **adapter_cfg)
-            )
-        except AdapterError:
-            # Configuration failures (missing key, missing base_url) block the
-            # whole run, not one batch. Fail loudly rather than writing N
-            # identical error rows that look like a model problem.
-            raise
-        except Exception as exc:  # noqa: BLE001 -- one bad batch must not discard finished work
-            batch_failures += 1
-            results.extend(
-                batch_error_results([i["id"] for i in chunk], f"batch_failed: {type(exc).__name__}: {exc}")
-            )
+    results_path = run_dir / "results.jsonl"
+    # Checkpoint after every chunk so a killed API run keeps finished rows.
+    with open(results_path, "w", encoding="utf-8") as checkpoint:
+        for chunk in _chunks(items, chunk_size):
+            try:
+                chunk_results = adapter.translate_batch(
+                    chunk, template, model=model, exemplar=exemplar, **adapter_cfg
+                )
+            except AdapterError:
+                # Configuration failures (missing key, missing base_url) block the
+                # whole run, not one batch. Fail loudly rather than writing N
+                # identical error rows that look like a model problem.
+                raise
+            except Exception as exc:  # noqa: BLE001 -- one bad batch must not discard finished work
+                batch_failures += 1
+                chunk_results = batch_error_results(
+                    [i["id"] for i in chunk], f"batch_failed: {type(exc).__name__}: {exc}"
+                )
+            results.extend(chunk_results)
+            for result in chunk_results:
+                checkpoint.write(
+                    json.dumps(
+                        {
+                            "item_id": result.item_id,
+                            "translation": result.translation,
+                            "error": result.error,
+                            "source_tokens": result.source_tokens,
+                            "output_tokens": result.output_tokens,
+                            "latency_s": result.latency_s,
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+            checkpoint.flush()
     wall_s = time.monotonic() - started
 
     results, id_report = reconcile_ids(items, results)
@@ -250,6 +279,9 @@ def run(
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
             f.flush()
 
+    source_token_sum = sum(r["source_tokens"] or 0 for r in rows)
+    output_token_sum = sum(r["output_tokens"] or 0 for r in rows)
+    extra_body = adapter_cfg.get("extra_body")
     run_meta = {
         "run_id": run_id,
         "adapter": adapter_name,
@@ -267,6 +299,11 @@ def run(
         "wall_s": wall_s,
         "items_path": str(items_path),
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "source_tokens_sum": source_token_sum,
+        "output_tokens_sum": output_token_sum,
+        "extra_body": extra_body,
+        "base_url": adapter_cfg.get("base_url"),
+        "run_dir": str(run_dir),
     }
     run_meta.update(id_report)
     # Row-level tally kept under its own key so it cannot collide with (or be

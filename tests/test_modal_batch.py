@@ -15,15 +15,19 @@ import pytest
 from versed_translator.harness.modal_batch import (
     DEFAULT_STRUCTURED_CHUNK,
     FALLBACK_TEMPLATE_ID,
+    OFFICIAL_TEMPLATE_ID,
     STRUCTURED_TEMPLATE_ID,
     build_fallback_chunks,
+    build_official_chunks,
     build_structured_chunks,
     parse_chunk_output,
     probe_ok,
+    structured_probe_held,
 )
 from versed_translator.harness.prompts import (
     MODAL_MINIMAL_V1_TEXT,
     TEMPLATES,
+    TRANSLATEGEMMA_OFFICIAL_V1_ID,
     get_template,
 )
 from versed_translator.harness.structured import (
@@ -67,6 +71,34 @@ def test_chunk_wire_form_is_plain_json_the_container_can_read():
     request = build_structured_chunks(ITEMS)[0].to_request()
     assert set(request) == {"system", "user", "chat"}
     json.dumps(request)  # must survive Modal serialization
+
+
+def test_official_chunk_sends_the_trained_api_shape_not_a_homemade_prompt():
+    item = ITEMS[0]
+    chunk = build_official_chunks([item])[0]
+    assert chunk.template_id == OFFICIAL_TEMPLATE_ID == TRANSLATEGEMMA_OFFICIAL_V1_ID
+    assert chunk.structured is False
+    assert chunk.official == {
+        "source_lang_code": "ar",
+        "target_lang_code": "en",
+        "text": item["arabic"],
+    }
+    request = chunk.to_request()
+    assert request == {
+        "official": True,
+        "source_lang_code": "ar",
+        "target_lang_code": "en",
+        "text": item["arabic"],
+    }
+    assert "Translate" not in request["text"]
+    assert "Classical" not in request["text"]
+    json.dumps(request)
+
+
+def test_official_chunks_cover_every_id_once():
+    chunks = build_official_chunks(ITEMS)
+    assert [c.ids[0] for c in chunks] == [i["id"] for i in ITEMS]
+    assert all(len(c.ids) == 1 for c in chunks)
 
 
 def test_prompt_fingerprint_changes_with_the_prompt():
@@ -164,6 +196,12 @@ def test_parse_of_a_fallback_chunk_is_the_raw_text():
     assert rows == [{"id": chunk.ids[0], "english": "In the name of God"}]
 
 
+def test_parse_of_an_official_chunk_is_the_raw_text():
+    chunk = build_official_chunks(ITEMS[:1])[0]
+    rows = parse_chunk_output(chunk, "  In the name of God  ")
+    assert rows == [{"id": chunk.ids[0], "english": "In the name of God"}]
+
+
 def test_parse_of_an_empty_fallback_response_is_an_error_not_an_empty_string():
     chunk = build_fallback_chunks(ITEMS[:1])[0]
     assert parse_chunk_output(chunk, "   ")[0]["error"] == ERR_EMPTY
@@ -188,6 +226,7 @@ def test_fallback_template_id_is_a_known_label():
 
     assert is_known_template_id(FALLBACK_TEMPLATE_ID)
     assert is_known_template_id(STRUCTURED_TEMPLATE_ID)
+    assert is_known_template_id(OFFICIAL_TEMPLATE_ID)
     assert not is_known_template_id("not_a_template")
 
 
@@ -195,3 +234,14 @@ def test_probe_ok_requires_every_id_clean():
     assert probe_ok([{"id": "a", "english": "A"}]) is True
     assert probe_ok([{"id": "a", "english": "A"}, {"id": "b", "english": None, "error": "x"}]) is False
     assert probe_ok([]) is False
+
+
+def test_structured_probe_held_rejects_chat_template_incompatibility():
+    rows = [{"id": "a", "english": "A"}]
+    assert structured_probe_held(rows, {}) is True
+    assert structured_probe_held(
+        rows, {"chat_template_errors": ["TemplateError: Conversations must start with a user prompt."]}
+    ) is False
+    assert structured_probe_held(
+        rows, {"prompt_modes": {"raw_chat_template_incompatible": 1}}
+    ) is False

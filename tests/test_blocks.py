@@ -29,6 +29,7 @@ from versed_translator.harness.blocks import (
     parse_block_id,
     reassemble,
     segment,
+    sentences,
 )
 from versed_translator.harness.schema import make_row
 
@@ -97,6 +98,20 @@ def test_segment_of_whitespace_is_empty():
 
 def test_segment_is_deterministic():
     assert segment(_SENTENCES) == segment(_SENTENCES)
+
+
+def test_sentences_are_not_chunks():
+    text = "one two. three four. five six seven eight."
+    assert sentences(text) == ["one two.", "three four.", "five six seven eight."]
+    assert segment(text, max_words=4) == [
+        "one two. three four.",
+        "five six seven eight.",
+    ]
+    assert " ".join(sentences(text)) == " ".join(text.split())
+
+
+def test_sentences_without_punctuation_stay_one_span():
+    assert sentences("one two three") == ["one two three"]
 
 
 def test_segment_prefers_sentence_boundaries_over_packing():

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -29,12 +30,40 @@ from versed_translator.harness import ingest_modal, runner, score
 from versed_translator.harness.schema import make_row
 
 
+def _load_repo_env() -> None:
+    """Load gitignored `.env` without overriding a already-set environment."""
+    env_path = Path(__file__).resolve().parents[3] / ".env"
+    if not env_path.is_file():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
+
+
+def _default_api_key(model: str | None, base_url: str | None) -> str | None:
+    model_l = (model or "").lower()
+    url_l = (base_url or "").lower()
+    if "gemini" in model_l or "generativelanguage.googleapis.com" in url_l:
+        return os.environ.get("GEMINI_API_KEY")
+    if "qwen" in model_l or "dashscope" in url_l:
+        return os.environ.get("QWEN_API_KEY") or os.environ.get("DASHSCOPE_API_KEY")
+    if "deepseek" in model_l or "deepseek.com" in url_l:
+        return os.environ.get("DEEPSEEK_API_KEY")
+    return None
+
+
 def _cmd_run(args: argparse.Namespace) -> int:
     adapter_cfg: dict = {}
     if args.base_url:
         adapter_cfg["base_url"] = args.base_url
-    if args.api_key:
-        adapter_cfg["api_key"] = args.api_key
+    api_key = args.api_key or _default_api_key(args.model, args.base_url)
+    if api_key:
+        adapter_cfg["api_key"] = api_key
+    if getattr(args, "omit_max_tokens", False):
+        adapter_cfg["max_tokens"] = None
 
     run_meta = runner.run(
         adapter_name=args.adapter,
@@ -224,6 +253,7 @@ def _cmd_ingest_modal(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _load_repo_env()
     parser = argparse.ArgumentParser(prog="versed-harness")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -258,7 +288,12 @@ def main(argv: list[str] | None = None) -> int:
     run_p.add_argument("--model-version", default=None)
     run_p.add_argument("--use-exemplar", action="store_true")
     run_p.add_argument("--base-url", default=None, help="Required for openai_compat; overrides ollama's default.")
-    run_p.add_argument("--api-key", default=None, help="For openai_compat.")
+    run_p.add_argument("--api-key", default=None, help="For openai_compat. Defaults from .env by model/host.")
+    run_p.add_argument(
+        "--omit-max-tokens",
+        action="store_true",
+        help="Do not send max_tokens (Gemini thinking can zero out tiny caps).",
+    )
     run_p.set_defaults(func=_cmd_run)
 
     re_p = sub.add_parser(

@@ -93,6 +93,7 @@ def test_structured_path_gets_its_prompts_from_the_registry():
     assert "from versed_translator.harness import modal_batch" in SERVE_SRC
     assert "modal_batch.build_structured_chunks" in SERVE_SRC
     assert "modal_batch.build_fallback_chunks" in SERVE_SRC
+    assert "modal_batch.build_official_chunks" in SERVE_SRC
 
 
 def test_serving_module_defines_no_prompt_of_its_own_beyond_the_pinned_one():
@@ -130,6 +131,12 @@ def test_recorded_label_matches_the_prompt_that_was_actually_sent():
     assert fallback.template_id == MODAL_MINIMAL_V1_ID
     assert fallback.user == MODAL_MINIMAL_V1_TEXT.format(arabic="نص")
     assert fallback.user == _modal_default_template().format(arabic="نص")
+
+    official = modal_batch.build_official_chunks(items)[0]
+    assert official.template_id == modal_batch.OFFICIAL_TEMPLATE_ID
+    assert official.to_request()["text"] == "نص"
+    assert official.to_request()["source_lang_code"] == "ar"
+    assert official.to_request()["target_lang_code"] == "en"
 
 
 def test_structured_prompt_carries_the_fidelity_rules_the_minimal_one_lacks():

@@ -10,9 +10,10 @@ PROMPT='Continue the English corpus harvest: one host-first pass (~15 min). Chec
 mkdir -p "$(dirname "$LOG")"
 echo "$$" > "$PIDFILE"
 echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) harvest_loop started pid=$$ interval=${INTERVAL}s" >> "$LOG"
+trap 'echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) harvest_loop exit pid=$$ code=$?" >> "$LOG"' EXIT
 
 while true; do
-  sleep "$INTERVAL"
+  sleep "$INTERVAL" || exit 1
   TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   LINE="AGENT_LOOP_TICK_harvest {\"prompt\":\"$PROMPT\"}"
   echo "$TS $LINE" >> "$LOG"

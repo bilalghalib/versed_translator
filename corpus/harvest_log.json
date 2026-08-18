@@ -1,13 +1,13 @@
 {
   "schema_note": "Yield per harvest pass. Append a row when a pass finishes so the next agent does not reconstruct counts from chat. candidates_looked is URLs or catalog hits actually inspected. kept_* are new catalog editions (not files). files are new local records in pd-english or train-english. A host posting a scan is not a sublicense. US jurisdiction.",
   "compiled_date": "2026-08-17",
-  "method_now": "host-first person/library pages that already list English books matching OpenITI. Stop Archive.org phrase search (DEEP_QUERIES exhausted). Do not re-walk leftover catalog IDs.",
+  "method_now": "person-page cluster on al-islam.org: one translator/author page → all cover-image slugs → printpdf. Batch every OpenITI match on that page in one pass. Fall back to live-slug gap search only when no unexhausted person/publisher pages remain (expect ~0 keepers there).",
   "running_totals_after_last_pass": {
     "public_wuquf": 54,
     "pd_seed": 64,
-    "train_ok": 64,
-    "open_access": 64,
-    "local_files": 151,
+    "train_ok": 65,
+    "open_access": 65,
+    "local_files": 152,
     "unique_openiti_works_excl_bibliography": 52,
     "note": "unique_openiti_works ignores bibliography_only catalog rows. New al-islam editions stay bibliography_only until aligned."
   },
@@ -313,11 +313,32 @@
       "keep_rate_pct": 50.0,
       "after": {"public_wuquf": 54, "train_ok": 65, "local_files": 152},
       "notes": "Inventory URI: 1371RadiAlYasin.SulhHasan (no prior English row). al-islam.org/sulh-al-hasan-shaykh-radi-aal-yasin — full book (Jasim al-Rasheed / Ansariyan). printpdf/book/export/html/28139 returns application/pdf (verified). Catalogued open_access + train_english; fetched to ~/versed-translator-data/train-english/sulh_hasan_alislam.pdf. train_ok only."
+    },
+    {
+      "id": 24,
+      "date": "2026-08-18",
+      "source": "al-islam.org/person/yasin-t-al-jibouri (pages 0–1)",
+      "method": "person page cluster → cover-image slugs → printpdf verify → fetch all OpenITI matches",
+      "candidates_looked": 16,
+      "kept_public": 0,
+      "kept_train_editions": 1,
+      "files": 1,
+      "keep_rate_pct": 6.3,
+      "after": {"public_wuquf": 54, "train_ok": 66, "local_files": 153},
+      "notes": "Walked Jibouri translator page (16 book tiles). Kept Maqtal al-Husayn (Muqarram / Jibouri / Kharsan 2005, nid 27512 → 1391CabdRazzaqMuqarrim.MaqtalHusayn). Already had Musakkin + Kashf Riba from pass 12. Skipped 15 modern secondary / no-URI: Sadr economics, Tijani, Bahjat bio, Majlisi Hayat al-Qulub 3 vols + Haqq al-Yaqin + Hilyat + Promised Mahdi (inventory only has Bihar for Majlisi), Tabatabai Risalah al-Tawhid monograph (not Saduq Tawhid URI), Ramadhan fiqh, etc."
     }
   ],
   "do_next": [
-    "Pick next OpenITI work in inventory with no English row; live-slug search first.",
+    "Walk ONE unexhausted al-islam person/translator page; batch all OpenITI matches (see person_pages_todo).",
     "Log every pass here. Reload inventory after catalog edits."
+  ],
+  "person_pages_todo": [
+    "al-islam.org/person/muhammad-baqir-majlisi — 8 books but only Bihar URI in inventory; skip unless URI added.",
+    "al-islam.org/person/shaykh-al-kulayni — likely empty (confirmed pass 5).",
+    "al-islam.org/person/al-sharif-al-murtada — not walked.",
+    "al-islam.org/person/al-sharif-al-radi — not walked (Nahj already had).",
+    "al-islam.org/person/ibn-babawayh-al-saduq — recheck for Amali / ManLaYahduruhu full books.",
+    "Publisher grids exhausted (Ansariyan pass 7, WF/WOFIS/Seminary pass 9)."
   ],
   "do_not": [
     "Re-run DEEP_QUERIES or leftover IA alias IDs.",
@@ -336,6 +357,7 @@
     "Do not re-search Ibn Shahrashub Manaqib/Ma'alim — no public full English found (pass 20). Person page is reference-only.",
     "Do not re-verify Ihtijaj/Makarim/Sulaym/Irshad walls (pass 21). Divine Wisdom is partial Ihtijaj only — not a full book until printpdf verified.",
     "Do not catalog divine-wisdom-prophet-muhammad (pass 22): HTML-only, anti-distribution notice, partial Ihtijaj.",
-    "Do not re-search Sulh al-Hasan — catalogued pass 23 (1371RadiAlYasin.SulhHasan, printpdf 28139)."
+    "Do not re-search Sulh al-Hasan — catalogued pass 23 (1371RadiAlYasin.SulhHasan, printpdf 28139).",
+    "Do not re-walk Jibouri person page (pass 24). Maqtal Muqarram catalogued (27512). Majlisi Hayat/Hilyat/Haqq/Promised Mahdi have no OpenITI URI — skip."
   ]
 }

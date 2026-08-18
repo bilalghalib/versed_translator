@@ -1110,6 +1110,23 @@
       "confidence": "high",
       "genre": "history / imamate (analytic)",
       "notes": "Book-length English of Radi al-Yasin's Sulh al-Hasan. DILP notice on landing page flags translation quality edits only. printpdf 28139 verified 2026-08-18. Train-only."
+    },
+    {
+      "edition_key": "maqtal_husayn_muqarram_alislam",
+      "work_arabic_title": "Maqtal al-Husayn (مقتل الحسين)",
+      "work_english_title": "Maqtal Al-Husayn: Martyrdom Epic of Imam Al-Husayn",
+      "author": "Sayyid Abd al-Razzaq al-Muqarram (d. 1391/1971)",
+      "openiti_uri_guess": "1391CabdRazzaqMuqarrim.MaqtalHusayn",
+      "translator": "Yasin T. al-Jibouri",
+      "publication_year": "2005 (Al-Kharsan Foundation, Beirut; 1426 A.H.)",
+      "source_url": "https://al-islam.org/maqtal-al-husayn-sayyid-abd-al-razzaq-al-muqarram",
+      "digital_form": "public PDF GET printpdf/book/export/html/27512",
+      "reuse_class": "train",
+      "rights_status": "IN_COPYRIGHT",
+      "rights_evidence": "Al-Kharsan Foundation 2005. al-islam.org free PDF GET is not a sublicense. train_ok.",
+      "confidence": "high",
+      "genre": "maqtal / history",
+      "notes": "Landing page names Muhammad Husayn al-Muqarram in one line; OpenITI author is Abd al-Razzaq al-Muqarram. Book-length maqtal narrative. Train-only."
     }
   ]
 }

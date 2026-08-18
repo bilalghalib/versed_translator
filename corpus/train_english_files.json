@@ -972,6 +972,18 @@
       "needles": ["endobj"],
       "reject": [],
       "notes": "Jasim al-Rasheed / Ansariyan. printpdf 28139. train_ok."
+    },
+    {
+      "id": "maqtal_husayn_muqarram_alislam",
+      "source": "open_access",
+      "openiti_uri": "1391CabdRazzaqMuqarrim.MaqtalHusayn",
+      "match_title": "Maqtal Al-Husayn",
+      "kind": "http",
+      "url": "https://al-islam.org/printpdf/book/export/html/27512",
+      "local_name": "maqtal_husayn_muqarram_alislam.pdf",
+      "needles": ["endobj"],
+      "reject": [],
+      "notes": "Jibouri / Kharsan 2005. printpdf 27512. train_ok."
     }
   ]
 }

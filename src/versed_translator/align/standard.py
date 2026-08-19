@@ -7,6 +7,8 @@ a spelling variant, not a work-specific lock.
 
 from __future__ import annotations
 
+import itertools
+
 from versed_translator.benchmark.sources import monotone_length
 from versed_translator.benchmark.sources.translit import (
     arabic_skeleton,
@@ -116,7 +118,7 @@ def zip_units(arabic: list[str], english: list[str]) -> list[tuple[int, int]]:
             continue
         compact.append(pair)
 
-    for (ar_a, en_a), (ar_b, en_b) in zip(compact, compact[1:]):
+    for (ar_a, en_a), (ar_b, en_b) in itertools.pairwise(compact):
         region_ar = arabic[ar_a:ar_b]
         region_en = english[en_a:en_b]
         covers = _cover_region(region_ar, region_en)

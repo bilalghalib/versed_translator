@@ -10,8 +10,9 @@ import gzip
 import json
 import urllib.parse
 import urllib.request
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Any, Callable, Iterable, TextIO
+from typing import Any, TextIO
 
 from versed_translator.corpus import join as join_mod
 from versed_translator.corpus import translations

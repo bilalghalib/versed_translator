@@ -36,8 +36,12 @@ from pathlib import Path
 
 from versed_translator.harness.adapters import get_adapter
 from versed_translator.harness.adapters.base import AdapterError
-from versed_translator.harness.prompts import get_template, load_exemplar
-from versed_translator.harness.prompts import QWEN_MT_SOURCE_LANG, QWEN_MT_TARGET_LANG
+from versed_translator.harness.prompts import (
+    QWEN_MT_SOURCE_LANG,
+    QWEN_MT_TARGET_LANG,
+    get_template,
+    load_exemplar,
+)
 from versed_translator.harness.schema import make_row, validate_row
 from versed_translator.harness.structured import (
     ERR_ID_DUPLICATE,
@@ -224,9 +228,7 @@ def run(
                     [i["id"] for i in chunk], f"batch_failed: {type(exc).__name__}: {exc}"
                 )
             results.extend(chunk_results)
-            for result in chunk_results:
-                checkpoint.write(
-                    json.dumps(
+            checkpoint.writelines(json.dumps(
                         {
                             "item_id": result.item_id,
                             "translation": result.translation,
@@ -237,8 +239,7 @@ def run(
                         },
                         ensure_ascii=False,
                     )
-                    + "\n"
-                )
+                    + "\n" for result in chunk_results)
             checkpoint.flush()
     wall_s = time.monotonic() - started
 

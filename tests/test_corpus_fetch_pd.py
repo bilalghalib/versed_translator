@@ -356,7 +356,7 @@ def test_record_pd_files_links_without_changing_rights(tmp_path: Path):
         )
     }
     assert after == before
-    kalila_tid, kalila_title = conn.execute(
+    _kalila_tid, kalila_title = conn.execute(
         """
         SELECT t.id, t.work_english_title
         FROM translation_files f

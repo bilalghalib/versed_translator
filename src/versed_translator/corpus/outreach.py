@@ -13,8 +13,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from versed_translator.corpus import inventory
-from versed_translator.corpus import translations
+from versed_translator.corpus import inventory, translations
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTREACH = REPO_ROOT / "corpus" / "rights_outreach.json"
@@ -102,7 +101,7 @@ def ensure_schema(db_path: Path = translations.DEFAULT_DB_PATH) -> None:
 def load_payload(path: Path = DEFAULT_OUTREACH) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload.get("hosts"), list):
-        raise ValueError(f"no hosts list in {path}")
+        raise TypeError(f"no hosts list in {path}")
     entries = payload.get("entries")
     if not isinstance(entries, list) or not entries:
         raise ValueError(f"no entries in {path}")

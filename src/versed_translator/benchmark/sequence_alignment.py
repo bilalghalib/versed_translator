@@ -313,8 +313,8 @@ def main(argv: list[str] | None = None) -> int:
             "No model is allowed to propose or rewrite a boundary."
         ),
         "",
-        f"Review pages: `~/versed-translator-data/benchmark-alignment/{config['slice']}/review.html` "
-        "(triage) and `review_shipping.html` (selected only).",
+        (f"Review pages: `~/versed-translator-data/benchmark-alignment/{config['slice']}/review.html` "
+        "(triage) and `review_shipping.html` (selected only)."),
         "",
     ]
     (repo_out / "report.md").write_text("\n".join(report_lines), encoding="utf-8")

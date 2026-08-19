@@ -35,7 +35,7 @@ def prf(y_true: np.ndarray, y_pred: np.ndarray, positive: int = 1) -> dict[str, 
     f1 = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
     acc = float((y_true == y_pred).mean()) if len(y_true) else 0.0
     return {
-        "n": int(len(y_true)),
+        "n": len(y_true),
         "positive": int((y_true == positive).sum()),
         "accuracy": round(acc, 3),
         "precision": round(prec, 3),
@@ -263,8 +263,8 @@ def main(argv: list[str] | None = None) -> int:
     md = [
         "# r1a classifier probe",
         "",
-        f"n={report['n_rows']} rows, {report['n_blocking']} blocking / "
-        f"{report['n_publishable']} publishable. Positive class = blocking.",
+        (f"n={report['n_rows']} rows, {report['n_blocking']} blocking / "
+        f"{report['n_publishable']} publishable. Positive class = blocking."),
         "",
         "## Baselines",
         "",
@@ -281,15 +281,15 @@ def main(argv: list[str] | None = None) -> int:
         f"- leave-one-source-out: {report['english_style_features']['leave_one_source_out']['pooled']}",
         f"- leave-one-system-out: {report['english_style_features']['leave_one_system_out']['pooled']}",
         "",
-        "If style features beat check features on source-out, the labels are "
+        ("If style features beat check features on source-out, the labels are "
         "entangled with which model wrote the English. That is still useful "
-        "for a checker trained *within* a system, not for a router.",
+        "for a checker trained *within* a system, not for a router."),
         "",
-        f"Per-system (check features): "
-        f"{report['logreg_check_features']['leave_one_system_out']['per_group']}",
+        (f"Per-system (check features): "
+        f"{report['logreg_check_features']['leave_one_system_out']['per_group']}"),
         "",
-        f"Per-system (style): "
-        f"{report['english_style_features']['leave_one_system_out']['per_group']}",
+        (f"Per-system (style): "
+        f"{report['english_style_features']['leave_one_system_out']['per_group']}"),
         "",
     ]
     (args.out_dir / "probe_r1a.md").write_text("\n".join(md), encoding="utf-8")

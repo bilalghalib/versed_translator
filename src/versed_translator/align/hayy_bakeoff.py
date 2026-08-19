@@ -13,8 +13,8 @@ from pathlib import Path
 from versed_translator.align.hayy import (
     DEFAULT_ARABIC,
     DEFAULT_ENGLISH,
-    align_book,
     _arabic_paragraphs,
+    align_book,
 )
 from versed_translator.align.standard import anchors, section_hit, zip_units
 from versed_translator.benchmark.sources import ockley_hayy

@@ -6,7 +6,8 @@ import json
 import sqlite3
 from pathlib import Path
 
-from versed_translator.corpus import catalogs, join as join_mod, translations
+from versed_translator.corpus import catalogs, translations
+from versed_translator.corpus import join as join_mod
 
 REPO = Path(__file__).resolve().parents[1]
 RASAIF_SEED = REPO / "corpus" / "rasaif_works_seed.json"

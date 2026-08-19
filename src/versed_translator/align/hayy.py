@@ -15,9 +15,15 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from versed_translator.align.dp import Link, align
-from versed_translator.align.sentences import split_paragraphs_arabic, split_paragraphs_english
-from versed_translator.benchmark.sources import monotone_length, ockley_hayy
-from versed_translator.benchmark.sources import openiti_markdown
+from versed_translator.align.sentences import (
+    split_paragraphs_arabic,
+    split_paragraphs_english,
+)
+from versed_translator.benchmark.sources import (
+    monotone_length,
+    ockley_hayy,
+    openiti_markdown,
+)
 from versed_translator.paths import DATA_DIR
 
 WORK_ID = ockley_hayy.WORK_ID

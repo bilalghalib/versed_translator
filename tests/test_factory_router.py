@@ -20,17 +20,17 @@ from versed_translator.factory.simulate import simulate
 
 
 def _entry(**kwargs) -> GlossaryEntry:
-    defaults = dict(
-        arabic="الحلقة",
-        lemma="",
-        en_should="mail-armor",
-        en_wrong="the ring",
-        kind="term",
-        book="baladhuri_hitti",
-        item_ids="",
-        status="candidate",
-        source_label="t",
-    )
+    defaults = {
+        "arabic": "الحلقة",
+        "lemma": "",
+        "en_should": "mail-armor",
+        "en_wrong": "the ring",
+        "kind": "term",
+        "book": "baladhuri_hitti",
+        "item_ids": "",
+        "status": "candidate",
+        "source_label": "t",
+    }
     defaults.update(kwargs)
     return GlossaryEntry(**defaults)
 

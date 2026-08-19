@@ -11,12 +11,13 @@ import re
 import sqlite3
 import urllib.parse
 import urllib.request
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
+from versed_translator.corpus import translations
 from versed_translator.corpus.catalogs import USER_AGENT
 from versed_translator.corpus.inventory import REPO_ROOT
-from versed_translator.corpus import translations
 
 DEFAULT_MAP = REPO_ROOT / "corpus" / "pd_english_files.json"
 DEFAULT_TRAIN_MAP = REPO_ROOT / "corpus" / "train_english_files.json"

@@ -284,10 +284,10 @@ def format_stats_report(stats: dict[str, Any], generated_on: str) -> str:
                 f"- Distinct OpenITI works with an English row (excl. quarantine): {t.get('unique_openiti_works', '?')}",
                 f"- Alias candidates still unverified: {t.get('alias_candidates', '?')}",
                 f"- Catalog dupes of PD seed: {t.get('duplicate_pd_seed', '?')}",
-                f"- Local English files recorded: {t.get('files_on_disk', '?')} "
-                f"({t.get('files_title_ok', '?')} title-page ok)",
-                f"- Public editions with a local file: {t.get('public_with_files', '?')}/"
-                f"{t.get('public_wuquf', '?')}",
+                (f"- Local English files recorded: {t.get('files_on_disk', '?')} "
+                f"({t.get('files_title_ok', '?')} title-page ok)"),
+                (f"- Public editions with a local file: {t.get('public_with_files', '?')}/"
+                f"{t.get('public_wuquf', '?')}"),
                 f"- By policy: {t['by_policy']}",
                 f"- By source: {t['by_source']}",
                 "",

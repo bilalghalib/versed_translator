@@ -20,7 +20,7 @@ JOHNSON_NAME = "johnson_seven_poems_ams1973_djvu.txt"
 VERSE_LINE = re.compile(r"^(\d+)\.\s+(.*\S)\s*$")
 JOHNSON_HEADER = re.compile(
     r"THE\s+(FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH)\s+POEM",
-    re.I,
+    re.IGNORECASE,
 )
 ORDINALS = {
     "FIRST": 1,

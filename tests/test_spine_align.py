@@ -45,23 +45,7 @@ def test_arabic_folds_empty_heading_into_next_body():
 
 
 def test_english_skips_notes_running_headers_and_ocr_wreckage():
-    text = "\n".join(
-        [
-            "scene of the maqama of Madirah is laid in Basra while the con-",
-            "2 THE MAQAMAT OF BADI 1",
-            "I. THE MAQAMA OF BALKH",
-            "note on the maqama of the Yellow Text p, 230.",
-            "THE MAQAMA OF THE ASYLUM...",
-            "XXVIII. THE MAQAMA OP ‘IRAQ 9",
-            "XXXIX. THE MAQARIA OF NISIIArUE",
-            "• XX. THE MAQAMA OF THE APE",
-            "XXXHX. THE MAQAMA OF HULWAN",
-            "XUV. THE MAQAMA OF POETRY",
-            "XII. THE MAQAMA OF BAGHDAD",
-            "XLVIII. MAQAMA OF TAMIN",
-            "IV. ORIGIN AND CHARACTER OF THE MAQAMAT",
-        ]
-    )
+    text = "scene of the maqama of Madirah is laid in Basra while the con-\n2 THE MAQAMAT OF BADI 1\nI. THE MAQAMA OF BALKH\nnote on the maqama of the Yellow Text p, 230.\nTHE MAQAMA OF THE ASYLUM...\nXXVIII. THE MAQAMA OP ‘IRAQ 9\nXXXIX. THE MAQARIA OF NISIIArUE\n• XX. THE MAQAMA OF THE APE\nXXXHX. THE MAQAMA OF HULWAN\nXUV. THE MAQAMA OF POETRY\nXII. THE MAQAMA OF BAGHDAD\nXLVIII. MAQAMA OF TAMIN\nIV. ORIGIN AND CHARACTER OF THE MAQAMAT"
     units = spine_align.english_maqama_units(text)
     assert [unit.title for unit in units] == [
         "BALKH",

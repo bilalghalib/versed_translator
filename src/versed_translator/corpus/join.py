@@ -13,8 +13,9 @@ import unicodedata
 import urllib.parse
 import urllib.request
 from collections import defaultdict
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from versed_translator.corpus import translations
 

@@ -87,7 +87,7 @@ def simulate(rows: list[dict], glossary) -> dict:
     n_human = 0
     n_auto_flash_after_check = 0
 
-    for _item_id, systems in by_item.items():
+    for systems in by_item.values():
         lite = systems.get("flash_lite") or {}
         flash = systems.get("flash") or {}
         lite_ok, flash_ok = _ok(lite), _ok(flash)
@@ -147,8 +147,8 @@ def simulate(rows: list[dict], glossary) -> dict:
     lite_conf = _prf(checker_pred.get("flash_lite", []), checker_gold.get("flash_lite", []))
     flash_conf = _prf(checker_pred.get("flash", []), checker_gold.get("flash", []))
     all_pred, all_gold = [], []
-    for sid in checker_pred:
-        all_pred.extend(checker_pred[sid])
+    for sid, preds in checker_pred.items():
+        all_pred.extend(preds)
         all_gold.extend(checker_gold[sid])
 
     n = len(policies["all_lite"])

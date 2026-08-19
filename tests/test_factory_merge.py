@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from versed_translator.factory.merge import (
     harvest_term_candidates,

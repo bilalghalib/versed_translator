@@ -11,10 +11,12 @@ import json
 import re
 import sqlite3
 import urllib.parse
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
-from versed_translator.corpus import fetch_pd, join as join_mod, translations
+from versed_translator.corpus import fetch_pd, translations
+from versed_translator.corpus import join as join_mod
 from versed_translator.corpus.inventory import REPO_ROOT
 
 DEFAULT_OUT = REPO_ROOT / "corpus" / "cache" / "probe_hits.json"
@@ -383,11 +385,9 @@ def run_probe(
     )
     hits: list[dict[str, Any]] = []
     fetched: list[dict[str, Any]] = []
-    n = 0
-    for source_id, title in candidates.items():
+    for n, (source_id, title) in enumerate(candidates.items()):
         if n >= limit:
             break
-        n += 1
         row = probe_identifier(
             source_id, have=have, opener=opener, title_hint=title
         )

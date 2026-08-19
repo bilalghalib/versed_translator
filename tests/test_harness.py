@@ -95,6 +95,23 @@ def test_get_template_structured_renders_id_preserving_payload():
     assert [p["id"] for p in payload] == ["AR_001", "AR_002"]
 
 
+def test_qwen_mt_template_is_arabic_only():
+    t = get_template("qwen_mt_v1")
+    assert t.structured is False
+    assert t.system == ""
+    assert t.render_single("بسم الله") == "بسم الله"
+    for rule in FIDELITY_RULES:
+        assert rule not in t.system
+
+
+def test_plain_mt_template_puts_arabic_in_user_turn():
+    t = get_template("plain_mt_v1")
+    assert t.render_single("بسم الله") == "بسم الله"
+    assert "Translate the following Arabic" in t.system
+    for rule in FIDELITY_RULES:
+        assert rule not in t.system
+
+
 def test_get_template_unknown_raises():
     with pytest.raises(ValueError):
         get_template("nonexistent-template")
@@ -363,7 +380,54 @@ def test_openai_compat_adapter_translate_batch_mocked(monkeypatch):
     assert results[0].source_tokens == 3
 
 
-def test_openai_compat_adapter_requires_model_and_base_url():
+def test_openai_compat_qwen_mt_sends_translation_options(monkeypatch):
+    from versed_translator.harness.adapters import openai_compat_adapter
+    from versed_translator.harness.prompts import get_template
+
+    captured = {}
+
+    def fake_post(base_url, path, payload, api_key, timeout):
+        captured["payload"] = payload
+        return {
+            "choices": [{"message": {"content": "In the name of God"}}],
+            "usage": {"prompt_tokens": 4, "completion_tokens": 5},
+        }
+
+    monkeypatch.setattr(openai_compat_adapter, "_post", fake_post)
+    template = get_template("qwen_mt_v1")
+    openai_compat_adapter.translate_batch(
+        [{"id": "AR_001", "arabic": "بسم الله"}],
+        template,
+        model="qwen-mt-turbo",
+        base_url="https://example.com/v1",
+        extra_body={"translation_options": {"source_lang": "Arabic", "target_lang": "English"}},
+        max_tokens=None,
+    )
+    payload = captured["payload"]
+    assert payload["messages"] == [{"role": "user", "content": "بسم الله"}]
+    assert payload["translation_options"]["source_lang"] == "Arabic"
+    assert "max_tokens" not in payload
+
+
+def test_openai_compat_empty_content_is_item_error(monkeypatch):
+    from versed_translator.harness.adapters import openai_compat_adapter
+    from versed_translator.harness.prompts import get_template
+
+    def fake_post(base_url, path, payload, api_key, timeout):
+        return {
+            "choices": [{"message": {"role": "assistant"}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 6, "completion_tokens": 0},
+        }
+
+    monkeypatch.setattr(openai_compat_adapter, "_post", fake_post)
+    results = openai_compat_adapter.translate_batch(
+        [{"id": "1", "arabic": "x"}],
+        get_template("plain_mt_v1"),
+        model="gemini-flash-latest",
+        base_url="https://example.com/v1",
+    )
+    assert results[0].translation is None
+    assert results[0].error == "empty_or_missing_message_content"
     from versed_translator.harness.adapters import openai_compat_adapter
     from versed_translator.harness.adapters.base import AdapterError
     from versed_translator.harness.prompts import get_template

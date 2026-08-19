@@ -272,3 +272,191 @@ Bakeoff set: standing 81 + 39 survivors = **120**. File `~/versed-translator-dat
 CONCLUSION: **Hariri mostly holds; Miskawayh mostly does not.** Sonnet's 24 Miskawayh `aligned` collapsed to 7 under Opus — the running-head lag the extractor warned about, now as a second-model finding, not only as a 70% first-pass partial rate. Hariri's maqama anchor survived (86% of parseable pairs aligned). The two saj' dumps are a model-behaviour failure, not a silent default to aligned. **Do not ship Sonnet-only Miskawayh. Do not retry those two Hariri ids. Proceed to matched-prompt on the 120.**
 CAVEATS: not a human audit (Bilal waived shipping-page review; this pass is the substitute); unparseable ≠ misaligned and is not counted as aligned; CONTEXT gained a JSON-only sentence after the first 58 successes (cached, not re-judged); Miskawayh `ah365` used a 16k budget on retry.
 DECISION FED: D2a (bakeoff set is 120, not 81+61), C1 (adab/maqama filled by 32 trusted Hariri; extra Miskawayh history is only +7).
+
+## EXP-20260815-07 — Matched-prompt TranslateGemma 12B vs 27B on the 120
+
+HYPOTHESIS: On the same prompt, same 663 blocks, same H100 / vLLM 0.11.0 / bfloat16 / temperature 0.1 / max_new_tokens 1536, 12B still holds ~99% of 27B chrF at materially less GPU time. The hadith-only 99.24% / 2.14× figure was prompt-confounded vs Claude and genre-narrow; this run isolates model size.
+SETUP: Items `matched_prompt_eval_120.jsonl` (81 standing + 39 Opus-aligned). Blocks via current 60-word segmenter → **663** (mean 5.5/item, 7 blocks <9 words). `run_blocks` probes `structured_blocks_v1` then falls back. Prompt of record is `_run_summary.prompt_template_id`, expected `modal_minimal_v1` (literal in `matched_prompt_eval_120_protocol.md`). Protocol written before GPU jobs. 27B first attempt (`tg27b-modal-matched120`) is **not** this comparison: probe returned four parseable translations after `TemplateError`, so it ran structured and finished 646 ok / 17 parse errors. Probe gate fixed (`structured_probe_held`); 27B rerun to `tg27b-modal-matched120-fallback`.
+COST: 12B 189.92 s GPU, est. $0.2084; 27B fallback 283.88 s, est. $0.3115 (H100 list $3.95/hr, NEEDS-VERIFICATION). First 27B structured leg 442.7 s / $0.49 extra, not in the comparison.
+RESULTS: Both comparison legs recorded `prompt_template_id: modal_minimal_v1`, `structured: false`. Ingested `20260815T185422Z-modal-translategemma_12b` and `20260815T193612Z-modal-translategemma_27b`; reassembled against the 120-item file.
+
+| | 12B | 27B fallback |
+| --- | ---: | ---: |
+| blocks ok / err | 663 / 0 | 661 / 2 |
+| items ok / incomplete | 120 / 0 | 118 / 2 |
+| chrF (all scored pairs) | 43.94 (n=120) | 43.57 (n=118) |
+| chrF on 118 overlap | **44.11** | **43.57** |
+| 12B as % of 27B (overlap) | **101.23%** | — |
+| GPU wall | 189.9 s | 283.9 s (1.49×) |
+| untranslated-Arabic items | 5 / 120 (4.2%) | 8 / 118 (6.8%) |
+| id loss | 0 | 0 |
+
+27B's 2 errors are `max_new_tokens_truncated` on Blunt verse blocks `labid-v052_083#b0001` and `harith-v018_048#b0002` — those two *items* incomplete on reassemble. 12B finished both.
+
+Overlap chrF by source (n=118): Baladhuri 48.17/47.49, Hariri 43.35/43.21, Ibn Khallikan 43.65/42.92, Blunt 35.09/34.81 (n=12), Miskawayh 47.69/47.16, Ockley 43.84/42.51. 12B ≥ 27B in every source. Long band 44.70/44.11; short 43.09/42.65.
+
+⚠️ Do not compare to the first 27B file. That run's label is `structured_blocks_v1`.
+CONCLUSION: **12B remains the serving model.** On a matched weak prompt across history, biography, maqama, poetry, and philosophy, it is slightly *ahead* of 27B on chrF, 1.49× cheaper in GPU time, and did not truncate. 27B is not buying quality here. Next is one real book at 12B / blocks / `modal_minimal_v1`. chrF is still against abridging PD refs; it is a ranking signal, not a quality ceiling.
+CAVEATS: `modal_minimal_v1` is weaker than harness `v1` (no six fidelity rules) — this unconfounds 12B vs 27B, not TG vs Claude; 2 Blunt items excluded from the fair chrF; untranslated-Arabic detector flags any Arabic codepoint (quotations count); 7 sub-9-word blocks on this slice; price constant unverified; first 27B structured yield (646/663) is a real "JSON almost held" finding but not this bakeoff.
+DECISION FED: C2/C3 (12B confirmed on a diverse PD set), D2a (Modal gate: pick 12B and translate a book), D2e (blocks + honest prompt label).
+
+## EXP-20260816-01 — Official TranslateGemma template 12B vs 27B on the same 120
+
+HYPOTHESIS: EXP-20260815-07's 12B-ahead result was off-template. Google trains and evaluates Figure 3 (`ar`→`en`, text = Arabic only). On that API, 27B should at least not lose.
+SETUP: Same 663 blocks. `prompt_mode=official` → checkpoint `apply_chat_template` with `source_lang_code=ar`, `target_lang_code=en`, `text`=Arabic only. No JSON probe, no `modal_minimal_v1`. Temperature 0.0, max_new_tokens 512, stop `<end_of_turn>`. Same H100 / vLLM 0.11.0 / bfloat16. Protocol written first: `official_template_eval_120_protocol.md`. Both legs recorded `prompt_template_id: translategemma_official_v1` and `prompt_modes: {official_chat_template: 663}` with empty `chat_template_errors`.
+COST: 12B 173.4 s, est. $0.1903; 27B 323.8 s, est. $0.3553 (1.87×). H100 list $3.95/hr, NEEDS-VERIFICATION.
+RESULTS: Ingested `20260816T044139Z-modal-translategemma_12b` and `20260816T044600Z-modal-translategemma_27b`. Each side truncated one different block (12B `blunt_odes:zuhayr-v016_044#b0002`; 27B `hariri_assemblies:m46-a048_059#b0003`), so fair chrF is the **118-item overlap**.
+
+| | 12B official | 27B official |
+| --- | ---: | ---: |
+| blocks ok / err | 662 / 1 | 662 / 1 |
+| items ok / incomplete | 119 / 1 | 119 / 1 |
+| chrF on 118 overlap | 42.83 | **43.16** |
+| 12B as % of 27B (overlap) | **99.25%** | — |
+| GPU wall | 173.4 s | 323.8 s (1.87×) |
+| untranslated-Arabic items (overlap) | 5 / 118 | **0 / 118** |
+| id loss | 0 | 0 |
+
+Overlap by source (12B / 27B): Baladhuri 47.31/46.79, Hariri 41.09/**42.62**, Ibn Khallikan 43.17/43.04, Blunt 34.68/**35.23**, Miskawayh 46.96/**47.23**, Ockley 41.60/41.56. 27B's lift is mostly Hariri.
+
+On the 116 items all four legs finished: homemade 12B 44.24 / 27B 43.73 (12B 101.17% of 27B); official 12B 43.00 / 27B 43.32 (12B 99.27% of 27B). Official is **lower** chrF vs the PD refs than homemade (12B −1.24, 27B −0.41) — expected: Figure 3 is a modern MSA translator prompt, not "sound like Hitti/Chenery".
+
+CONCLUSION: **The homemade-prompt inversion was real and is gone.** On Google's API, 27B is slightly ahead (99.25% the other way) and has zero leftover Arabic. Automatic scores still look like a tie. The serving call is the human read in EXP-20260816-02, not this table. Serve with `translategemma_official_v1`, not `modal_minimal_v1`. Do not overwrite EXP-20260815-07.
+CAVEATS: chrF vs abridging 19th-c PD English; official prompt adds "cultural sensitivities" (honorifics showed up in samples); one truncation each, different items; 512 cap (not 1536); price constant unverified; no Classical Arabic language code exists — `ar` is MSA.
+DECISION FED: C2 (call the model through the checkpoint template). Serving size is EXP-20260816-02.
+
+## EXP-20260816-02 — Human read of the official 14-passage sample (Arabic as source of truth)
+
+HYPOTHESIS: chrF vs abridging PD English understates 27B if the real gain is event structure, not lexical overlap.
+SETUP: Bilal read `official_vs_homemade_compare.html` (14 of 120). Arabic is the source of truth; PD English is an expert historical comparator, not literal gold. Official-form 12B vs 27B are the systems under test. Full note: `~/versed-translator-data/benchmark-alignment/official_14_human_read.md`.
+RESULTS: Prefer **27B on ~9–10/14**; poetry/technical often a tie because both fail; 12B only where 27B returned nothing. Surface F1 on the 14 is a hair (token-overlap .456/.465, chr-trigram .580/.588) — do not optimize that. Arabic leakage 6/14 vs 0/14.
+
+**Scale repairs composition before historical semantics.** 27B is meaningfully better at syntax, discourse, participant tracking, long-prose coherence, and keeping Arabic out of English. It is not dramatically better at rare/polysemous CA words, administrative terms, archaic idiom, cultural allusion, or compressed verse.
+
+Clean demo — Nihāwand `فدخل عمر المسجد فبصر النعمان…`: 12B reverses who saw whom; 27B keeps ʿUmar as subject. Same passage: 27B gets `زوال الشمس` (zenith not sunset), `بغلته` (mule), `السفطين` (chests not swords) and still misses `فرمونا` (stones for shots).
+
+Scaling-resistant cliff — both write `نجوم المصادرات` as **stars**. Same cluster: `عشاء`→dinner, `المساحة`→generic control, `مناظرة`→debate, al-Barīdī→postal service, Luʾluʾ→Pearl, `سحيل ومبرم`→two people. 27B's fluency can make these *more* dangerous (invented Azraq; date 191→291 while the calendar frame is right).
+
+12B's signature: participant collapse (`ليلة الجمعة` → a woman named Layla who is then buried). 27B's signature on verse: an English-shaped object that lost the metaphor (war as grind / gestate / wean).
+
+Error clusters for later work (not a fine-tune target): **A** argument/referent structure (27B helps), **B** diachronic lexical sense (both fail), **C** entity typing (both; 27B can hide it), **D** technical register, **E** literary/allusive, **F** metalinguistic/philological, **G** fluent gap-filling, **H** leakage/truncation (27B wins H).
+CONCLUSION: **Ship the book on 27B official.** Do not fine-tune on 12-vs-27 quality. Residual errors look like lexicon retrieval, entity-preserve, genre-conditioned prompting, and an uncertainty/gloss pass — especially verse as interlinear gloss then English. Proposed eval axes if we annotate the 14: participant/role, lexical-sense, entity integrity, technical-register, figurative/allusive, uncertainty calibration; completeness/leakage as mechanical gates.
+CAVEATS: n=14 curated (problems + one per source), not a blind sample of 120; one reader; PD refs still abridge.
+DECISION FED: D2a (book on 27B / `translategemma_official_v1`), C2 (do not treat chrF-vs-PD as the quality gate), C4/C5 later (lexicon/entity, not size).
+
+## EXP-20260816-03 — Qwen-MT + Gemini Flash / Flash-Lite on the frozen 120
+
+HYPOTHESIS: Dedicated cheap MT (Qwen-MT) and Gemini Flash-tier chat-as-MT have never been scored on this set. On the same 663 blocks they will at least produce usable English and measured token usage, replacing the unmeasured Gemini-batch envelope.
+SETUP: Same `matched_prompt_eval_120_blocks60.jsonl` (663). Protocol written first: `api_bakeoff_120_protocol.md`. One block per call (not JSON structured). Qwen: `qwen-mt-turbo`, DashScope **intl**, template `qwen_mt_v1` (Arabic-only user turn), `translation_options: {source_lang: Arabic, target_lang: English}`, no `max_tokens`. Gemini: OpenAI-compat `https://generativelanguage.googleapis.com/v1beta/openai`, template `plain_mt_v1`, `--omit-max-tokens` (thinking-budget trap). Models `gemini-flash-lite-latest` then `gemini-flash-latest`. Not harness `v1` — that would re-confound prompt with model.
+COST: API list prices NEEDS-VERIFICATION. **Measured usage** (provider `usage`):
+
+| leg | wall_s | in tok | out tok | block err | est. if using unverified list notes |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Qwen-MT turbo | 791.5 | 84,363 | 71,205 | 0 | tokens only; DashScope invoice not pulled |
+| Gemini Flash-Lite | 712.6 | 71,906 | 68,392 | 2 | tokens only |
+| Gemini Flash | 2853.2 | 71,805 | 70,343 | 3 | ~4× slower than Lite (thinking) |
+
+Naïve $/M Arabic words cannot be billed from these until the current price table is confirmed. Do **not** reuse a $650 / 2B-word Gemini envelope — that was never measured here.
+RESULTS: Ingested/reassembled under `~/versed-translator-data/runs/`. Scores: `benchmark-alignment/api_bakeoff_120_scores.json`. Compare HTML (same 14 ids as EXP-20260816-02): `benchmark-alignment/api_vs_official_compare.html`.
+
+Fair chrF on the **115-item overlap** (every system finished the item):
+
+| system | chrF overlap | leftover AR overlap | notes |
+| --- | ---: | ---: | --- |
+| Gemini Flash | **47.06** | 0 | 3 incomplete items overall |
+| Gemini Flash-Lite | 45.80 | 0 | 2 empty-content blocks (`labid-v035_051#b0003`, `m01-a001_011#b0001`) |
+| Qwen-MT turbo | 44.78 | 0 | **663/663 ok**, 120/120 items |
+| TG 27B official | 43.20 | 0 | EXP-20260816-01 |
+| TG 12B official | 42.88 | 5 | EXP-20260816-01 |
+
+Qwen all-120 chrF **44.63**, leftover Arabic **0/120**. Gemini Flash all-scored chrF **46.94** (n=117). Overlap-by-source: APIs ahead in every source; largest gaps Hariri and Blunt.
+
+Known-cliff spot-check (`miskawayh_eclipse:ah325-a000_005`): Qwen, Flash-Lite, and Flash all keep **Barīd** and **Luʾluʾ** as names; official 27B had typed them as postal service / Pearl. This is **not** a human verdict on `نجوم المصادرات` (stars) — that still needs the Arabic-as-truth read.
+CONCLUSION: **The API legs are now measured, not hypothetical.** Automatic chrF-vs-PD ranks Gemini Flash > Flash-Lite > Qwen-MT > TG27B official > TG12B official. That ranking is still against abridging 19th-c English; it does **not** by itself replace EXP-20260816-02's serving decision. It does kill the claim that we have no quality evidence for Qwen/Gemini, and it makes a human 14-passage read of `api_vs_official_compare.html` the next quality gate for “first corpus via API vs owned 27B.” C8 still requires an open, fine-tunable model for the model we publish — that remains TranslateGemma. No model was trained. ATHAR still cannot be release data.
+CAVEATS: chrF vs PD; Gemini empty-content on two verse/maqama blocks (same ids on Lite and Flash); one Flash `RemoteDisconnected`; Flash wall includes thinking tokens; prices unverified; no human read of the API 14 in this entry.
+DECISION FED: D2a (API corpus-route is now an evidenced option, not a spreadsheet); D2c (Gemini provisioned *and* scored); C8 (open model ≠ cheapest API); publication path (PD 120 + our outputs, never ATHAR).
+NOTE (same day, do not overwrite numbers above): the human read is **EXP-20260816-04**. Do not treat “Qwen 120/120” in this entry as the first-corpus quality decision.
+
+## EXP-20260816-04 — Arabic-first human read of the API 14 (TG27 vs Qwen vs Flash-Lite vs Flash)
+
+HYPOTHESIS: chrF-vs-PD (EXP-20260816-03) understates the human gap; Qwen’s 120/120 and 0 leftover Arabic may be completeness rather than Classical-Arabic fidelity.
+SETUP: Same 14 ids as EXP-20260816-02, page `api_vs_official_compare.html`. Arabic = source of truth. Two independent reads (0–5 and letter grades) then a convergence pass. Full note: `~/versed-translator-data/benchmark-alignment/api_14_human_read.md`.
+COST: human time only.
+RESULTS: Flash won every passage card. Converged grades: **Flash A−, Flash-Lite B/B+, Qwen C+, TG27 C− with F-class tails.** Bilal means 4.54 / 3.93 / 2.69 / 2.26 (not a validated metric).
+
+Checkable publication-blocking exhibits on TG27: (1) Miskawayh ah325 entity dissolution (Barīdī→postal service, Luʾluʾ→Pearl, regiments→dam/stone, بطالبي dropped) that rewrites the plot; (2) Ibn Khallikan 0362 **191 AH → 291 AH**; (3) Labid multi-sentence confabulation with no Arabic anchor; (4) Hariri m46 no output. Qwen keeps some names but substitutes Kharijites / Maysan / “wrote about him.” Flash alone holds `نجوم المصادرات` through the anaphor (installments, not stars). Flash-Lite holds the ah325 names and many scenes; loses the `نجوم` anaphor.
+
+**Correction:** `كتبت عنه` is Ibn Khallikan `v2-bio-0442`, not Hariri m20. Hariri m20 is the Mayyāfāriqīn maqāma (Qwen → Maysan).
+
+CONCLUSION: **Reject raw TG27 and Qwen as quality leaders for the first corpus.** Flash is the human-quality leader on this diagnostic; Flash-Lite is the serious cheap challenger; Qwen is operational fallback. TG27 remains the **open model to own and fine-tune**, not “what we would publish as translations.” Do not treat 0 leftover Arabic as quality. Next quality test is **blind untranslated OpenITI** (no PD ref, no chrF, grade + catastrophic flags) because these 14 are famous and possibly in Gemini’s training data. The 27B book run is factory/FT baseline, not the corpus-producer decision.
+CAVEATS: n=14 curated famous works; two readers, poetry ranking is judgment; entity/date/term errors are hard-checkable; contamination untested.
+DECISION FED: D2a (first corpus: Flash, pending blind-20; owned model still TG27), C2 (chrF-vs-PD cannot be the ceiling), C8 (teacher for a future student may be Gemini, not ATHAR), C5 (poetry routing; entity/date flags).
+NOTE (same day): **EXP-20260816-05** revises C8 — do not distill Gemini API output into TranslateGemma until counsel clears the API competitive-use clause. Factory v1 is verifier-first, not router-first.
+
+## EXP-20260816-05 — Factory v1 decision + Fable r1 export
+
+HYPOTHESIS: At corpus list prices the Lite-vs-Flash gap is ~$5k / 2B words; a learned router is not the product. Verse must be pre-routed; everything else is Lite + glossary + invariants + extractor-judge + 2% audit.
+SETUP: Decision recorded in `~/versed-translator-data/FACTORY_V1.md`. Fable export: 50 stratified passages from the frozen 120 **excluding** SAMPLE_14, × TG27 / Flash-Lite / Flash / Qwen = 200 rows, seed 20260816, two 100-row CSVs. Qwen is in the *label* set as a failure source, not in production. PD English omitted from the CSV.
+COST: none (export only). Gemini/Qwen list $ at 2B remain unbilled inferences (~$1k all-Lite vs ~$6k all-Flash).
+RESULTS: files under `~/versed-translator-data/benchmark-alignment/fable_r1/`. No new model scores. Glossary A/B and invariants checker not run in this entry.
+CONCLUSION: **Ship the cascade, not a classifier.** Labels from Fable serve checker tests, glossary rows, and a licensing-clean TG curriculum (human flags + TG-shadow), not Gemini matn. Google Translate can join the same 50 ids in a later round as known-bad input to the checker.
+CAVEATS: 50 are still famous PD-paired works (contamination); Blind-50 untranslated OpenITI remains the generalization test. ToS reading is not legal advice.
+DECISION FED: D2a (factory = Lite+glossary with Flash escalate), C5 (invariants + extractor-judge, not MetricX), C8 (no Gemini→TG distill until cleared), D5 (publication gate = zero blocking flags + 2% audit).
+NOTE (same day): **EXP-20260816-06** reclassifies the r1a sitting as `silver_error_harvest` and records the first implementable cascade simulation. Do not read this entry as a production routing decision or as glossary gold.
+
+## EXP-20260816-06 — r1a reclassified silver; cascade router simulated
+
+HYPOTHESIS: r1a can train draft checker rules and a glossary *candidate* table, and we can simulate an implementable Lite→check→Flash cascade on those silver labels — without treating Fable 24/25 vs 12/25 as a production routing result, and without a learned source-router.
+SETUP: Preserve r1a outputs, Fable prompt/rubric, and digest. Normalize 93 pipe-joined mined rows → 111 `glossary_candidates` (`status=candidate`, `train_eligible=false`). Retrieve only entries whose Arabic occurs in that passage and book. Cascade: verse/sajʿ → Flash; else Lite; CORE_CHECKS + glossary contradiction; on fail keep Lite *and* fetch Flash; ship Flash only if Flash's own checks are clean; if both dirty, keep Lite and queue human. Code: `versed_translator.factory`. Simulation file: `~/versed-translator-data/benchmark-alignment/fable_r1/policy_sim_r1a.json`. Audit sample: `audit_r1a_24.csv`. Unseen same-book holdout (16 Baladhuri + 8 Ibn Khallikan, disjoint from the 50 Fable ids and SAMPLE_14): `glossary_holdout_24.jsonl`. No API 2×2 in this entry.
+COST: none (offline).
+RESULTS: Fable descriptive (single-model-rater, not a conclusion): Flash 24/25, Lite 12/25, Qwen 0/25, TG 0/25. Oracle Lite-else-Flash 25/25 — not implementable. Implementable checker-auto (keep both, human catches queued): **21/25**, 4 escaped, 15 Lite escalations, 6 human, 9 auto-Flash. Naive overwrite-on-fail: 20/25 (worse). Lite checker vs Fable: recall 0.69 (9/13), 6 false escalations, 4 escaped TERM/ENTITY sense errors. The s32 Lite-Y / Flash-N disagreement: Lite false-tripped NEGATION, Flash also failed checks, cascade kept Lite and queued human. Verse gate is a no-op on r1a (chronicle/bio). CORE_CHECKS-only previously caught 15/64 blocking across all four systems; glossary retrieve is what moves Lite recall. A logistic on check features still loses to always-N and leaks system voice — do not train a publishable-Y/N classifier on r1a.
+CONCLUSION: **r1a is `silver_error_harvest`.** No production routing policy. The router we ship next is the cascade, not a neural net. The classifier *starts* as deterministic checks + per-passage glossary retrieve. Gemini outputs and Fable labels remain analysis-only (`train_eligible=false`); an open-source scientific checker is still not a license to copy those texts into TranslateGemma. Next: human-audit the 24, verify glossary candidates against independent sources, then the 2×2 on the holdout; r1b for verse/Miskawayh/ADDITION.
+CAVEATS: labels are Fable silver; escaped-4 are unconfirmed; glossary entries are candidates (`الحلقة` must not mean mail-armor everywhere); r1a cannot test a learned source-router or a production cascade; holdout 2×2 not yet run.
+NOTE (same day): **EXP-20260816-07** is the blind Fable regrade of the hard-24 close calls. Still silver. Do not read 13/15 Lite fails as the r1a base rate — that sample is Lite-heavy by design.
+
+## EXP-20260816-07 — Blind Fable regrade of r1a hard-24
+
+HYPOTHESIS: A second Fable sitting, labels hidden, on the 24 close-call outputs will show which first-pass Y/N calls are stable and whether Flash-Lite's damage is a lexical-substitution pattern the glossary checker can target.
+SETUP: Same 24 rows as `hard24_for_fable.csv`. First-pass grades stripped. Rubric unchanged (Arabic as truth, closed flags, N iff blocking). Artifact: `~/versed-translator-data/benchmark-alignment/fable_r1/hard24_fable_regrade.csv`. Compare: `hard24_compare.csv`.
+COST: Fable sitting only.
+RESULTS: Arabic/translation byte-identical 24/24. **5 Y / 19 N.** Publishable agreement with pass 1: **20/24 (0.83).** All four overturns were Y→N (0011 Flash مأثرة "feud"; 0006 Lite الحصر "guarding the passes"; 0026 Lite broken dispatch; 0058 Lite "Umm Ibrāhīm, the son of the Messenger"). No Y/N flips toward pass; the three "lenient" notes (0030 hadra, 0055 ajlā', 0074 nisba) were already Y. Flag-set shifted on six further rows that kept Y/N (e.g. 0029 TERM→ROLE isnad "about" vs "from"; 0073 OMISSION→ROLE taṣliya). Confidence 13 high / 11 med / 0 low.
+
+This 24 is adversarially Lite-heavy (15/24). Pass-2 Lite **2/15 Y**; Flash **3/5 Y**. Do not quote 13/15 as the r1a Lite rate (first sitting on all 25 Lite was 12/25 Y). Lite's recurring signature here is unhedged substitution on a rare lemma: سن→age, المورَّد→watering place, اصطفوا→aligned themselves, روح→the spirit, المصرين→Egypt and Syria, الحصر→guarding the passes, نفض الأيدي→shaking hands. Flash's two fails are the softest in the set (stamped-hands 0031, مأثرة 0011), both med. s32 Lite-Y / Flash-N **held** across both sittings.
+
+The med rows Fable flagged for a later dad look: 0031, 0042, 0006.
+CONCLUSION: Second silver sitting, not gold. The cascade still must keep both outputs (s32 non-nested, stable). Checker next step is those substitution lemmas as glossary retrieve signals — not a learned "rare word + confident English" classifier on 15 rows. ROLE/isnad/apposition (0029, 0058, 0073) will not be caught by exact glossary match.
+CAVEATS: Same model family as pass 1; 0.83 agreement is self-consistency, not human agreement. Sample bias toward Lite close calls. Semicolon vs pipe in flags this sitting.
+DECISION FED: D2a (keep-both escalate still required), C5 (glossary contradiction for Lite substitutions; ROLE still semantic).
+NOTE (same day): **EXP-20260816-08** consolidates the two sittings into silver consensus plus a deferred dad-review queue. Not human gold. No current human gate.
+
+## EXP-20260816-08 — hard-24 two-sitting Fable consensus; deferred review queue
+
+HYPOTHESIS: The completed blind second sitting can be merged with the first sitting into model-consensus labels for checker/router development, without calling Fable again and without a human gate.
+SETUP: Inspected `hard24_for_fable.csv`, original `fable_r1a_graded.csv`, `hard24_fable_regrade.csv`, and the prior dad file. Second sitting present (24 rows, grading filled). Did not call Fable. Classifier: `versed_translator.factory.consensus`. Arabic/translation copied from the sent file after verifying identity with both sittings.
+COST: none.
+RESULTS: Y/N agreement **20/24**; four unresolved Y→N flips (0006, 0011, 0026, 0058). Label status: **2 silver_consensus_high**, **15 silver_consensus_med**, **7 disputed**. Priority: **P1=7, P2=15, P3=2**. Disputed = the four flips plus three both-N rows whose blocking class has no overlap (0029 TERM vs ROLE, 0032 ADDITION vs TERM, 0073 OMISSION vs ROLE). Consensus publishable left empty on disputed rows. No row labelled human_gold. Round-trip Arabic/translation strings unchanged.
+CONCLUSION: **hard-24 = two-sitting Fable consensus plus deferred human-review queue; not human gold; no current human gate.** Stable silver-consensus rows may support checker/router development. Disputed rows are challenge cases, not training or benchmark truth. Dad CSV is parked and sorted P1→P3; `dad_*` empty. Subsequent work uses the 17 consensus rows and continues (r1b, glossary 2×2) without waiting.
+CAVEATS: Same model family both sittings; 20/24 is self-consistency. Sample is Lite-heavy close calls.
+DECISION FED: D2a / C5 (develop on silver consensus; park disputed).
+NOTE (same day, evening): **EXP-20260816-09** closes r1a. No third sitting. Sequence is r1b once → glossary 2×2 → policy sim on 200 → one book.
+
+## EXP-20260816-09 — r1a closed; factory is the product
+
+HYPOTHESIS: Further grading-the-grader on r1a cannot exit. The four keepers from the day are enough; the factory run is the next source of router labels.
+SETUP: r1a first sitting + one blind hard-24 regrade. Consensus file exists and is frozen. r1b (`fable_r1b.csv`, 100 rows, ungraded) is the only remaining Fable sitting in round 1.
+COST: none this entry.
+RESULTS kept: (1) `glossary_candidates.csv` n=113; (2) Fable self-agreement 20/24, all flips Y→N — first-pass leniency is known, no third sitting; (3) probe collinearity — English-side models learn system voice because TG/Qwen are 0/25; learned router is Arabic-only and not yet; (4) cascade keep-both 21/25, checker recall 0.69, four misses are sense errors (judge layer). Apparatus skipped going forward: consensus-tier refinement, evidence-class tables as a workstream, r2b, any further r1a pass.
+CONCLUSION: **r1a is closed.** Checker = (Arabic, English) → flags, trained on all system failures. Router = Arabic-only → P(publishable|Lite/Flash), labels = factory gate outcomes, harvested in production, trigger ≥500 gate-labeled passages or Blind-50. Until then the router is the verse/sajʿ rule + Lite→check→keep both. Ship test: beats two if-statements on Blind-50 escaped-blockers per Flash-dollar. Next: Fable grades r1b once; glossary 2×2 with `verified_by=fable_evidence` (no human-verify deadlock); policy sim on 200; one book with TG shadow.
+CAVEATS: r1b not yet graded; 2×2 not run; book not started.
+DECISION FED: D2a (factory first), C5 (checker after translation; learned router parked), C8 (no Gemini→TG).
+
+## EXP-20260817-01 — r1b sitting merged; round 1 closed
+
+HYPOTHESIS: One Fable sitting on the hard half (verse / sajʿ / Miskawayh / Ḥayy) completes the 200-row silver label set, lets the verse gate fire in the cascade sim, and tests whether chrF ranking survives meaning-level flags.
+SETUP: `fable_r1b.csv` (100 rows) graded in `fable_r1b_graded.csv` against `PROMPT_r1b.md`. Verified: 100 rows, source columns untouched, publishable ⇔ zero blocking flags. Merged with r1a → `fable_r1_graded.csv` (200). `check_output` now treats empty/`nan` English as MISSING. Policy sim: `policy_sim_r1.json` (50 passages), `policy_sim_r1b.json` (25). Digest: `DIGEST_r1b.md`. Did not call Fable. Did not open r1a. Did not merge noisy TERM spans into the 113-entry glossary (raw dump: `r1b_term_harvest.csv`).
+COST: one Fable sitting (grader); merge/sim offline.
+RESULTS: r1b Flash **24/25**, Lite **11/25**, TG27B **2/25**, Qwen **0/25**. 37/100 publishable. Flags on 63 N: TERM 60, ENTITY 26, ROLE 24, NUMBER 5, OMISSION 3, ADDITION 3, MISSING 2. Combined round 1: Flash 48/50, Lite 23/50, TG 2/50, Qwen 0/50. Both Flash and Lite empty on Labid `blunt_odes:labid-v035_051` (`fable_r1-0150/0151`) — a generation miss, not a translation; Flash’s true r1b score may be 25/25 if that item is rerun. chrF had ranked Flash 47.06 > Lite 45.80 > Qwen 44.78 > TG 43.20; meaning-level Flash 24 vs Qwen 0. Keep-both on 50: **46/50** (verse gate 14/50, 14 human, 10 auto-Flash). Escaped 4 = three r1a Lite sense errors the checker still reads clean + the empty Labid. Overwrite 45/50. All-Flash 48/50. Oracle 49/50 (only the empty pair). Lite checker recall 0.778 on 50. Flash checker recall 1.0 / precision 0.08 — do not overwrite. TG’s two Ys are the simplest Ḥayy narrative sections.
+CONCLUSION: **Round 1 is closed.** The flag layer cannot be replaced by chrF; Qwen’s seamlessness is the danger. Flash-Lite failures are local (extractor-judge / glossary); TG/Qwen failures are global. The informative classifier boundary is Lite’s mixed 23Y/27N, not the 200-row pool. Do not train on these labels. Next experiment is the glossary 2×2, then one book with Lite-tier gate logging. Optional: rerun Labid `v035_051` for Flash only — not another sitting.
+CAVEATS: single-model-rater silver; 18 med-confidence rows (13 Lite) are a deferred dad packet; three closest Lite Ys (0182, 0134, 0162) could flip; shared cruxes were ruled cosmetic under 3–4/4; 2×2 not run; book not started.
+DECISION FED: D2a (keep-both cascade; Qwen out), C5 (flags not chrF; checker after translation; learned router parked on Lite-tier harvest), C2 (chrF-vs-PD cannot be the ceiling).
+

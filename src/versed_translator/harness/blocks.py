@@ -118,6 +118,22 @@ def _even_chunks(words: list[str], max_words: int) -> list[list[str]]:
     return [words[i : i + size] for i in range(0, len(words), size)]
 
 
+def sentences(text: str) -> list[str]:
+    """Split on sentence punctuation only. Does not pack, merge, or budget.
+
+    Chunks are packed sentences (and leftover clauses). Paragraphs are an
+    edition's ``# `` / blank-line units. This function is neither. A source
+    with no sentence punctuation returns one span — the whole text — rather
+    than inventing cuts.
+
+    Guarantees ``" ".join(sentences(t)) == " ".join(t.split())``.
+    """
+    words = text.split()
+    if not words:
+        return []
+    return [" ".join(unit) for unit in _split_on(words, HARD_BOUNDARY_CHARS)]
+
+
 def segment(text: str, max_words: int = DEFAULT_MAX_BLOCK_WORDS) -> list[str]:
     """Split `text` into blocks of at most `max_words` whitespace-separated words.
 

@@ -85,6 +85,18 @@ _STRUCTURED_SYSTEM = (
     "text. Follow these fidelity rules strictly:\n" + _FIDELITY_BLOCK
 )
 
+# Dedicated MT APIs (Qwen-MT): the user message is the Arabic only. Language
+# pair is `translation_options`, not this string. Do not send a system prompt.
+_QWEN_MT_SYSTEM = ""
+
+# General chat models used as translators (Gemini Flash / Flash-Lite). Arabic
+# only in the user turn — same spirit as TranslateGemma official (text = source).
+# Not harness v1: that would re-confound model with the six fidelity rules.
+_PLAIN_MT_SYSTEM = (
+    "Translate the following Arabic text into English. "
+    "Output only the English translation, nothing else."
+)
+
 
 @dataclass(frozen=True)
 class PromptTemplate:
@@ -101,7 +113,13 @@ class PromptTemplate:
                 "Here is one example translation illustrating the target "
                 f"register:\n{exemplar}\n"
             )
-        parts.append(f"Translate the following Classical Arabic text:\n\n{arabic}")
+        if self.template_id == "qwen_mt_v1":
+            # Dedicated MT API: extra instruction is treated as source text.
+            parts.append(arabic)
+        elif self.template_id == "plain_mt_v1":
+            parts.append(arabic)
+        else:
+            parts.append(f"Translate the following Classical Arabic text:\n\n{arabic}")
         return "\n".join(parts)
 
     def render_batch(self, items: list[dict], exemplar: str | None = None) -> str:
@@ -141,12 +159,32 @@ MODAL_MINIMAL_V1_TEXT = (
     "Arabic:\n{arabic}\n\nEnglish:"
 )
 
+# Google's trained TranslateGemma call (technical report §5.2 / Figure 3).
+# Not a string we own: the container renders it through the checkpoint's
+# chat template with source_lang_code/target_lang_code and `text` = Arabic
+# only. Listed here so ingest-modal will record the label.
+TRANSLATEGEMMA_OFFICIAL_V1_ID = "translategemma_official_v1"
+TRANSLATEGEMMA_OFFICIAL_SOURCE_LANG = "ar"
+TRANSLATEGEMMA_OFFICIAL_TARGET_LANG = "en"
+
 TEMPLATES: dict[str, PromptTemplate] = {
     "v1": PromptTemplate(template_id="v1", system=_V1_SYSTEM, structured=False),
     "structured_blocks_v1": PromptTemplate(
         template_id="structured_blocks_v1", system=_STRUCTURED_SYSTEM, structured=True
     ),
+    "qwen_mt_v1": PromptTemplate(
+        template_id="qwen_mt_v1", system=_QWEN_MT_SYSTEM, structured=False
+    ),
+    "plain_mt_v1": PromptTemplate(
+        template_id="plain_mt_v1", system=_PLAIN_MT_SYSTEM, structured=False
+    ),
 }
+
+QWEN_MT_V1_ID = "qwen_mt_v1"
+PLAIN_MT_V1_ID = "plain_mt_v1"
+# Qwen-MT requires full English language names, not ISO codes.
+QWEN_MT_SOURCE_LANG = "Arabic"
+QWEN_MT_TARGET_LANG = "English"
 
 
 #: Every template id a run may legitimately record. Deliberately WIDER than
@@ -157,7 +195,10 @@ TEMPLATES: dict[str, PromptTemplate] = {
 #: parity test exists to prevent. But a label that no consumer can resolve is
 #: its own bug (``ingest-modal`` recorded it while ``get_template`` rejected
 #: it), so validation goes through this set and rendering through TEMPLATES.
-KNOWN_TEMPLATE_IDS: frozenset[str] = frozenset(TEMPLATES) | {MODAL_MINIMAL_V1_ID}
+KNOWN_TEMPLATE_IDS: frozenset[str] = frozenset(TEMPLATES) | {
+    MODAL_MINIMAL_V1_ID,
+    TRANSLATEGEMMA_OFFICIAL_V1_ID,
+}
 
 
 def is_known_template_id(template_id: str) -> bool:

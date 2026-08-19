@@ -30,6 +30,9 @@ from dataclasses import dataclass, field
 from versed_translator.harness.prompts import (
     MODAL_MINIMAL_V1_ID,
     MODAL_MINIMAL_V1_TEXT,
+    TRANSLATEGEMMA_OFFICIAL_SOURCE_LANG,
+    TRANSLATEGEMMA_OFFICIAL_TARGET_LANG,
+    TRANSLATEGEMMA_OFFICIAL_V1_ID,
     get_template,
     parse_structured_response,
 )
@@ -49,12 +52,15 @@ __all__ = [
     "ERR_ID_MISSING",
     "FALLBACK_TEMPLATE_ID",
     "ID_CONTRACT_ERRORS",
+    "OFFICIAL_TEMPLATE_ID",
     "STRUCTURED_TEMPLATE_ID",
     "PromptChunk",
     "build_fallback_chunks",
+    "build_official_chunks",
     "build_structured_chunks",
     "parse_chunk_output",
     "probe_ok",
+    "structured_probe_held",
 ]
 
 #: The structured contract (D2e) on the Modal path.
@@ -62,6 +68,9 @@ STRUCTURED_TEMPLATE_ID = "structured_blocks_v1"
 #: The known-good raw-completion fallback: exactly what both prior
 #: TranslateGemma legs sent, now under its honest label.
 FALLBACK_TEMPLATE_ID = MODAL_MINIMAL_V1_ID
+#: Google's trained TranslateGemma API (report §5.2). Rendered on the
+#: container via apply_chat_template; this module only ships the fields.
+OFFICIAL_TEMPLATE_ID = TRANSLATEGEMMA_OFFICIAL_V1_ID
 
 #: Blocks per structured generation. Deliberately small: with <=60-word blocks
 #: this is ~600 prompt tokens and ~500 output tokens, well inside the serving
@@ -91,10 +100,22 @@ class PromptChunk:
     user: str
     #: True when the container should apply the model's chat template.
     chat: bool = True
+    #: Official TranslateGemma payload. When set, ``to_request`` sends the
+    #: trained ``source_lang_code`` / ``target_lang_code`` / ``text`` shape
+    #: instead of a freeform user string. The container must apply the
+    #: checkpoint chat template and must not fall back to a homemade prompt.
+    official: dict | None = None
     prompt_sha256: str = field(default="", compare=False)
 
     def to_request(self) -> dict:
         """The wire form the Modal container consumes (plain JSON, no imports)."""
+        if self.official is not None:
+            return {
+                "official": True,
+                "source_lang_code": self.official["source_lang_code"],
+                "target_lang_code": self.official["target_lang_code"],
+                "text": self.official["text"],
+            }
         return {"system": self.system, "user": self.user, "chat": self.chat}
 
 
@@ -152,6 +173,42 @@ def build_fallback_chunks(items: list[dict]) -> list[PromptChunk]:
         )
         for item in items
     ]
+
+
+def build_official_chunks(
+    items: list[dict],
+    *,
+    source_lang_code: str = TRANSLATEGEMMA_OFFICIAL_SOURCE_LANG,
+    target_lang_code: str = TRANSLATEGEMMA_OFFICIAL_TARGET_LANG,
+) -> list[PromptChunk]:
+    """One official TranslateGemma request per block.
+
+    ``text`` is the Arabic only. No "Classical Arabic" instruction, no
+    fidelity rules — those would be treated as source text under Google's
+    API. The container renders Figure 3 via the checkpoint chat template.
+    """
+    chunks: list[PromptChunk] = []
+    for item in items:
+        official = {
+            "source_lang_code": source_lang_code,
+            "target_lang_code": target_lang_code,
+            "text": item["arabic"],
+        }
+        chunks.append(
+            PromptChunk(
+                template_id=OFFICIAL_TEMPLATE_ID,
+                structured=False,
+                ids=(item["id"],),
+                system=None,
+                user=item["arabic"],
+                chat=True,
+                official=official,
+                prompt_sha256=_sha(
+                    f"{source_lang_code}->{target_lang_code}", item["arabic"]
+                ),
+            )
+        )
+    return chunks
 
 
 def parse_chunk_output(chunk: PromptChunk, text: str, **extra) -> list[dict]:
@@ -217,3 +274,20 @@ def probe_ok(rows: list[dict]) -> bool:
     it 139 blocks later.
     """
     return bool(rows) and all(r.get("error") is None and r.get("english") for r in rows)
+
+
+def structured_probe_held(rows: list[dict], meta: dict | None = None) -> bool:
+    """Probe rows are clean *and* the chat template actually accepted the call.
+
+    27B on 2026-08-15 returned four parseable probe translations after a
+    TemplateError, so `probe_ok` alone green-lit `structured_blocks_v1` and
+    the matched-prompt bakeoff ran two different prompts. Chat-template
+    incompatibility is a failed probe, even if leftover text happens to parse.
+    """
+    if not probe_ok(rows):
+        return False
+    meta = meta or {}
+    if meta.get("chat_template_errors"):
+        return False
+    modes = meta.get("prompt_modes") or {}
+    return not modes.get("raw_chat_template_incompatible")

@@ -449,11 +449,16 @@ class TranslateGemmaServer:
     ) -> dict:
         """Generate for a list of pre-rendered prompts. No template logic here.
 
-        Each request is ``{"system": str|None, "user": str, "chat": bool}``.
-        When ``chat`` is true and the loaded tokenizer carries a chat template,
-        the two fields become system/user messages; otherwise they are
-        concatenated into a raw completion prompt (which is exactly what
-        `run_batch` has always sent).
+        Each request is either the official TranslateGemma shape
+        ``{"official": true, "source_lang_code", "target_lang_code", "text"}``
+        or the older ``{"system": str|None, "user": str, "chat": bool}``.
+
+        Official requests are rendered through the checkpoint chat template
+        (report §5.2). A TemplateError is a failed row, never a silent
+        fallback to a homemade prompt. The freeform ``chat`` path still
+        falls through to raw completion when the template rejects a string
+        ``content`` — that is the 2026-08-14 finding, kept for the
+        ``modal_minimal_v1`` bakeoff.
 
         This is the counterpart to `translate_batch` for callers that build
         their prompts from the harness prompt registry — the container never
@@ -484,8 +489,38 @@ class TranslateGemmaServer:
         modes: dict[str, int] = {}
         template_errors: list[str] = []
 
+        official_batch = any(r.get("official") for r in requests)
+
         for i, req in enumerate(requests):
             try:
+                if req.get("official"):
+                    if not chat_template:
+                        raise ValueError(
+                            "official TranslateGemma request requires a chat template"
+                        )
+                    messages = [{
+                        "role": "user",
+                        "content": [{
+                            "type": "text",
+                            "source_lang_code": req["source_lang_code"],
+                            "target_lang_code": req["target_lang_code"],
+                            "text": req["text"],
+                        }],
+                    }]
+                    prompt = self._tokenizer.apply_chat_template(
+                        messages, tokenize=False, add_generation_prompt=True
+                    )
+                    mode = "official_chat_template"
+                    n_tokens = len(self._tokenizer.encode(prompt))
+                    if n_tokens > prompt_budget:
+                        raise ValueError(
+                            f"prompt is {n_tokens} tokens, exceeds budget {prompt_budget} "
+                            f"(max_model_len={MAX_MODEL_LEN} - max_new_tokens={max_new_tokens})"
+                        )
+                    modes[mode] = modes.get(mode, 0) + 1
+                    prompts.append(prompt)
+                    indices.append(i)
+                    continue
                 system = req.get("system")
                 user = req["user"]
                 merged = f"{system}\n\n{user}" if system else user
@@ -536,9 +571,17 @@ class TranslateGemmaServer:
                 }
 
         if prompts:
-            sampling = SamplingParams(
-                temperature=temperature, top_p=top_p, max_tokens=max_new_tokens
-            )
+            sampling_kwargs = {
+                "temperature": temperature,
+                "top_p": top_p,
+                "max_tokens": max_new_tokens,
+            }
+            # Official template ends the turn with <end_of_turn>. vLLM 0.11.0
+            # does not always treat that as EOS (Infomaniak later patched it);
+            # without an explicit stop, 27B can loop to the token cap.
+            if official_batch:
+                sampling_kwargs["stop"] = ["<end_of_turn>"]
+            sampling = SamplingParams(**sampling_kwargs)
             gen_t0 = time.monotonic()
             generated = self.llm.generate(prompts, sampling, use_tqdm=True)
             per_item_latency = (time.monotonic() - gen_t0) / len(prompts)
@@ -565,7 +608,12 @@ class TranslateGemmaServer:
             num_ok=sum(1 for o in outputs if o.get("text") is not None),
             num_skipped=sum(1 for o in outputs if o.get("text") is None),
             wall_time_s=round(time.monotonic() - wall_t0, 4),
-            sampling={"temperature": temperature, "top_p": top_p, "max_new_tokens": max_new_tokens},
+            sampling={
+                "temperature": temperature,
+                "top_p": top_p,
+                "max_new_tokens": max_new_tokens,
+                "stop": ["<end_of_turn>"] if official_batch else [],
+            },
         )
         metadata["prompt_modes"] = modes
         metadata["has_chat_template"] = bool(chat_template)
@@ -731,6 +779,7 @@ def run_blocks(
     prompts_per_call: int = 128,
     probe_size: int = 4,
     allow_fallback: bool = True,
+    prompt_mode: str = "auto",
 ) -> None:
     """Translate a jsonl of ID-bearing blocks under the D2e structured contract.
 
@@ -739,16 +788,25 @@ def run_blocks(
     the package exists — so the recorded label is the label of the prompt that
     was actually sent.
 
-    ONE PROBE, THEN ONE DECISION. TranslateGemma is a translation model, not a
-    JSON-emitting agent, and a paid GPU job is not the place to find out it
-    will not hold the structured contract. So the first call is a `probe_size`
-    block probe; if every id does not come back intact, the run falls back —
-    once, for the whole run, recorded honestly in the summary — to the
-    known-good `modal_minimal_v1` prompt at one block per prompt. Either way
-    the output is per-block and ID-keyed. A fallback is a finding to report,
-    not a failure to hide: pass `--allow-fallback false` to abort instead.
+    ONE PROBE, THEN ONE DECISION (`prompt_mode=auto`). TranslateGemma is a
+    translation model, not a JSON-emitting agent, and a paid GPU job is not
+    the place to find out it will not hold the structured contract. So the
+    first call is a `probe_size` block probe; if every id does not come back
+    intact, the run falls back — once, for the whole run, recorded honestly
+    in the summary — to the known-good `modal_minimal_v1` prompt at one
+    block per prompt. Either way the output is per-block and ID-keyed. A
+    fallback is a finding to report, not a failure to hide: pass
+    `--allow-fallback false` to abort instead.
+
+    `prompt_mode=official` skips the JSON probe and sends Google's trained
+    TranslateGemma API (`ar`→`en`, text = Arabic only) through the
+    checkpoint chat template. That is the honest 12B-vs-27B path. Official
+    decode for a retest: `--temperature 0 --max-new-tokens 512`.
     """
     from versed_translator.harness import modal_batch
+
+    if prompt_mode not in ("auto", "official"):
+        raise ValueError(f"prompt_mode must be 'auto' or 'official', got {prompt_mode!r}")
 
     in_path = Path(input)
     out_path = Path(output)
@@ -834,30 +892,40 @@ def run_blocks(
             print(f"[run_blocks] slice done (metadata: {meta})")
         return rows, meta, wall
 
-    # --- probe -------------------------------------------------------------
-    probe_items = items[: max(1, probe_size)]
-    probe_chunks = modal_batch.build_structured_chunks(
-        probe_items, chunk_size=max(1, probe_size)
-    )
-    probe_rows, probe_meta, probe_wall = _call(probe_chunks)
-    total_wall_s += probe_wall
-    structured_ok = modal_batch.probe_ok(probe_rows)
-    print(f"[run_blocks] structured probe over {len(probe_items)} blocks: "
-          f"{'OK' if structured_ok else 'FAILED'} "
-          f"({[r.get('error') for r in probe_rows]})")
-
-    if structured_ok:
-        template_id = modal_batch.STRUCTURED_TEMPLATE_ID
-        chunks = modal_batch.build_structured_chunks(items, chunk_size=chunk_size)
-    elif allow_fallback:
-        template_id = modal_batch.FALLBACK_TEMPLATE_ID
-        chunks = modal_batch.build_fallback_chunks(items)
-        print(f"[run_blocks] FALLING BACK to {template_id} (one block per prompt). "
-              "This is recorded in the run summary as the template actually used.")
+    # --- probe / official --------------------------------------------------
+    probe_meta: dict = {}
+    structured_ok = False
+    if prompt_mode == "official":
+        template_id = modal_batch.OFFICIAL_TEMPLATE_ID
+        chunks = modal_batch.build_official_chunks(items)
+        print(f"[run_blocks] official TranslateGemma API "
+              f"({modal_batch.TRANSLATEGEMMA_OFFICIAL_SOURCE_LANG}->"
+              f"{modal_batch.TRANSLATEGEMMA_OFFICIAL_TARGET_LANG}, "
+              f"{len(chunks)} blocks). No JSON probe, no homemade fallback.")
     else:
-        raise RuntimeError(
-            "structured probe failed and --allow-fallback is false; no blocks translated"
+        probe_items = items[: max(1, probe_size)]
+        probe_chunks = modal_batch.build_structured_chunks(
+            probe_items, chunk_size=max(1, probe_size)
         )
+        probe_rows, probe_meta, probe_wall = _call(probe_chunks)
+        total_wall_s += probe_wall
+        structured_ok = modal_batch.structured_probe_held(probe_rows, probe_meta)
+        print(f"[run_blocks] structured probe over {len(probe_items)} blocks: "
+              f"{'OK' if structured_ok else 'FAILED'} "
+              f"({[r.get('error') for r in probe_rows]})")
+
+        if structured_ok:
+            template_id = modal_batch.STRUCTURED_TEMPLATE_ID
+            chunks = modal_batch.build_structured_chunks(items, chunk_size=chunk_size)
+        elif allow_fallback:
+            template_id = modal_batch.FALLBACK_TEMPLATE_ID
+            chunks = modal_batch.build_fallback_chunks(items)
+            print(f"[run_blocks] FALLING BACK to {template_id} (one block per prompt). "
+                  "This is recorded in the run summary as the template actually used.")
+        else:
+            raise RuntimeError(
+                "structured probe failed and --allow-fallback is false; no blocks translated"
+            )
 
     # Rows stream into the output file as each slice lands (see _call), so a
     # failure partway through leaves the finished work on disk instead of
@@ -915,6 +983,15 @@ def run_blocks(
                 # The label of the prompt that was actually sent, taken from
                 # the same registry lookup that built it.
                 "prompt_template_id": template_id,
+                "prompt_mode": prompt_mode,
+                "official_lang": (
+                    {
+                        "source_lang_code": chunks[0].official["source_lang_code"],
+                        "target_lang_code": chunks[0].official["target_lang_code"],
+                    }
+                    if prompt_mode == "official" and chunks and chunks[0].official
+                    else None
+                ),
                 "structured": structured_ok,
                 "structured_probe_ok": structured_ok,
                 "structured_chunk_size": chunk_size if structured_ok else 1,

@@ -155,7 +155,7 @@ Decisions:
 - **D2c** [HUMAN] Provision Gemini/Qwen/DeepSeek keys **or** formally descope the bakeoff field to TG27B/TG12B + Claude ceiling, recording D2a as decided-by-field. Either is fine; carrying "no keys" as ambient blockage is not.
 - **D2e** [HUMAN ratifies] **Structured block translation with ID preservation as the production contract.** Dissolves the C5 known gap (partial clause removal on unpunctuated classical Arabic — invisible to both COMETKiwi and deterministic checks from (source, output) alone; a dropped block is directly observable). Harness already supports it. One-line architectural decision, cheaper than any detection scheme.
 
-**STATUS:** ACTIVE — harness + scoring built; dev_bakeoff (139 items, hadith-only) measured for Sonnet 5 and TG27B; TG12B Modal leg pending; full bakeoff blocked on D2c + C1 freeze.
+**STATUS:** ACTIVE — harness + scoring built; dev_bakeoff (139 items, hadith-only) measured for Sonnet 5 and TG27B; TG12B Modal leg pending; full bakeoff blocked on C1 freeze (D2c was decided 2026-08-14: keys — DeepSeek + Qwen live, Gemini/OpenAI descoped).
 **NEXT DEPENDENCY:** D2c (keys-or-descope); C1 frozen for the real run.
 
 ---
@@ -231,7 +231,9 @@ Checkpoints:
 
 Standing constraint (**D6c**, enforced by [AGENT]): hadith-json/Sunnah.com material is used for matching/indexing only — its English never ships and never trains.
 
-**STATUS:** ACTIVE — checkpoints 1–2 complete, both ≥90% targets met; next: checkpoint 3 (OpenITI letter — draft ready for D6a) and inventory fill beyond top-250.
+**STATUS:** ACTIVE — checkpoints 1–2 complete, both ≥90% targets met. Checkpoint 3 done: the OpenITI letter was **sent 2026-08-14**; Sarah Savant replied the same day, cc'd the Transform project team, and took it to their team meeting — awaiting their decision, and they asked to see our structural annotation.
+A harvest pipeline landed with this component (`src/versed_translator/corpus/`: `catalogs`, `probe`, `fetch_pd`, `extract_train`, `join`, `translations`, `outreach`; artifacts in `corpus/`). **Scraping is retired as of 2026-08-19** — 24 logged passes produced 13 keepers total, 11 of them from a single archive.org bulk query, and the last 16 passes produced **zero** across ~180 candidates. Do not restart the harvest loop expecting books; the al-islam person-page seam is mined out.
+**NEXT:** growth now comes from `corpus/rights_outreach.json` (58 entries, 5 hosts, 57 `not_started`) — asking rights holders for CC-BY/CC-BY-SA. That file holds no email addresses, only web forms and permissions pages, so every ask needs a contact looked up first.
 **NEXT DEPENDENCY:** D6a approval to send the letter.
 
 ---
@@ -244,7 +246,9 @@ Standing constraint (**D6c**, enforced by [AGENT]): hadith-json/Sunnah.com mater
 Decision:
 - **D7** [AGENT recommends] Embedding model + LLM-window budget per book (cost/agreement tradeoff, measured).
 
-**STATUS:** NOT STARTED. (Seed material exists: `alignment/` workspace, usul.ai API, Ormsby photos.)
+**STATUS:** ACTIVE — engine built and installable, merged to main 2026-08-19. `versed-align` entrypoint over `src/versed_translator/align/` (16 modules, 3,707 lines: normalize → structural anchors → embeddings → monotonic DP → bundles → reader bridge); tests green; documented in `docs/ALIGNMENT_BUNDLES.md`, `docs/ALIGNMENT_ALGORITHM_REVIEW.md`, `docs/READER_ALIGNMENT_BRIDGE.md`.
+**END STATE NOT MET.** Structural alignment is confirmed on **one** work (Hamadhani: 51 Arabic units ↔ 51 English units, 51/51 bilateral). Sentence-level accuracy is **unvalidated** — no independent gold links exist, so the scorer returns `unscored` and the review publishes no agreement percentage ("accuracy evidence: insufficient"). The ≥95% × 3 works bar is therefore unmeasured, not missed.
+**NEXT:** freeze independent sentence gold for one work before any further parameter tuning, then widen to three works of different shapes.
 **NEXT DEPENDENCY:** C0; benefits from C6 inventory. Unblocks benchmark v0.2 + C8 corpus scale.
 
 ---
@@ -277,7 +281,8 @@ Decisions:
 - **D9a** [HUMAN] Pilot book selection. Recommendation: an **Ihya quarter** (Ormsby anchors give a gold audit reference, already partially ingested) or **Musnad** (already migrating; hadith structure stress-tests isnad handling).
 - **D9b** [HUMAN] Pilot acceptance bar (suggested: ≥97% of audited samples free of substantive error at the conservative threshold).
 
-**STATUS:** NOT STARTED.
+**STATUS:** ACTIVE — partial. The cascade half exists, merged to main 2026-08-19. `src/versed_translator/factory/` (1,380 lines: `router.py`, `glossary.py`, `consensus.py`, `merge.py`, `prepare.py`, `simulate.py`) runs a policy simulation over the 50-item set and reports the decomposition: escaped blockers 4/50, human queue 14/50, verse/sajʿ → Flash 14/50, additional Flash escalations 10/50. **A 28% human queue is not yet a scalable factory** — read the decomposition, never "keep-both 46/50" as an autonomous publication rate.
+**Repair loop: NOT IMPLEMENTED.** **Pilot book: NOT STARTED.** The frontier report is not yet written; Blind-50 is the trigger for the book (see `STATUS.md` → Next 3 things).
 **NEXT DEPENDENCY:** C5, C8 (or C2 baseline model if C8 is delayed — the pilot can run on the best base model to de-risk the factory earlier).
 
 ---
@@ -354,12 +359,12 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | D0 | ~~Repo visibility~~ **DECIDED: public** | done 2026-08-12 |
 | D1c | Benchmark publication policy (public split + private held-out) | with C1 freeze |
 | D1d | ~~ATHAR license conflict~~ **DECIDED 2026-08-14: MIT / commercially usable** (issue #4). Carve-out: filter modern editorial matter (مقدمة المحقق) — MIT can't grant copyright the creator doesn't own. | done |
-| D1e | Genre-coverage fork — **new option (d): targeted passage alignment from the 16 PD translations, benchmark-scale only** (now recommended over a/b/c) | **now** — gates benchmark rebuild |
+| D1e | ~~Genre-coverage fork~~ **DECIDED 2026-08-14: option (d)** — targeted passage alignment from the PD translations, benchmark-scale only (issue #1) | done |
 | D2c | ~~Provider keys or descope~~ **DECIDED 2026-08-14: keys** (issue #3). DeepSeek + Qwen live and verified; Gemini/OpenAI still descoped. | done |
 | D2e | ~~Ratify structured block translation as production contract~~ **DECIDED + IMPLEMENTED 2026-08-14** (EXP-20260814-06): harness default, ID loss is a run metric, truncation 0.3754 → 0.0073. Answers **D4c** too. | done |
 | D2b, D3b | Spend caps: bakeoff, throughput grid | C2/C3 start |
 | D2a | Ratify baseline translator (largely forced → TG27B; see C2) | after TG12B leg |
-| D6a | Approve + send OpenITI letter | early, async |
+| D6a | ~~Approve + send OpenITI letter~~ **DECIDED + SENT 2026-08-14** (issue #5). Reply received same day; OpenITI's Transform team is deciding, and asked to see our structural annotation | done — awaiting their answer |
 | D5 | Threshold profile (recommend conservative) | C5 done |
 | D8a/c | Fine-tune GO/NO-GO + compute cap | C8 |
 | D9a/b | Pilot book + acceptance bar | C9 start |
@@ -377,10 +382,10 @@ Decisions: **D12a** [HUMAN] release timing/naming (HF org). **D12b** [HUMAN, AGE
 | C3 economics | NOT STARTED (the local ~2 tok/s TG12B number is a dead-end datum from an abandoned path, not a C3 measurement; defer until model choice is real) |
 | C4 QE truth study | ACTIVE (COMETKiwi matrix done: 30.4% detection, critical blind spots) |
 | C5 Versed-QE v0 | ACTIVE (9 deterministic checks done; router next) |
-| C6 rights inventory | ACTIVE |
-| C7 Versed Align | NOT STARTED |
+| C6 rights inventory | ACTIVE (OpenITI letter sent 2026-08-14; scraping retired 2026-08-19 — outreach is the growth path now) |
+| C7 Versed Align | ACTIVE (engine built + installable 2026-08-19; structural confirmed on Hamadhani only, sentence-level gold not yet frozen — END STATE unmeasured) |
 | C8 corpus + 27B | NOT STARTED |
-| C9 cascade/pilot | NOT STARTED |
+| C9 cascade/pilot | ACTIVE — partial (cascade sim + policy decomposition on 50 landed; repair loop and pilot book still to build) |
 | C10 factory integration | NOT STARTED |
 | C11 audio/reader deltas | NOT STARTED |
 | C12 releases/flywheel | NOT STARTED |

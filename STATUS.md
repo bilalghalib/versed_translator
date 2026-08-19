@@ -1,7 +1,7 @@
 # STATUS
 
 **The only operational handoff. Start here; don't read the roadmap first.**
-Last updated: 2026-08-17
+Last updated: 2026-08-19
 
 Four documents, four jobs. Nothing else is a source of truth:
 
@@ -62,10 +62,14 @@ Cascade until v1.1: verse/sajʿ → Flash; else Lite → checks+glossary → kee
 - **Qwen-MT and Gemini scored on the same 120 (EXP-20260816-03), then human-read (EXP-20260816-04).** Fair chrF on 115-item overlap: Gemini Flash **47.06**, Flash-Lite 45.80, Qwen-MT 44.78, TG27B official 43.20, TG12B official 42.88. Qwen **663/663**, **0 leftover Arabic** — completeness, not quality. Human 14 (Arabic as truth, two readers): Flash wins every card by a class, not 3.9 chrF points. Flash-Lite is the cheap challenger (held ah325 names; loses `نجوم` anaphor). Qwen is operational fallback / possible restricted-prose route. Note: `كتبت عنه` is Ibn Khallikan 0442, not Hariri m20. Compare: `api_vs_official_compare.html`. Note: `api_14_human_read.md`. Gemini corpus $ unbilled. OpenAI still absent. Contamination untested — next quality experiment is **Blind-50** untranslated OpenITI, no chrF.
 - **Fable r1b meaning-level grades invert the chrF ranking (EXP-20260817-01).** Hard half, 25×4, one sitting: Flash **24/25** (only N is empty Labid `v035_051`), Lite **11/25**, TG27B **2/25** (Ḥayy prose), Qwen **0/25**. A 4-chrF-point gap compressed a 24-to-0 publishability gap. Round 1 combined: Flash 48/50, Lite 23/50, TG 2/50, Qwen 0/50. Cascade on 50 is **not** “46/50 autonomous”: escaped 4/50, human queue 14/50, verse Flash 14/50, extra Flash escalations 10/50. Do not replace the flag layer with chrF. Do not train a classifier on these 200. Digest: `fable_r1/DIGEST_r1b.md`. Public package: `release/versed-mt-eval-v0.1/`.
 - **Sources are not the constraint.** Catalog sweep found Miskawayh 383 paragraphs ≥250 words, Suyuti 211, Payne's *Nights* 133–151 per volume × 10. **Usama/Hitti and Biruni/Sachau are staged** (`~/versed-translator-data/benchmark-alignment/recon-usama-biruni.md`). Usama is structurally cuttable (3 abwāb ↔ SECTION I–III, `[N]` ↔ `PageV01PNNN` on the same pagination) but OpenITI `021.BookSUBJ` is **التاريخ** (already over cap) and Hitti is **1929** (US PD via 95-year term as of 2025, not `PD_US_PRE_1930_PUBLICATION`; EU life+70 evidence to 2049 — record only). Biruni science is empty-genre but **not cut-ready**: English `p.N.` is Sachau 1878 Leipzig, PRIMARY Arabic is uncorrected OCR of a 2001 Tehran print. Do not pair those numbers.
+- **The align engine exists and is installable (2026-08-19).** `versed-align` over `src/versed_translator/align/` (16 modules, 3,707 lines): normalize → structural anchors → embeddings → monotonic DP → bundles → reader bridge. It emits deterministic structural + paragraph + sentence archives and does **not** mutate Versed editions. **Structural alignment is confirmed on Hamadhani only** (51 Arabic ↔ 51 English units, 51/51 bilateral). **Sentence-level accuracy is unvalidated** — no independent gold links exist, the scorer returns `unscored`, and no agreement percentage should be published until gold is labeled. Freeze sentence gold for one work before tuning parameters further. Docs: `docs/ALIGNMENT_BUNDLES.md`, `docs/ALIGNMENT_ALGORITHM_REVIEW.md`, `docs/READER_ALIGNMENT_BRIDGE.md`.
+- **Scraping for PD English is exhausted — retired 2026-08-19.** 24 harvest passes produced **13 keepers total**, and one pass (the archive.org bulk query) produced 11 of them. **Passes 9–24 produced zero** across ~180 candidates; the al-islam person-page seam is mined out and `person_pages_todo` says so itself. Corpus stands at 76 files / 93MB, 74 catalogued PD-English editions, 80 train-only, 24 login walls, 66 open-access. Ticking is not yield: judge the loop by `kept_public` per pass, never by liveness. Growth now runs through `corpus/rights_outreach.json` (58 entries, 57 `not_started`) — which contains **no email addresses**, only web forms and permissions pages.
 
 ## What is running
 
 - Nothing on Modal/API. Round 1 frozen. Public eval package staged at `~/versed-translator-data/release/versed-mt-eval-v0.1/`. Glossary-24 not started. Blind-50 not started. Learned router parked until ≥500 Lite-tier factory labels.
+- **Nothing running locally either.** The harvest loop (LaunchAgent `com.versed.harvest-loop`) was unloaded 2026-08-19 and should stay off — see the harvest bullet above. The plist is still installed at `~/Library/LaunchAgents/`, so `launchctl load` revives it if it is ever pointed at a new seam.
+- **All feature branches are merged and deleted (2026-08-19).** `main` is the only branch; PRs #8/#9/#10 merged; CI green; 528 tests pass. Align, factory, and corpus code now live together on `main`.
 
 ## Next 3 things
 

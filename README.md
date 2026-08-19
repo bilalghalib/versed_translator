@@ -13,6 +13,8 @@ Four documents, four jobs:
 
 `VERSED_TRANSLATION_ROADMAP.md` holds component END STATEs and their `Verify:` checks — contracts, not status. Decisions are GitHub issues labelled `decision`. The dashboard is generated and authoritative for nothing.
 
+[`CLAUDE.md`](CLAUDE.md) is the agent brief: standing rules, verification discipline, and how to run work without losing it. Read it before starting a coding session here.
+
 The reusable Arabic-English zipper is documented in
 [`docs/ALIGNMENT_BUNDLES.md`](docs/ALIGNMENT_BUNDLES.md). It emits deterministic
 structural + paragraph + sentence alignment archives through `versed-align`;

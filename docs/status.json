@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-15T12:37:51.653953+00:00",
+  "generated_at": "2026-08-19T14:35:47.058932+00:00",
   "repo_url": "https://github.com/bilalghalib/versed_translator",
   "components": [
     {
@@ -56,7 +56,7 @@
       "name": "Versed Align (engine)",
       "end_state": "Installable `versed_align`:",
       "next_dependency": "C0; benefits from C6 inventory. Unblocks benchmark v0.2 + C8 corpus scale.",
-      "status": "NOT STARTED"
+      "status": "ACTIVE"
     },
     {
       "id": "C8",
@@ -70,7 +70,7 @@
       "name": "Cascade simulation, repair loop, pilot book",
       "end_state": "simulation over benchmark outputs reporting, per threshold profile:",
       "next_dependency": "C5, C8 (or C2 baseline model if C8 is delayed \u2014 the pilot can run on the best base model to de-risk the factory earlier).",
-      "status": "NOT STARTED"
+      "status": "ACTIVE"
     },
     {
       "id": "C10",
@@ -112,8 +112,8 @@
     },
     {
       "id": "D1e",
-      "decision": "Genre-coverage fork \u2014 **new option (d): targeted passage alignment from the 16 PD translations, benchmark-scale only** (now recommended over a/b/c)",
-      "when": "**now** \u2014 gates benchmark rebuild"
+      "decision": "~~Genre-coverage fork~~ **DECIDED 2026-08-14: option (d)** \u2014 targeted passage alignment from the PD translations, benchmark-scale only (issue #1)",
+      "when": "done"
     },
     {
       "id": "D2c",
@@ -137,8 +137,8 @@
     },
     {
       "id": "D6a",
-      "decision": "Approve + send OpenITI letter",
-      "when": "early, async"
+      "decision": "~~Approve + send OpenITI letter~~ **DECIDED + SENT 2026-08-14** (issue #5). Reply received same day; OpenITI's Transform team is deciding, and asked to see our structural annotation",
+      "when": "done \u2014 awaiting their answer"
     },
     {
       "id": "D5",
@@ -202,6 +202,74 @@
       "name": "Structured blocks implemented: truncation 37.5% \u2192 0.7% (D2e/D4c)"
     },
     {
+      "id": "EXP-20260815-01",
+      "name": "Independent blind re-audit of the selected set; ATHAR rights verified at the edition level"
+    },
+    {
+      "id": "EXP-20260815-02",
+      "name": "Miskawayh / Margoliouth year-anchored driver (C1)"
+    },
+    {
+      "id": "EXP-20260815-03",
+      "name": "Hariri / Chenery\u2013Steingass maqama-anchored driver (C1)"
+    },
+    {
+      "id": "EXP-20260815-04",
+      "name": "MetricX-24 block-level detection matrix (C4) \u2014 completes EXP-20260814-06's in-flight QE rerun"
+    },
+    {
+      "id": "EXP-20260815-05",
+      "name": "Ibn Rushd / Jamil-ur-Rehman treatise-anchored driver (C1)"
+    },
+    {
+      "id": "EXP-20260815-06",
+      "name": "Blind Opus re-audit of Miskawayh + Hariri shipping pairs"
+    },
+    {
+      "id": "EXP-20260815-07",
+      "name": "Matched-prompt TranslateGemma 12B vs 27B on the 120"
+    },
+    {
+      "id": "EXP-20260816-01",
+      "name": "Official TranslateGemma template 12B vs 27B on the same 120"
+    },
+    {
+      "id": "EXP-20260816-02",
+      "name": "Human read of the official 14-passage sample (Arabic as source of truth)"
+    },
+    {
+      "id": "EXP-20260816-03",
+      "name": "Qwen-MT + Gemini Flash / Flash-Lite on the frozen 120"
+    },
+    {
+      "id": "EXP-20260816-04",
+      "name": "Arabic-first human read of the API 14 (TG27 vs Qwen vs Flash-Lite vs Flash)"
+    },
+    {
+      "id": "EXP-20260816-05",
+      "name": "Factory v1 decision + Fable r1 export"
+    },
+    {
+      "id": "EXP-20260816-06",
+      "name": "r1a reclassified silver; cascade router simulated"
+    },
+    {
+      "id": "EXP-20260816-07",
+      "name": "Blind Fable regrade of r1a hard-24"
+    },
+    {
+      "id": "EXP-20260816-08",
+      "name": "hard-24 two-sitting Fable consensus; deferred review queue"
+    },
+    {
+      "id": "EXP-20260816-09",
+      "name": "r1a closed; factory is the product"
+    },
+    {
+      "id": "EXP-20260817-01",
+      "name": "r1b sitting merged; round 1 closed"
+    },
+    {
       "id": "EXP-20260326-01",
       "name": "Ihya register bakeoff"
     },
@@ -216,62 +284,62 @@
   ],
   "recent_commits": [
     {
-      "subject": "Collapse eight project-state surfaces into four",
-      "relative_date": "10 hours ago"
+      "subject": "Fix ruff violations across merged branches.",
+      "relative_date": "58 minutes ago"
     },
     {
-      "subject": "Quote the MetricX cost as a range, and say why",
-      "relative_date": "17 hours ago"
+      "subject": "Merge branch 'feat/factory-harness'",
+      "relative_date": "60 minutes ago"
     },
     {
-      "subject": "Settle the MetricX cost figure on the gross rate",
-      "relative_date": "18 hours ago"
+      "subject": "Merge branch 'feat/align-engine'",
+      "relative_date": "60 minutes ago"
     },
     {
-      "subject": "Code review fixes: reassemble could hide a missing block entirely",
-      "relative_date": "18 hours ago"
+      "subject": "Merge branch 'backup/harvest-loop-wip'",
+      "relative_date": "60 minutes ago"
     },
     {
-      "subject": "Correct the MetricX cost figure with a second data point",
-      "relative_date": "18 hours ago"
+      "subject": "Park harvest-loop LaunchAgent and loop script edits.",
+      "relative_date": "26 hours ago"
     },
     {
-      "subject": "Record the MetricX cost fact blocks did NOT improve",
-      "relative_date": "18 hours ago"
+      "subject": "Harvest pass 24: Maqtal al-Husayn via Jibouri person-page cluster.",
+      "relative_date": "28 hours ago"
     },
     {
-      "subject": "Roadmap: drop the stale \"ratify D2e\" action item",
-      "relative_date": "18 hours ago"
+      "subject": "Log harvest loop exit reason for easier debugging.",
+      "relative_date": "29 hours ago"
     },
     {
-      "subject": "Modal run_blocks: id_loss_count could only ever report 0",
-      "relative_date": "18 hours ago"
+      "subject": "Harvest pass 23: Sulh al-Hasan on al-islam; add durable loop script.",
+      "relative_date": "29 hours ago"
     },
     {
-      "subject": "D2e/D4c implemented: structured blocks, ID loss as a metric, truncation 37.5% -> 0.7%",
-      "relative_date": "18 hours ago"
+      "subject": "Log harvest pass 22: Divine Wisdom reject, Man La Yahduruhu miss.",
+      "relative_date": "29 hours ago"
     },
     {
-      "subject": "Catalog sweep: Gutenberg complete + archive.org; long-band problem solved",
-      "relative_date": "18 hours ago"
+      "subject": "Restore do_next after pass 21 wall verify.",
+      "relative_date": "29 hours ago"
     },
     {
-      "subject": "C1: record second PD alignment tranche",
-      "relative_date": "18 hours ago"
+      "subject": "Log harvest pass 21: Ihtijaj/Makarim/Sulaym/Irshad walls confirmed.",
+      "relative_date": "29 hours ago"
     },
     {
-      "subject": "C4 settled: MetricX full matrix \u2014 two QE systems, same blind spots",
-      "relative_date": "19 hours ago"
+      "subject": "Log harvest pass 20: Ibn Shahrashub zero keepers.",
+      "relative_date": "30 hours ago"
     }
   ],
   "doc_mtimes": [
     {
       "name": "VERSED_TRANSLATION_ROADMAP.md",
-      "mtime": "2026-08-15T02:52:19.887612+00:00"
+      "mtime": "2026-08-19T14:35:39.550262+00:00"
     },
     {
       "name": "TRANSLATION_EXPERIMENTS.md",
-      "mtime": "2026-08-14T19:12:22.003519+00:00"
+      "mtime": "2026-08-19T13:36:00.896735+00:00"
     },
     {
       "name": "VERSED_TRANSLATE_MASTER_PLAN.md",

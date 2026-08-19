@@ -1,0 +1,274 @@
+{
+  "schema_note": "Ahmed Al-Ghamdi Raṣāʾif bibliography (25–29 works on the 2026 GitHub Pages corpus). Discovery index only: we do not ingest his parallel CSV or Typesense dump. His cite page says the interface is MIT and the texts remain their owners'; files are for non-commercial research. Many rasaif-aligned English editions are modern scholarly translations (Rosenthal, LAL, Penguin, Brill, SUNY). Same trap as ATHAR. Hunt PD editions separately. Never stamp public from this file.",
+  "compiled_from": [
+    "https://ahmedhsalghamdi.github.io/arabic-english-rasaif-corpus/",
+    "https://github.com/ahmedhsalghamdi/arabic-english-rasaif-corpus/blob/main/js/engine.js",
+    "https://ahmedhsalghamdi.github.io/arabic-english-rasaif-corpus/cite.html"
+  ],
+  "usage_policy": "unknown",
+  "visibility": "none",
+  "alignment_status": "bibliography_only",
+  "entries": [
+    {
+      "rasaif_key": "Al-Asnam - Ibn al-Kalbi",
+      "work_arabic_title": "كتاب الأصنام",
+      "work_english_title": "The Book of Idols",
+      "author": "Ibn al-Kalbi",
+      "openiti_uri_guess": "0204IbnKalbi.Asnam",
+      "rasaif_english": "Faris 1952 — in copyright (ATHAR matches this edition)",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Al-Amwal - Ibn Sallam",
+      "work_arabic_title": "كتاب الأموال",
+      "work_english_title": "The Book of Revenue",
+      "author": "Abu Ubayd al-Qasim ibn Sallam",
+      "openiti_uri_guess": "0224QasimIbnSallam.Amwal",
+      "rasaif_english": "modern scholarly English; no cleared PD pair",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Risala - Al-Shafii",
+      "work_arabic_title": "الرسالة",
+      "work_english_title": "The Epistle on Legal Theory",
+      "author": "Al-Shafi'i",
+      "openiti_uri_guess": "0204Shafici.Risala",
+      "rasaif_english": "Joseph E. Lowry, Library of Arabic Literature — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Al-Bukhala - Al-Jahiz",
+      "work_arabic_title": "البخلاء",
+      "work_english_title": "The Book of Misers",
+      "author": "Al-Jahiz",
+      "openiti_uri_guess": "0255Jahiz.Bukhala",
+      "rasaif_english": "modern (Serjeant etc.) — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "The Excellence of the Arabs - Ibn Qutaybah",
+      "work_arabic_title": "فضل العرب",
+      "work_english_title": "The Excellence of the Arabs",
+      "author": "Ibn Qutayba",
+      "openiti_uri_guess": "0276IbnQutaybaDinawari.FadlCarab",
+      "rasaif_english": "Savant & Webb, Library of Arabic Literature — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Al-Futuwwa - Al-Sulami",
+      "work_arabic_title": "كتاب الفتوة",
+      "work_english_title": "Book of Sufi Chivalry",
+      "author": "Al-Sulami",
+      "openiti_uri_guess": "0412Sulami.Futuwwa",
+      "rasaif_english": "Tosun Bayrak — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Adab al-Ghuraba - Al-Isfahani",
+      "work_arabic_title": "كتاب أدب الغرباء",
+      "work_english_title": "The Book of Strangers",
+      "author": "Al-Isfahani",
+      "openiti_uri_guess": "0362AbuFarajIsbahani.AdabGhuraba",
+      "rasaif_english": "Crone & Moreh 2000 — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Akhbar Abi Tammam - Al-Suli",
+      "work_arabic_title": "أخبار أبي تمام",
+      "work_english_title": "The Life and Times of Abu Tammam",
+      "author": "Al-Suli",
+      "openiti_uri_guess": "0335Suli.AkhbarAbiTammam",
+      "rasaif_english": "modern scholarly English — treat as in copyright until a pre-1930 edition is found",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Tasrif - Al-Zahrawi",
+      "work_arabic_title": "التصريف لمن عجز عن التأليف",
+      "work_english_title": "Albucasis on Surgery and Instruments",
+      "author": "Al-Zahrawi",
+      "openiti_uri_guess": "0400AbuQasimZahrawi.Tasrif",
+      "rasaif_english": "Spink & Lewis 1973 — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Nahj al-Balagha - ash-Sharif ar-Radi",
+      "work_arabic_title": "نهج البلاغة",
+      "work_english_title": "Peak of Eloquence",
+      "author": "al-Sharif al-Radi (compiler)",
+      "openiti_uri_guess": "0406SharifRadi.NahjBalagha",
+      "rasaif_english": "modern translations — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Canon - Ibn Sina",
+      "work_arabic_title": "القانون في الطب",
+      "work_english_title": "The Canon of Medicine",
+      "author": "Ibn Sina",
+      "openiti_uri_guess": "0428IbnSina.QanunFiTibb",
+      "rasaif_english": "modern / Gruner 1930 — not pre-1930; hunt older partial English separately",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Optics - Ibn al-Haytham",
+      "work_arabic_title": "كتاب المناظر",
+      "work_english_title": "The Optics of Ibn al-Haytham",
+      "author": "Ibn al-Haytham",
+      "openiti_uri_guess": "0430IbnHaytham.Manazir",
+      "rasaif_english": "A.I. Sabra 1989 — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Al-Akhlaq wa al-Siyar - Ibn Hazm",
+      "work_arabic_title": "الأخلاق والسير",
+      "work_english_title": "Morals and Behaviour",
+      "author": "Ibn Hazm",
+      "openiti_uri_guess": "0456IbnHazm.AkhlaqWaSiyar",
+      "rasaif_english": "modern English — treat as in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Tawq al-Hamama - Ibn Hazm",
+      "work_arabic_title": "طوق الحمامة",
+      "work_english_title": "The Ring of the Dove",
+      "author": "Ibn Hazm",
+      "openiti_uri_guess": "0456IbnHazm.TawqHamama",
+      "rasaif_english": "A.J. Arberry — in copyright; hunt older English separately",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Al-Farq bayn al-Firaq - Al-Baghdadi",
+      "work_arabic_title": "الفرق بين الفرق",
+      "work_english_title": "Moslem Schisms and Sects",
+      "author": "Al-Baghdadi",
+      "openiti_uri_guess": "0429IbnTahirBaghdadi.FarqBaynaFiraq",
+      "rasaif_english": "Kate Chambers Seelye (Columbia, 1920) — PD-plausible; title-page required",
+      "pd_english_known": true
+    },
+    {
+      "rasaif_key": "Al-Itibar - Ibn Munqidh",
+      "work_arabic_title": "كتاب الاعتبار",
+      "work_english_title": "The Book of Contemplation",
+      "author": "Usama ibn Munqidh",
+      "openiti_uri_guess": "0584IbnMunqidhShayzari.Ictibar",
+      "rasaif_english": "Paul M. Cobb, Penguin 2008 — in copyright. Hitti 1929 is a separate edition (US 95-year as of 2025, not PD_US_PRE_1930; EU life+70 may run to 2049)",
+      "pd_english_known": true
+    },
+    {
+      "rasaif_key": "Hayy ibn Yaqzan - Ibn Tufayl",
+      "work_arabic_title": "حي بن يقظان",
+      "work_english_title": "Hayy ibn Yaqzan: A Philosophical Tale",
+      "author": "Ibn Tufayl",
+      "openiti_uri_guess": "0581IbnTufayl.HayyIbnYaqzan",
+      "rasaif_english": "Lenn Evan Goodman — in copyright. Ockley 1708 is the PD edition already in pd_seed",
+      "pd_english_known": true
+    },
+    {
+      "rasaif_key": "Al-Nawadir al-Sultaniyya - Ibn Shaddad",
+      "work_arabic_title": "النوادر السلطانية",
+      "work_english_title": "The Rare and Excellent History of Saladin",
+      "author": "Baha al-Din Ibn Shaddad",
+      "openiti_uri_guess": "0632BahaDinIbnShaddad.NawadirSultaniyya",
+      "rasaif_english": "D.S. Richards 2001 — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Tafrij al-Kurub - Ibn Abi al-Rabi",
+      "work_arabic_title": "تفريج الكروب في تدبير الحروب",
+      "work_english_title": "A Muslim Manual of War",
+      "author": "Ibn Abi al-Rabi",
+      "openiti_uri_guess": null,
+      "rasaif_english": "modern scholarly English — in copyright; no matching OpenITI URI confirmed",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Wafayat al-Ayan - Ibn Khallikan",
+      "work_arabic_title": "وفيات الأعيان",
+      "work_english_title": "Ibn Khallikan's Biographical Dictionary",
+      "author": "Ibn Khallikan",
+      "openiti_uri_guess": "0681IbnKhallikan.WafayatAcyan",
+      "rasaif_english": "de Slane 1842–71 — already in pd_seed as public",
+      "pd_english_known": true
+    },
+    {
+      "rasaif_key": "Nishwar al-Muhadara - al-Tanukhi",
+      "work_arabic_title": "نشوار المحاضرة",
+      "work_english_title": "Table-Talk of a Mesopotamian Judge",
+      "author": "Al-Tanukhi",
+      "openiti_uri_guess": "0384MuhassinTanukhi.NishwarMuhadara",
+      "rasaif_english": "D.S. Margoliouth 1922 — PD-plausible; in the review queue",
+      "pd_english_known": true
+    },
+    {
+      "rasaif_key": "Al-Iqd al-Farid - Ibn Abd Rabbih",
+      "work_arabic_title": "العقد الفريد",
+      "work_english_title": "The Unique Necklace",
+      "author": "Ibn Abd Rabbih",
+      "openiti_uri_guess": "0328IbnCabdRabbih.CiqdFarid",
+      "rasaif_english": "Issa J. Boullata — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Rihla - Ibn Battuta",
+      "work_arabic_title": "رحلة ابن بطوطة",
+      "work_english_title": "The Travels of Ibn Battuta",
+      "author": "Ibn Battuta",
+      "openiti_uri_guess": "0779IbnBattuta.Rihla",
+      "rasaif_english": "H.A.R. Gibb — in copyright. Lee 1829 abridgement is the PD edition already in pd_seed",
+      "pd_english_known": true
+    },
+    {
+      "rasaif_key": "Muqaddima - Ibn Khaldun",
+      "work_arabic_title": "المقدمة",
+      "work_english_title": "The Muqaddimah: An Introduction to History",
+      "author": "Ibn Khaldun",
+      "openiti_uri_guess": "0808IbnKhaldun.Tarikh",
+      "rasaif_english": "Franz Rosenthal 1958 — in copyright forever for our purposes. OpenITI has no separate Muqaddimah URI; the work is the preface to Tarikh",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Futuh ash-Sham - Pseudo-Waqidi",
+      "work_arabic_title": "فتوح الشام",
+      "work_english_title": "The Conquests of Syria",
+      "author": "Pseudo-Waqidi",
+      "openiti_uri_guess": "0207Waqidi.FutuhSham",
+      "rasaif_english": "modern / unattributed English — not treated as PD",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Tarikh al-Tabari - Al-Tabari",
+      "work_arabic_title": "تاريخ الطبري",
+      "work_english_title": "The History of al-Tabari",
+      "author": "Al-Tabari",
+      "openiti_uri_guess": "0310Tabari.Tarikh",
+      "rasaif_english": "SUNY 40-vol series — in copyright; no pre-1930 English of the History",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "al-Dhari'a ila Makarim al-Shari'a - al-Raghib al-Isfahani",
+      "work_arabic_title": "الذريعة إلى مكارم الشريعة",
+      "work_english_title": "The Means to Noble Qualities of the Law",
+      "author": "Al-Raghib al-Isfahani",
+      "openiti_uri_guess": "0502RaghibIsbahani.DharicaFiMakarimSharica",
+      "rasaif_english": "modern scholarly English — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Kitab al-Qiyan - Al-Jahiz",
+      "work_arabic_title": "كتاب القيان",
+      "work_english_title": "The Epistle on Singing-Girls",
+      "author": "Al-Jahiz",
+      "openiti_uri_guess": "0255Jahiz.Qiyan",
+      "rasaif_english": "modern scholarly English — in copyright",
+      "pd_english_known": false
+    },
+    {
+      "rasaif_key": "Rasa'il al-Jahiz - Al-Jahiz",
+      "work_arabic_title": "منتخبات من مجموع رسائل الجاحظ",
+      "work_english_title": "Selections from the Epistles of al-Jahiz",
+      "author": "Al-Jahiz",
+      "openiti_uri_guess": null,
+      "rasaif_english": "anthology, not a single OpenITI work",
+      "pd_english_known": false
+    }
+  ]
+}

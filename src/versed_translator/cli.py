@@ -25,7 +25,12 @@ def harness_main() -> int:
 
 
 def corpus_main() -> int:
-    return _stub_main("versed-corpus", "C6")
+    if "--version" in sys.argv[1:]:
+        print(f"versed-corpus {__version__}")
+        return 0
+    from versed_translator.corpus.inventory import main as inventory_main
+
+    return inventory_main()
 
 
 if __name__ == "__main__":

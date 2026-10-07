@@ -1,0 +1,184 @@
+size_rank,book_uri,title,tok_length,route
+1,1111Majlisi.BiharAnwar,Biḥār al-anwār,10057104,M2_PREPARE
+2,0571IbnCasakir.TarikhDimashq,Tārīḫ madīnaŧ  Dimašq wa ḏikr faḍlihā wa tasmiyaŧ man ḥallahā¶    min al-amāṯil aw iǧtāza bi-nawāḥīhā min wāridīhā wa ahlihā,8153701,M2_PREPARE
+3,1354RashidRida.Manar,Manar,6548503,M2_PREPARE
+4,1450JamicaIslamiyya.MajallaJIMN,Majalla JIMN,5243652,M2_PREPARE
+5,0855BadrDinCayni.CumdatQari,Cumdat Qari,4660539,M2_PREPARE
+6,1266MuhammadHasanNajafiJawahiri.JawahirKalam,Jawahir Kalam,4617320,M2_PREPARE
+7,1371MuhsinAminCamili.AcyanShica,Acyan Shica,4599911,M2_PREPARE
+8,1411SayyidMarcashi.SharhIhqaq,Sharh Ihqaq,4078010,M2_PREPARE
+9,1019NurAllahTustari.IhqaqHaqq,Ihqaq Haqq,3906584,M2_PREPARE
+10,1205MurtadaZabidi.TajCarus,Taj Carus,3882381,M2_PREPARE
+11,1270ShihabDinAlusi.RuhMacani,Ruh Macani,3507726,M2_PREPARE
+12,0748Dhahabi.TarikhIslam,Tarikh Islam,3439277,M2_PREPARE
+13,0923AhmadQastallani.IrshadSari,Iršād al-sārī li-šarḥ Ṣaḥīḥ al-Buḫārī,3381936,M2_PREPARE
+14,0852IbnHajarCasqalani.FathBari,Fath Bari,3285465,M2_PREPARE
+15,1302IbnSalimMajlisi.LawamicDurar,Lawamic Durar,3271706,M2_PREPARE
+16,0804IbnMulaqqin.Tawdih,Tawdih,3239626,M2_PREPARE
+17,1186YusufBahraniMuhaqqiq.HadaiqNadira,Hadaiq Nadira,3194260,M2_PREPARE
+18,1205MurtadaZabidi.IthafSada,Ithaf Sada,3039984,M2_PREPARE
+19,0711IbnManzurIfriqi.LisanCarab,Lisān al-ʿarab,3009681,M2_PREPARE
+20,0606FakhrDinRazi.MafatihGhayb,Mafatih Ghayb,2984949,M2_PREPARE
+21,0728IbnTaymiyya.MajmucFatawa,Majmuc Fatawa,2953576,M2_PREPARE
+22,0880IbnCadilHanbali.LubabFiCulumKitab,Lubab Fi Culum Kitab,2925640,M2_PREPARE
+23,0310Tabari.JamicBayan,Jamic Bayan,2910593,M2_PREPARE
+24,1418MuhammadMutawalliShacrawi.Khawatir,Khawatir,2881780,M2_PREPARE
+25,1393MuhammadTahirIbnCashurTunisi.TahrirWaTanwir,Tahrir Wa Tanwir,2875748,M2_PREPARE
+26,1450MultipleAuthors.KutubArbaca,al-Kutub al-arbaʿaŧ,2737740,M2_PREPARE
+27,1389AghaBuzurgTihrani.DharicaIlaTasanifShica,Dharica Ila Tasanif Shica,2720748,M2_PREPARE
+28,0450AbuHasanMawardi.HawiKabir,Hawi Kabir,2679239,M2_PREPARE
+29,1381SalimHasan.MawsucatMisrQadima,Mawsucat Misr Qadima,2655485,M2_PREPARE
+30,0742Mizzi.TahdhibKamal,Tahḏīb al-kamāl fī asmāʾ al-riǧāl,2580893,M2_PREPARE
+32,1252IbnCabidinDimashqi.RaddMukhtar,Radd Mukhtar,2532766,M2_PREPARE
+33,1450DarIftaMisriyya.JamicAhadith,Jamic Ahadith,2527208,M2_PREPARE
+34,1450MawqicIslam.Fatawa,Fatawa,2527195,M2_PREPARE
+35,1450MultipleAuthors.KutubSitta,al-Kutub al-sittaŧ,2487485,M2_PREPARE
+36,0483IbnAhmadSarakhsi.Mabsut,Mabsut,2474865,M2_PREPARE
+37,1127IsmacilHaqqiBurusawi.RuhBayan,Ruh Bayan,2449174,M2_PREPARE
+38,1332QutbAtfayyish.SharhNilWaShifaCalil,Sharh Nil Wa Shifa Calil,2445087,M2_PREPARE
+39,1118CabdHamidShirwani.HashiyaCalaTuhfatMuhtaj,Ḥawāšī al-Širwānī,2429446,M2_PREPARE
+40,1104IbnHasanHurrCamili.WasailShica,Wasail Shica,2401270,M2_PREPARE
+41,0711IbnManzurIfriqi.MukhtasarTarikhDimashq,Muḫtaṣar Tārīḫ Dimašq li-Ibn ʿAsākir,2397316,M2_PREPARE
+42,0654SibtIbnJawzi.MiratZaman,Mirʾāŧ al-zamān,2391632,M2_PREPARE
+43,1423CabbasAhmadSaqr.JamicAhadith,Jamic Ahadith,2345718,M2_PREPARE
+45,0855BadrDinCayni.BinayaSharhHidaya,Binaya Sharh Hidaya,2319518,M2_PREPARE
+47,1402SayyidTabatabai.TafsirMizan,Tafsir Mizan,2271633,M2_PREPARE
+48,1413TajDinKhui.MucjamRijal,Mucjam Rijal,2254440,M2_PREPARE
+50,1450NasirMakarimShirazi.AmthalFiTafsir,Amthal Fi Tafsir,2212620,M2_PREPARE
+51,0774IbnKathir.Bidaya,al-Bidāyaŧ wa-al-nihāyaŧ,2193224,M2_PREPARE
+52,0950MuhyiDinShaykhZada.HashiyaCalaTafsirBaydawi,Hashiya Cala Tafsir Baydawi,2192649,M2_PREPARE
+53,0748Dhahabi.SiyarAclamNubala,Siyar aʿlām al-nubalāʾ,2186412,M2_PREPARE
+54,0710IbnRifca.Kifaya,Kifāyaŧ al-nabīh šarḥ al-Tanbīh fī fiqh al-Imām al-¶    Šāfiʿī,2154248,M2_PREPARE
+56,0743SharafDinTibi.FutuhGhayb,Futuh Ghayb,2086538,M2_PREPARE
+57,0861IbnHumam.FathQadir,Fath Qadir,2078691,M2_PREPARE
+58,0745AbuHayyanGharnati.TafsirBahrMuhit,Tafsir Bahr Muhit,2078240,M2_PREPARE
+59,1014MullaCaliQari.MirqatMafatih,Mirqat Mafatih,2075237,M2_PREPARE
+60,0855BadrDinCayni.NukhabAfkar,Nukhab Afkar,2068950,M2_PREPARE
+61,1069ShihabDinKhafaji.HashiyaCalaTafsirBaydawi,Hashiya Cala Tafsir Baydawi,2046742,M2_PREPARE
+63,1420IbnBaz.MajmucFatawa,Majmuc Fatawa,1991251,M2_PREPARE
+64,1421MuhammadCuthaymin.MajmucFatawa,Majmuc Fatawa,1985622,M2_PREPARE
+65,0975MuttaqiHindi.KanzCummal,Kanz Cummal,1983747,M2_PREPARE
+67,1204SulaymanJamal.Hashiya,Hashiya,1946965,M2_PREPARE
+68,1450LajnaDaima.Fatawa,Fatawa,1945870,M2_PREPARE
+69,1372KurdCali.MajallatMuqtabas,Majallat Muqtabas,1938715,M2_PREPARE
+70,0671AbuCabdAllahQurtubi.JamicLiAhkamQuran,Jamic Li Ahkam Quran,1926822,M2_PREPARE
+71,0852IbnHajarCasqalani.IthafMahara,Ithaf Mahara,1911859,M2_PREPARE
+72,0616BurhanDinBukhari.MuhitBurhani,Muhit Burhani,1910249,M2_PREPARE
+73,1411MuhammadTahirBarnaji.SahihWaDacifTarikhTabari,Sahih Wa Dacif Tarikh Tabari,1901148,M2_PREPARE
+74,1332QutbAtfayyish.HamayanZad,Hamayan Zad,1900953,M2_PREPARE
+75,1450DarIftaMisriyya.FatawaDarIfta,Fatawa Dar Ifta,1897462,M2_PREPARE
+76,0463KhatibBaghdadi.TarikhBaghdad,Tārīḫ Madīnat al-Salām,1868062,M2_PREPARE
+77,1346KhalilAhmadSaharanpuri.BadhlMajhud,Badhl Majhud,1859350,M2_PREPARE
+78,1081MuhammadSalihMazandarani.SharhUsulKafi,Sharh Usul Kafi,1850874,M2_PREPARE
+79,0885BurhanDinBiqaci.NazmDurar,Nazm Durar,1839323,M2_PREPARE
+80,0638IbnCarabi.FutuhatMakkiyya,Futuhat Makkiyya,1827122,M2_PREPARE
+81,1099CabdBaqiZurqani.SharhCalaMukhtasarKhalil,Sharh Cala Mukhtasar Khalil,1815279,M2_PREPARE
+82,0911Suyuti.JamicKabir,Jamic Kabir,1793200,M2_PREPARE
+83,1408JawadCali.MufassalFiTarikhCarab,Mufassal Fi Tarikh Carab,1749794,M2_PREPARE
+84,0620IbnQudamaMaqdisi.Mughni,Mughni,1747737,M2_PREPARE
+85,1090NizamDinBalkhi.FatawaHindiyya,Fatawa Hindiyya,1719924,M2_PREPARE
+86,0942IbnYusufShami.SubulHuda,Subul Huda,1717688,M2_PREPARE
+87,1431MuhammadHusaynFadlAllah.TafsirMinWahyQuran,Tafsir Min Wahy Quran,1702016,M2_PREPARE
+88,0386IbnAbiZaydQayrawani.NawadirWaZiyadat,Nawadir Wa Ziyadat,1682988,M2_PREPARE
+89,0911Suyuti.DurrManthur,Durr Manthur,1654267,M2_PREPARE
+90,1431MuhammadSayyidTantawi.TafsirWasit,Tafsir Wasit,1649886,M2_PREPARE
+91,0682CabdRahmanIbnQudama.SharhKabir,Sharh Kabir,1648111,M2_PREPARE
+92,1204SulaymanJamal.FutuhatIlahiyya,Futuhat Ilahiyya,1629588,M2_PREPARE
+93,0965ShahidThani.MasalikAfham,Masālik al-afhām ilá tanqīḥ šarāʾiʿ al-islām,1620342,M2_PREPARE
+94,0241IbnHanbal.Musnad,Musnad,1615923,M2_PREPARE
+95,1031CabdRaufMunawi.FaydQadir,Fayd Qadir,1611559,M2_PREPARE
+96,0914IbnYahyaWansharisi.Micyar,Micyar,1598496,M2_PREPARE
+98,1421MuhammadCuthaymin.FatawaNurCalaDarb,Fatawa Nur Cala Darb,1563644,M2_PREPARE
+100,1420IbnBaz.FatawaNurCalaDarb,Fatawa Nur Cala Darb,1549982,M2_PREPARE
+102,0362AbuFarajIsbahani.Aghani,Aghani,1527290,M2_PREPARE
+103,1366AnastasKarmali.MajallatLughatCarab,Majallat Lughat Carab,1525266,M2_PREPARE
+104,0494HakimJushami.TahdhibFiTafsir,Tahdhib Fi Tafsir,1506038,M2_PREPARE
+105,1307Qannawji.FathBayan,Fath Bayan,1499987,M2_PREPARE
+106,0893IbnIsmacilShihabDinKurani.KawtharJari,Kawthar Jari,1495199,M2_PREPARE
+107,1332QutbAtfayyish.TaysirTafsir,Taysir Tafsir,1493489,M2_PREPARE
+108,1225ThanaAllahPanipati.TafsirMazhari,Tafsir Mazhari,1487578,M2_PREPARE
+110,1405CaliShahrudi.MustadrakSafinatBihar,Mustadrak Safinat Bihar,1478424,M2_PREPARE
+111,0954HattabRucayniMaghribi.MawahibJalil,Mawahib Jalil,1459429,M2_PREPARE
+112,1332QutbAtfayyish.Tafsir,Tafsir,1457919,M2_PREPARE
+114,0310Tabari.Tarikh,Tārīḫ al-Ṭabarī,1449128,M2_PREPARE
+115,1450Milani.NafahatAzhar,Nafahat Azhar,1446544,M2_PREPARE
+117,1320NuriTabarsi.MustadrakWasail,Mustadrak al-wasāʾil wa mustanbaṭ al-masāʾil,1431425,M2_PREPARE
+120,1450CulamaNajd.DurarSaniyya,Durar Saniyya,1418464,M2_PREPARE
+121,1221IbnMuhammadBujayrimiMisri.TajridLiNafcCabid,Tajrid Li Nafc Cabid,1417570,M2_PREPARE
+123,1299MuhammadCulayshMaliki.MinahJalil,Minah Jalil,1406802,M2_PREPARE
+125,0742Mizzi.TuhfatAshraf,Tuhfat Ashraf,1391236,M2_PREPARE
+126,0333AbuMansurMaturidi.Tafsir,Tafsir,1385836,M2_PREPARE
+128,1389AghaBuzurgTihrani.TabaqatAclamShica,Ṭabaqāt aʿlām al-šīʿaŧ,1377246,M2_PREPARE
+130,1090KhamisShiqsi.MinhajTalibin,Minhaj Talibin,1366227,M2_PREPARE
+131,1353IbnCabdRahimMubarakfuri.TuhfatAhwadhi,Tuhfat Ahwadhi,1360045,M2_PREPARE
+132,1255Shawkani.FathQadir,Fath Qadir,1359490,M2_PREPARE
+134,0370AbuMansurAzhari.TahdhibLugha,Tahdhib Lugha,1352464,M2_PREPARE
+136,0676Nawawi.Majmuc,Majmuc,1342569,M2_PREPARE
+137,0902Sakhawi.DawLamic,Daw Lamic,1326671,M2_PREPARE
+138,1377MuhammadKhidrHusayn.AcmalKamila,Acmal Kamila,1323155,M2_PREPARE
+140,0468IbnAhmadWahidiNaysaburi.TafsirBasit,Tafsir Basit,1320621,M2_PREPARE
+141,0970IbnIbrahimIbnNujaymMisri.BahrRaiq,Bahr Raiq,1315334,M2_PREPARE
+142,0926ZakariyyaAnsari.MinhatBari,Minhat Bari,1311460,M2_PREPARE
+143,0852IbnHajarCasqalani.TahdhibTahdhib,Tahḏīb al-tahḏīb,1309793,M2_PREPARE
+144,1244AhmadNaraqi.MustanadShica,Mustanad Shica,1308885,M2_PREPARE
+145,1371AhmadMustafaMaraghi.Tafsir,Tafsir,1306873,M2_PREPARE
+148,0474IbnKhalafBaji.MuntaqaSharhMuwatta,al-Muntaqá šarḥ Muwaṭṭaʾ,1298626,M2_PREPARE
+149,1393MuhammadAminShanqiti.AdwaBayan,Adwa Bayan,1287706,M2_PREPARE
+151,1115IshaqIbnMuhammadCabdi.Ihtiras,Ihtiras,1281662,M2_PREPARE
+152,1231SayyidCaliTabatabai.RiyadMasail,Riyad Masail,1281603,M2_PREPARE
+154,0977KhatibShirbini.SirajMunir,Siraj Munir,1266357,M2_PREPARE
+155,0993MuhaqqiqArdabili.MajmacFaida,Majmac Faida,1260641,M2_PREPARE
+156,1182IbnIsmacilSancani.Tanwir,Tanwir,1257336,M2_PREPARE
+157,1225IbnNasirNajdi.FawakihCidhab,Fawakih Cidhab,1252234,M2_PREPARE
+158,1332IbnMuhammadJamalDinQasimi.MahasinTawil,Mahasin Tawil,1251283,M2_PREPARE
+159,0656IbnAbiHadid.SharhNahjBalagha,Sharh Nahj Balagha,1246630,M2_PREPARE
+161,1450CabdKarimKhudayr.SharhMuwattaMalik,Sharh Muwatta Malik,1226625,M2_PREPARE
+162,1390CabdHusaynAmini.Ghadir,Ghadir,1220937,M2_PREPARE
+163,1052CabdHaqqDihlawi.LumcatTanqih,Lumcat Tanqih,1219375,M2_PREPARE
+164,0684ShihabDinQarafi.Dhakhira,Dhakhira,1216832,M2_PREPARE
+165,1396KhayrDinZirikli.Aclam,al-Aʿlām,1197616,M2_PREPARE
+166,0204Shafici.Umm,Umm,1188658,M2_PREPARE
+167,0861IbnHumam.SharhFathQadir,Sharh Fath Qadir,1184275,M2_PREPARE
+169,0977KhatibShirbini.MughniMuhtaj,Muġnī al-Muḥtāǧ ilá maʿrifaŧ maʿānī alfāẓ al-minhāǧ,1178169,M2_PREPARE
+171,1230IbnAhmadDasuqi.HashiyatCalaSharhKabir,Hashiyat Cala Sharh Kabir,1172693,M2_PREPARE
+177,1137FadilHindi.KashfLitham,Kashf Litham,1154898,M2_PREPARE
+179,0748Dhahabi.Muhadhdhab,Muhadhdhab,1144150,M2_PREPARE
+180,0660IbnCadim.BughyatTalab,Buġyaŧ al-ṭalab fī tārīḫ Ḥalab,1140881,M2_PREPARE
+182,1255Shawkani.NaylAwtar,Nayl Awtar,1139057,M2_PREPARE
+184,0926ZakariyyaAnsari.AsnaMatalib,Asna Matalib,1138008,M2_PREPARE
+186,1329MuhammadAshrafCazimabadi.CawnMacbud,Cawn Macbud,1133559,M2_PREPARE
+188,0874IbnTaghribirdi.NujumZahira,al-Nuǧūm al-zāhiraŧ fī mulūk Miṣr wa-l-Qāhiraŧ,1122603,M2_PREPARE
+192,1224IbnCajiba.BahrMadid,Bahr Madid,1104700,M2_PREPARE
+194,1051IbnYunusBuhutiHanbali.KashshafQinac,Kashshaf Qinac,1101024,M2_PREPARE
+195,0885CalaDinMardawi.Insaf,Insaf,1097256,M2_PREPARE
+196,0852IbnHajarCasqalani.IsabaFiTamyiz,al-Iṣābaŧ fī tamyīz al-ṣaḥābaŧ,1085763,M2_PREPARE
+197,1050SadrDinShirazi.HikmaMutacaliya,Hikma Mutacaliya,1081327,M2_PREPARE
+199,0676Nawawi.RawdatTalibin,Rawdat Talibin,1075230,M2_PREPARE
+200,1226MuhammadJawadCamili.MiftahKarama,Miftah Karama,1074234,M2_PREPARE
+202,0743SharafDinTibi.SharhMishkat,Sharh Mishkat,1068733,M2_PREPARE
+203,0982IbnMuhammadAbuSucud.IrshadCaqlSalim,Irshad Caql Salim,1067887,M2_PREPARE
+206,1243IbnSacdRahyabaniSuyuti.MatalibUliNuha,Matalib Uli Nuha,1056499,M2_PREPARE
+210,1300ReinhartDozy.TakmilatMacajimCarabiyya,Takmilat Macajim Carabiyya,1031871,M2_PREPARE
+211,0974IbnHajarHaytami.TuhfatMuhtaj,Tuhfat Muhtaj,1028179,M2_PREPARE
+212,0458IbnSidaMursi.MuhkamWaMuhit,Muhkam Wa Muhit,1024053,M2_PREPARE
+213,1112IbnJumcaHuwayzi.TafsirNurThaqalayn,Tafsir Nur Thaqalayn,1018172,M2_PREPARE
+214,1408CumarKahhala.MucjamMuallifin,Mucjam Muallifin,1011890,M2_PREPARE
+215,1363CabdRahmanBarquqi.MajallatBayan,Majallat Bayan,1011571,M2_PREPARE
+216,1004ShamsDinRamli.NihayatMuhtaj,Nihayat Muhtaj,1009561,M2_PREPARE
+217,0626YaqutHamawi.MucjamBuldan,Muʿǧam al-Buldān,997008,M2_PREPARE
+219,0478AbuHasanLakhmi.Tabsira,Tabsira,985358,M2_PREPARE
+220,1062CabdAllahSharafi.MasabihSatica,Masabih Satica,985217,M2_PREPARE
+221,0940IbnHusaynMuhaqqiqThaniKaraki.JamicMaqasid,Jamic Maqasid,984396,M2_PREPARE
+222,1093CabdQadirBaghdadi.KhizanatAdab,Khizanat Adab,975913,M2_PREPARE
+223,1405CaliShahrudi.Mustadrakat,Mustadrakat,973084,M2_PREPARE
+224,1370MuhammadRaghibTabbakh.IclamNubala,Iclam Nubala,971865,M2_PREPARE
+227,0900Anonymous.SiratBaybars,Sirat Baybars,960968,M2_PREPARE
+229,1221IbnMuhammadBujayrimiMisri.TuhfatHabib,Tuhfat Habib,947225,M2_PREPARE
+230,1359FarajAllahZakiKurdi.MajmucatFatawaIbnTaymiyya,Majmucat Fatawa Ibn Taymiyya,947167,M2_PREPARE
+231,0656AbuCabbasAnsariQurtubi.Mufhim,Mufhim,940219,M2_PREPARE
+237,1450Maghrawi.MawsucatMawaqifSalaf,Mawsucat Mawaqif Salaf,929880,M2_PREPARE
+241,1061NajmDinGhazzi.HusnTanabbuh,Husn Tanabbuh,913170,M2_PREPARE
+243,1101IbnCabdAllahKharshi.SharhMukhtasarSayyidiKhalil,Sharh Mukhtasar Sayyidi Khalil,907583,M2_PREPARE
+244,1450HusamDinMusaCaffana.Fatawa,Fatawa,906856,M2_PREPARE
+245,0988FathAllahKashani.ZubdatTafasir,Zubdat Tafasir,902852,M2_PREPARE
+246,0458IbnSidaMursi.Mukhassas,Mukhassas,901801,M2_PREPARE
